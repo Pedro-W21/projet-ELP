@@ -39,10 +39,14 @@ func client() {
 	fmt.Println("Connexion établie avec le serveur sur le port ", port)
 
 	//création de demandes à l'utilisateur pour récoter les données
-	var chemin string
+	var chemin, filtre string
 	reader := bufio.NewReader(os.Stdin)
 	chemin = requete("Entrez le chemin de l'image", reader)
 	chemin = strings.TrimSpace(chemin)
+
+	// FAIRE FILTRE !!!!!!
+	filtre = requete("Entrez le filtre que vous voulez appliquer à l'image", reader)
+	filtre = strings.TrimSpace(filtre)
 
 	// aller à l'emplacement de l'image, lire les données et les récupérer sous forme de pixels entier 32 bits
 	fichier, err := os.Open(chemin)           //on ouvre l'image
@@ -65,6 +69,7 @@ func client() {
 	var hauteur uint = uint(haut)
 	var longueur uint = uint(long)
 
+	//à effacer
 	//fmt.Printf("l'image est de hauteur: %d et longueur: %d", hauteur, longueur)
 
 	//crée le struct à envoyer
@@ -96,4 +101,5 @@ func client() {
 	}
 
 	//code pour recevoir des données du serveur
+	
 }
