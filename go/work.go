@@ -24,7 +24,7 @@ func Work(input chan Input, output chan Output) {
 		var x, y uint
 		for y = pb.y_min; y < pb.y_max; y++ {
 			for x = 0; x < pb.image.longueur; x++ {
-				work.data[y*work.longueur+x] = pb.filter.GetPixel(x, y, pb.image)
+				work.PutAt(x, y, pb.filter.GetPixel(x, y, pb.image))
 			}
 		}
 		output <- Output{work, pb.y_min, pb.y_max}
