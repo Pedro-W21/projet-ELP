@@ -2,14 +2,18 @@ package main
 
 import (
 	"bufio"
+	"encoding/gob"
 	"fmt"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
+	"net"
 	"os"
+	"strings"
 )
 
+// fonction pour demander une data à l'utilisateur
 func requete(chaine string, reader io.Reader) string {
 	bufReader := reader.(*bufio.Reader) // Conversion de reader io.Reader en *bufio.Reader
 	fmt.Print(chaine + " : \n")
@@ -17,35 +21,32 @@ func requete(chaine string, reader io.Reader) string {
 	return nom
 }
 
+// fonction principale
 func client() {
-	/*
+	//connexion au serveur
+	var port int
+	fmt.Print("Saisissez le port sur lequel vous voulez communiquer avec le serveur : \n")
+	fmt.Scanln(&port)
+	address := fmt.Sprintf("localhost:%d", port)
+	conn, err := net.Dial("tcp", address)
 
-		//connexion au serveur
-		var port int
-		fmt.Print("Saisissez le port sur lequel vous voulez communiquer avec le serveur : \n")
-		fmt.Scanln(&port)
-		address := fmt.Sprintf("localhost:%d", port)
-		conn, err := net.Dial("tcp", address)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 
-		if err != nil {
-			fmt.Println("Error:", err)
-			return
-		}
-
-		defer conn.Close() //pour être sûr que la connexion va se fermer
-		fmt.Println("Connexion établie avec le serveur sur le port ", port)
-	*/
+	defer conn.Close() //pour être sûr que la connexion va se fermer
+	fmt.Println("Connexion établie avec le serveur sur le port ", port)
 
 	//création de demandes à l'utilisateur pour récoter les données
 	var chemin string
-
 	reader := bufio.NewReader(os.Stdin)
 	chemin = requete("Entrez le chemin de l'image", reader)
-	fmt.Printf(chemin)
+	chemin = strings.TrimSpace(chemin)
 
 	// aller à l'emplacement de l'image, lire les données et les récupérer sous forme de pixels entier 32 bits
-	fichier, err := os.Open(chemin) //on ouvre l'image
-	img, format, err := image.Decode(fichier)
+	fichier, err := os.Open(chemin)           //on ouvre l'image
+	img, format, err := image.Decode(fichier) //le decode
 
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -56,10 +57,14 @@ func client() {
 		return
 	}
 
+	//récupère la taille
 	bound := img.Bounds()
-	var hauteur, longueur int
-	hauteur = bound.Max.Y - bound.Min.Y
-	longueur = bound.Max.X - bound.Min.X
+	var haut, long int
+	haut = bound.Max.Y - bound.Min.Y
+	long = bound.Max.X - bound.Min.X
+	var hauteur uint = uint(haut)
+	var longueur uint = uint(long)
+
 	fmt.Printf("l'image est de hauteur: %d et longueur: %d", hauteur, longueur)
 	for i := bound.Max.X / 2; i < (bound.Max.X+10)/2; i++ {
 		for j := bound.Max.Y / 2; j < (bound.Max.Y+10)/2; j++ {
@@ -68,15 +73,34 @@ func client() {
 			fmt.Printf("Couleur du pixel (%d, %d) - R: %d, G: %d, B: %d, A: %d\n", i, j, r/256, g/256, b/256, a/256)
 		}
 	}
+
+	//crée le struct à envoyer
+	structCouleur := []Color{}
+	for i := bound.Min.X; i <= bound.Max.X; i++ {
+		for j := bound.Min.Y; j <= bound.Max.Y; j++ {
+			pixel := img.At(i, j)
+			r, g, b, a := pixel.RGBA()
+			//ici convertir type de uint32 en uint8
+			var R uint8 = uint8(r / 256)
+			var G uint8 = uint8(g / 256)
+			var B uint8 = uint8(b / 256)
+			sousStructCouleur := Color{R, G, B}
+			structCouleur = append(structCouleur, sousStructCouleur)
+		}
+	}
+	structImage := Image{structCouleur, longueur, hauteur}
+	structFiltre := Filter{GetPixel(,,structImage)} // x et y ???
+	structAenvoyer := ClientRequest{1, structImage, structFiltre} //le request_id à changer (la 1e variable)
+
+	//crée un nouveau encodeur pour envoyer
+	nouveauEncodeur := gob.NewEncoder(conn)
+	aEnvoyer := nouveauEncodeur.Encode(structAenvoyer)
+	//code pour envoyer les données
+	_, err := conn.Write([]byte(aEnvoyer))
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	//code pour recevoir des données du serveur
 }
-
-//envoi des données EN FORMAT JSON
-
-/*code pour envoyer les données
-_, err := conn.Write([]byte(json))
-
-if err != nil {
-	fmt.Println("Error:", err)
-	return
-}
-*/
