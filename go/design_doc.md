@@ -35,19 +35,14 @@ puis on pourra extraire le filtre avec un switch case sur "filter_name"
 ### Le serveur
 
 - le serveur écoute sur son port TCP puis établit les connections de clients
-- il décode les requêtes entrantes puis envoie ça à un thread ordonnanceur
-- reçoit les réponses calculées aux requêtes depuis le thread ordonnanceur puise encode ça et envoie à l'utilisateur
+- il décode les requêtes entrantes puis envoie ça dans des goroutines qui gèrent les requêtes client
 
-#### Le thread ordonnanceur 
-- a des canaux de communications vers et depuis tous les thread de travail, et un état associé à chaque thread de travail
-- reçoit les requêtes décodées du thread d'écoute et les stocke dans une pile FIFO
-- compte le nombre de threads de travail libres N puis leur envoie la requête prioritaire (premier élément de la pile, le plus vieux) configurée pour travailler sur N threads en parallèle
-    - stocke au passage une "image finale" qui est mise à jour avec le retour des thread de calcul
-    - met à jour l'état du thread de travail à "travail"
-- attend de recevoir des réponses à ses calculs pour les mettre en commun ET attend de recevoir les requêtes décodées du thread d'écoute
-    - si il recçoit une réponse de calcul, met à jour l'état du thread de travail correspondant 
-- une fois un calcul fini
+#### Le thread qui gère la requête client
 
+- a une connection TCP vers son client associé
+- spawn N={nombre de coeurs} goroutines de travail avec un channel input et output
+- envoie le travail divisé en N dans le channel input
+- attend de recevoir et de rassembler l'image finale puis l'envoie au client
 
 #### Les thread de travail
 
