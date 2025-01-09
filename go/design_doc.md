@@ -46,7 +46,7 @@ puis on pourra extraire le filtre avec un switch case sur "filter_name"
     - met à jour l'état du thread de travail à "travail"
 - attend de recevoir des réponses à ses calculs pour les mettre en commun ET attend de recevoir les requêtes décodées du thread d'écoute
     - si il recçoit une réponse de calcul, met à jour l'état du thread de travail correspondant 
-- une fois un calcul fini
+- une fois un calcul fini, il envoie au thread TCP les données pour les encoder et les envoyer
 
 
 #### Les thread de travail
