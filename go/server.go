@@ -12,17 +12,14 @@ type ClientData struct {
 }
 
 type ClientRequest struct {
-	request_id      uint
-	raw_request     string
-	image           Image
-	filter_name     string
-	raw_filter_data Filter
+	request_id  uint
+	image       Image
+	filter_data Filter
 }
 
 type TCPServer struct {
-	listener       net.TCPListener
+	listener       net.Listener
 	last_client_id uint
-	connections    []ClientData
 }
 
 type ClientRequestResponse struct {
@@ -33,4 +30,12 @@ type ClientRequestResponse struct {
 type TCPServerSenderThread struct {
 	client_data           ClientData
 	finished_work_channel chan ClientRequestResponse
+}
+
+func MakeTCPServer(ip_and_port string) (TCPServer, error) {
+	listener, err := net.Listen("tcp", ip_and_port)
+	if err != nil {
+		return TCPServer{listener, 0}, nil
+	}
+	return TCPServer{listener, 0}, err
 }
