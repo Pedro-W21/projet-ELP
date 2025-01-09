@@ -48,23 +48,25 @@ func HandleClient(connection net.Conn) {
 	client := ClientData{connection, *gob.NewDecoder(connection), 0, make(map[uint]ClientRequestResponse)}
 	defer client.connection.Close()
 	val := &ClientRequest{}
+	total_cpu := runtime.NumCPU()
 	for {
 		result := client.decoder.Decode(val)
 		if result != nil {
 			input := make(chan Input)
 			output := make(chan Output)
-			for i := 0; i < runtime.NumCPU(); i++ {
-				go work(input, output)
+			for i := 0; i < total_cpu; i++ {
+				go Work(input, output)
 			}
-			for i := 0; i < runtime.NumCPU(); i++ {
-
+			for i := 0; i < total_cpu; i++ {
+				input <- Input{val.image, val.filter_data, uint(i * (int(val.image.hauteur) / total_cpu)), uint((i + 1) * (int(val.image.hauteur) / total_cpu)), false}
 			}
 			final := ClientRequestResponse{final_image: MakeImage(val.image.longueur, val.image.hauteur, Color{0, 0, 0})}
-			for i := 0; i < runtime.NumCPU(); i++ {
+			for i := 0; i < total_cpu; i++ {
 				partiel := <-output
-				partiel.
-					input <- Input{}
+				final.final_image.CopyStripesFrom(partiel.image, partiel.y_min, partiel.y_max)
+				input <- Input{fin: true}
 			}
+			val = &ClientRequest{}
 		}
 	}
 }

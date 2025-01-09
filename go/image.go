@@ -29,3 +29,11 @@ func MakeImage(longueur uint, hauteur uint, default_color Color) Image {
 	}
 	return i
 }
+
+func (i Image) CopyStripesFrom(other Image, start_y uint, end_y uint) {
+	for y := start_y; y < end_y; y++ {
+		for x := 0; uint(x) < i.longueur; x++ {
+			i.PutAt(uint(x), y, other.GetAt(uint(x), y))
+		}
+	}
+}
