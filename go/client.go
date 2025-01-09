@@ -65,14 +65,7 @@ func client() {
 	var hauteur uint = uint(haut)
 	var longueur uint = uint(long)
 
-	fmt.Printf("l'image est de hauteur: %d et longueur: %d", hauteur, longueur)
-	for i := bound.Max.X / 2; i < (bound.Max.X+10)/2; i++ {
-		for j := bound.Max.Y / 2; j < (bound.Max.Y+10)/2; j++ {
-			pixel := img.At(i, j)
-			r, g, b, a := pixel.RGBA()
-			fmt.Printf("Couleur du pixel (%d, %d) - R: %d, G: %d, B: %d, A: %d\n", i, j, r/256, g/256, b/256, a/256)
-		}
-	}
+	//fmt.Printf("l'image est de hauteur: %d et longueur: %d", hauteur, longueur)
 
 	//crée le struct à envoyer
 	structCouleur := []Color{}
