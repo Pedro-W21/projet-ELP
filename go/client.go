@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"os"
 )
@@ -39,10 +41,12 @@ func client() {
 
 	reader := bufio.NewReader(os.Stdin)
 	chemin = requete("Entrez le chemin de l'image", reader)
+	fmt.Printf(chemin)
 
 	// aller à l'emplacement de l'image, lire les données et les récupérer sous forme de pixels entier 32 bits
 	fichier, err := os.Open(chemin) //on ouvre l'image
 	img, format, err := image.Decode(fichier)
+
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -57,11 +61,11 @@ func client() {
 	hauteur = bound.Max.Y - bound.Min.Y
 	longueur = bound.Max.X - bound.Min.X
 	fmt.Printf("l'image est de hauteur: %d et longueur: %d", hauteur, longueur)
-	for i := bound.Min.X; i < bound.Min.Y+10; i++ {
-		for j := bound.Min.Y; j < bound.Min.X+10; j++ {
+	for i := bound.Max.X / 2; i < (bound.Max.X+10)/2; i++ {
+		for j := bound.Max.Y / 2; j < (bound.Max.Y+10)/2; j++ {
 			pixel := img.At(i, j)
 			r, g, b, a := pixel.RGBA()
-			fmt.Printf("Couleur du pixel (%d, %d) - R: %d, G: %d, B: %d, A: %d\n", i, j, r/255, g/255, b/255, a/255)
+			fmt.Printf("Couleur du pixel (%d, %d) - R: %d, G: %d, B: %d, A: %d\n", i, j, r/256, g/256, b/256, a/256)
 		}
 	}
 }
