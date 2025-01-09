@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"net"
 	"runtime"
@@ -8,6 +9,7 @@ import (
 
 type ClientData struct {
 	connection         net.Conn
+	decoder            gob.Decoder
 	last_request_id    uint
 	requests_in_flight map[uint]ClientRequestResponse
 }
@@ -25,6 +27,7 @@ type TCPServer struct {
 
 type ClientRequestResponse struct {
 	final_image         Image
+	input               chan Input
 	waiting_for_threads uint
 }
 
@@ -42,15 +45,28 @@ func MakeTCPServer(ip_and_port string) (TCPServer, error) {
 }
 
 func HandleClient(connection net.Conn) {
-	client := ClientData{connection, 0, make(map[uint]ClientRequestResponse)}
+	client := ClientData{connection, *gob.NewDecoder(connection), 0, make(map[uint]ClientRequestResponse)}
 	defer client.connection.Close()
+	val := &ClientRequest{}
 	for {
+		result := client.decoder.Decode(val)
+		if result != nil {
+			input := make(chan Input)
+			output := make(chan Output)
+			for i := 0; i < runtime.NumCPU(); i++ {
+				go work(input, output)
+			}
+			for i := 0; i < runtime.NumCPU(); i++ {
 
+			}
+			final := ClientRequestResponse{final_image: MakeImage(val.image.longueur, val.image.hauteur, Color{0, 0, 0})}
+			for i := 0; i < runtime.NumCPU(); i++ {
+				partiel := <-output
+				partiel.
+					input <- Input{}
+			}
+		}
 	}
-}
-
-func DecodeJSONRequest(request string) ClientRequest {
-
 }
 
 func InitResponseFromRequest(request ClientRequest) ClientRequestResponse {
