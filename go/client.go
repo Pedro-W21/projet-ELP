@@ -24,6 +24,56 @@ func requete(chaine string, reader io.Reader) string {
 	return nom
 }
 
+// fonction pour traiter les data reçus en parallèle d'écouter le canal
+func traitement(recu ClientRequestResponse, longueur uint, hauteur uint, bound image.Rectangle) {
+	fmt.Print("données reçue du serveur!")
+
+	//pour recréer l'image
+	imageFinale := Image{recu.final_image.data, longueur, hauteur}
+	RESULTAT := image.NewRGBA(image.Rect(bound.Min.X, bound.Min.Y, bound.Max.X, bound.Max.Y))
+	for i := bound.Min.X; i <= bound.Max.X; i++ {
+		for j := bound.Min.Y; j <= bound.Max.Y; j++ {
+			//pour trouver le curseur dans liste de couleur
+			var longueurTot int
+			longueurTot = int(imageFinale.longueur)
+			index := j*longueurTot + i
+
+			//pour déterminer les couleurs rgb dans la liste à l'index donné
+			r := imageFinale.data[index].r
+			g := imageFinale.data[index].g
+			b := imageFinale.data[index].b
+
+			// convertissage de uint8 en uint32 pour pouvoir faire le calcul avec 256
+			R := uint32(r) / 256
+			G := uint32(g) / 256
+			B := uint32(b) / 256
+
+			// enfin, on reconvertit le résultat en uint8 pour l'installer dans l'image finale
+			var red uint8 = uint8(R)
+			var green uint8 = uint8(G)
+			var blue uint8 = uint8(B)
+			var A uint8 = 255
+			RESULTAT.Set(i, j, color.RGBA{red, green, blue, A})
+		}
+	}
+
+	//pour enregistrer l'image
+	file, err := os.Create("resultat.png")
+	if err != nil {
+		fmt.Println("Erreur lors de la création du fichier résultat : ", err)
+		return
+	}
+	defer file.Close()
+
+	ERREUR := png.Encode(file, RESULTAT)
+	if ERREUR != nil {
+		fmt.Println("Erreur lors de l'encodage de l'image résultat :", ERREUR)
+		return
+	}
+
+	fmt.Println("Image enregistrée sous le nom 'resultat.png'.")
+}
+
 // fonction principale
 func client() {
 	//connexion au serveur
@@ -124,59 +174,20 @@ func client() {
 	}
 	fmt.Println("Les données ont été envoyées avec succès!:", erreur)
 
-	//code pour recevoir des données du serveur
-	decoder := gob.NewDecoder(conn)
-	var recu ClientRequestResponse //variable pour stocker l'image
-	er := decoder.Decode(&recu)
-	if er != nil {
-		fmt.Println("Erreur lors du décodage:", er)
-		return
-	}
-	//pour recréer l'image
-	imageFinale := Image{recu.final_image.data, longueur, hauteur}
-	RESULTAT := image.NewRGBA(image.Rect(bound.Min.X, bound.Min.Y, bound.Max.X, bound.Max.Y))
-	for i := bound.Min.X; i <= bound.Max.X; i++ {
-		for j := bound.Min.Y; j <= bound.Max.Y; j++ {
-			//pour trouver le curseur dans liste de couleur
-			var longueurTot int
-			longueurTot = int(imageFinale.longueur)
-			index := j*longueurTot + i
+	//code pour attendre et écouter sur le port (?)
 
-			//pour déterminer les couleurs rgb dans la liste à l'index donné
-			r := imageFinale.data[index].r
-			g := imageFinale.data[index].g
-			b := imageFinale.data[index].b
-
-			// convertissage de uint8 en uint32 pour pouvoir faire le calcul avec 256
-			R := uint32(r) / 256
-			G := uint32(g) / 256
-			B := uint32(b) / 256
-
-			// enfin, on reconvertit le résultat en uint8 pour l'installer dans l'image finale
-			var red uint8 = uint8(R)
-			var green uint8 = uint8(G)
-			var blue uint8 = uint8(B)
-			var A uint8 = 255
-			RESULTAT.Set(i, j, color.RGBA{red, green, blue, A})
+	//boucle continue pour écouter le canal
+	for {
+		decoder := gob.NewDecoder(conn)
+		var recu ClientRequestResponse //variable pour stocker l'image
+		er := decoder.Decode(&recu)
+		if er != nil {
+			fmt.Println("Erreur lors du décodage:", er)
+			return
 		}
+		go traitement(recu, longueur, hauteur, bound)
 	}
-
-	//pour enregistrer l'image
-	file, err := os.Create("resultat.png")
-	if err != nil {
-		fmt.Println("Erreur lors de la création du fichier résultat : ", err)
-		return
-	}
-	defer file.Close()
-
-	ERREUR := png.Encode(file, RESULTAT)
-	if ERREUR != nil {
-		fmt.Println("Erreur lors de l'encodage de l'image résultat :", ERREUR)
-		return
-	}
-
-	fmt.Println("Image enregistrée sous le nom 'resultat.png'.")
 }
 
 //reste à changer:
-//voir le request id (ligne 116) et les autres filtres (ligne 67 et 113)
+//voir le request id (ligne 116) et les autres filtres (ligne 67 et 113) avec les autres
