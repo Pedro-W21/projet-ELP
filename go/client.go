@@ -29,24 +29,26 @@ func traitement(recu ClientRequestResponse, longueur uint, hauteur uint, bound i
 	fmt.Print("données reçue du serveur!")
 
 	//pour recréer l'image
-	imageFinale := Image{recu.final_image.data, longueur, hauteur}
+	imageFinale := Image{recu.Final_image.Data, longueur, hauteur}
 	RESULTAT := image.NewRGBA(image.Rect(bound.Min.X, bound.Min.Y, bound.Max.X, bound.Max.Y))
-	for i := bound.Min.X; i <= bound.Max.X; i++ {
-		for j := bound.Min.Y; j <= bound.Max.Y; j++ {
+	//fmt.Println("x,y", bound.Min.X, bound.Min.Y)
+	for i := bound.Min.X; i < bound.Max.X; i++ {
+		for j := bound.Min.Y; j < bound.Max.Y; j++ {
 			//pour trouver le curseur dans liste de couleur
 			var longueurTot int
-			longueurTot = int(imageFinale.longueur)
+			longueurTot = int(imageFinale.Longueur)
 			index := j*longueurTot + i
 
 			//pour déterminer les couleurs rgb dans la liste à l'index donné
-			r := imageFinale.data[index].r
-			g := imageFinale.data[index].g
-			b := imageFinale.data[index].b
+			//fmt.Println("data à (x,y) : ", i, j, imageFinale.Data[index].R, imageFinale.Data[index].G, imageFinale.Data[index].B)
+			r := imageFinale.Data[index].R
+			g := imageFinale.Data[index].G
+			b := imageFinale.Data[index].B
 
 			// convertissage de uint8 en uint32 pour pouvoir faire le calcul avec 256
-			R := uint32(r) / 256
-			G := uint32(g) / 256
-			B := uint32(b) / 256
+			R := uint32(r)
+			G := uint32(g)
+			B := uint32(b)
 
 			// enfin, on reconvertit le résultat en uint8 pour l'installer dans l'image finale
 			var red uint8 = uint8(R)
@@ -76,6 +78,7 @@ func traitement(recu ClientRequestResponse, longueur uint, hauteur uint, bound i
 
 // fonction principale
 func client() {
+	gob.Register(Gaussian{})
 	//connexion au serveur
 	var port int
 	fmt.Print("Saisissez le port sur lequel vous voulez communiquer avec le serveur : \n")
@@ -143,8 +146,8 @@ func client() {
 
 	//crée le struct à envoyer
 	structCouleur := []Color{}
-	for i := bound.Min.X; i <= bound.Max.X; i++ {
-		for j := bound.Min.Y; j <= bound.Max.Y; j++ {
+	for j := bound.Min.Y; j < bound.Max.Y; j++ {
+		for i := bound.Min.X; i < bound.Max.X; i++ {
 			pixel := img.At(i, j)
 			r, g, b, _ := pixel.RGBA()
 			//ici convertir type de uint32 en uint8

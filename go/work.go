@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Input struct {
 	image  Image
 	filter Filter
@@ -17,14 +19,15 @@ type Output struct {
 func Work(input chan Input, output chan Output) {
 	for {
 		pb := <-input
+		fmt.Println("COMMENCE LE TRAVAIL")
 		if pb.fin {
 			break
 		}
-		work := MakeImage(pb.image.longueur, pb.y_max-pb.y_min, Color{0, 0, 0})
+		work := MakeImage(pb.image.Longueur, pb.y_max-pb.y_min, Color{0, 0, 0})
 		var x, y uint
 		for y = pb.y_min; y < pb.y_max; y++ {
-			for x = 0; x < pb.image.longueur; x++ {
-				work.data[y*work.longueur+x] = pb.filter.GetPixel(x, y, pb.image)
+			for x = 0; x < pb.image.Longueur; x++ {
+				work.Data[(y-pb.y_min)*work.Longueur+x] = pb.filter.GetPixel(x, y, pb.image)
 			}
 		}
 		output <- Output{work, pb.y_min, pb.y_max}

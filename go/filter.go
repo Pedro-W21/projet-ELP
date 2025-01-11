@@ -5,10 +5,10 @@ type Filter interface {
 }
 
 type Gaussian struct {
-	strength float32
+	Strength float32
 }
 
 func (g Gaussian) GetPixel(x uint, y uint, image Image) Color {
-
-	return Color{0, 0, 0}
+	last_color := image.GetAt(x, y)
+	return Color{255 - last_color.R, 255 - last_color.G, 255 - last_color.B}
 }
