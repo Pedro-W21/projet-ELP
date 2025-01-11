@@ -69,9 +69,7 @@ func HandleClient(connection net.Conn) {
 			}
 			client.encoder.Encode(&final)
 			val = &ClientRequest{}
-		}
-		_, err := connection.Read(make([]byte, 0))
-		if err != nil {
+		} else {
 			break
 		}
 	}
