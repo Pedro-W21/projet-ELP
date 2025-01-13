@@ -75,7 +75,7 @@ func traitement(recu ClientRequestResponse, longueur uint, hauteur uint) {
 		return
 	}
 
-	fmt.Println("Image enregistrée sous le nom 'resultat.png'.")
+	fmt.Printf("Image enregistrée sous le nom 'resultat%d.png'.", recu.Request_id)
 }
 
 // fonction pour demander des trucs au client /////////////////////////////////////////////////////////////////////
