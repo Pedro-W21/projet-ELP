@@ -16,6 +16,14 @@ func (i Image) GetAt(x uint, y uint) Color {
 	return i.Data[y*i.Longueur+x]
 }
 
+func (i Image) GetAtInfaillible(x int, y int) Color {
+	if x >= 0 && y >= 0 && x < int(i.Longueur) && y < int(i.Hauteur) {
+		return i.GetAt(uint(x), uint(y))
+	} else {
+		return Color{0, 0, 0}
+	}
+}
+
 func (i Image) PutAt(x uint, y uint, col Color) {
 	i.Data[y*i.Longueur+x] = col
 }
