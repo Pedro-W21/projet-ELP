@@ -175,7 +175,64 @@ func (g Flou_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	droite := image.GetAtInfaillible(X+1, Y)
 	bas := image.GetAtInfaillible(X, Y+1)
 	red := float32(haut.R+gauche.R+droite.R+bas.R)*g.Strength/4 + float32(centre.R)*(1-g.Strength)
-	green := float32(haut.G+gauche.G+droite.G+bas.G)*g.Strength/4 + float32(centre.G)*(1-g.Strength)
-	blue := float32(haut.B+gauche.B+droite.B+bas.B)*g.Strength/4 + float32(centre.B)*(1-g.Strength)
+	green := float32(haut.G+gauche.G+droite.R+bas.G)*g.Strength/4 + float32(centre.G)*(1-g.Strength)
+	blue := float32(haut.B+gauche.B+droite.B+bas.B)*g.Strength + float32(centre.B)*(1-g.Strength)
 	return Color{uint8(red), uint8(green), uint8(blue)}
+}
+
+type Jeu_Vie struct {
+	Strength float32
+	// % de fondu vers flou par moyenne (forme +)
+	// renvoie input pour 0
+	// renvoie flou pour 1
+}
+
+func (g Jeu_Vie) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+	return g
+}
+
+func (g Jeu_Vie) GetPixel(x uint, y uint, image Image) Color {
+	X := int(x)
+	Y := int(y)
+	//couleurs :
+	color := make([]Color, 9)
+	color[0] = image.GetAtInfaillible(X-1, Y-1) //haut gauche
+	color[1] = image.GetAtInfaillible(X, Y-1)   //haut centre
+	color[2] = image.GetAtInfaillible(X+1, Y-1) //haut droite
+	color[3] = image.GetAtInfaillible(X-1, Y)   //centre gauche
+	color[4] = image.GetAtInfaillible(X, Y)     //centre
+	color[5] = image.GetAtInfaillible(X+1, Y)   //centre droite
+	color[6] = image.GetAtInfaillible(X-1, Y+1) //bas gauche
+	color[7] = image.GetAtInfaillible(X, Y+1)   //bas centre
+	color[8] = image.GetAtInfaillible(X+1, Y+1) //bas droite
+	//vie ou mort
+	vie := make([]bool, 9)
+	for i := 0; i < 9; i++ {
+		if color[i].R == 255 && color[i].G == 255 && color[i].B == 255 {
+			vie[i] = true
+		} else if color[i].R == 0 && color[i].G == 0 && color[i].B == 0 {
+			vie[i] = false
+		} else {
+			//Erreur du client
+			return Color{255, 0, 0}
+		}
+	}
+	//compte voisins
+	voisins := 0
+	for i := 0; i < 9; i++ {
+		if i != 4 && vie[i] {
+			voisins += 1
+		}
+	}
+	//application règles
+	if vie[4] {
+		if voisins != 2 && voisins != 3 {
+			return Color{0, 0, 0}
+		}
+	} else {
+		if voisins == 3 {
+			return Color{255, 255, 255}
+		}
+	}
+	return image.GetAt(x, y)
 }
