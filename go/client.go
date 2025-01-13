@@ -61,9 +61,10 @@ func traitement(recu ClientRequestResponse, longueur uint, hauteur uint) {
 	}
 
 	//pour enregistrer l'image
-	file, err := os.Create("resultat.png")
+	doc := fmt.Sprintf("resultat%d.png", recu.Request_id)
+	file, err := os.Create(doc)
 	if err != nil {
-		fmt.Println("Erreur lors de la création du fichier résultat : ", err)
+		fmt.Println("Erreur lors de la création du fichier résultat: ", err)
 		return
 	}
 	defer file.Close()
