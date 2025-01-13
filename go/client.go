@@ -162,9 +162,9 @@ func client() {
 
 	var structFiltre Filter
 	if typeFiltre == 1 {
-		structFiltre = Gaussian{puissance}
+		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
 	} else {
-		structFiltre = Gaussian{puissance} //A VOIR POUR LES AUTRES FILTRES
+		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0} //A VOIR POUR LES AUTRES FILTRES
 	}
 	structAenvoyer := ClientRequest{1, structImage, structFiltre} //le request_id à changer (la 1e variable)
 
