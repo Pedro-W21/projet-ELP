@@ -16,14 +16,14 @@ func (g Gaussian) GetPixel(x uint, y uint, image Image) Color {
 	return Color{0, 0, 0}
 }
 
-type Negatif struct {
+type Neg_Fondu struct {
 	Strength float32
 }
 
-func (g Negatif) PrepareImage(image Image, y_min uint, y_max uint) {
+func (g Neg_Fondu) PrepareImage(image Image, y_min uint, y_max uint) {
 }
 
-func (g Negatif) GetPixel(x uint, y uint, image Image) Color {
+func (g Neg_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	color := image.GetAt(x, y)
 	red := (255-float32(color.R))*g.Strength + float32(color.R)*(1-g.Strength)
 	green := (255-float32(color.G))*g.Strength + float32(color.G)*(1-g.Strength)
@@ -91,5 +91,20 @@ func (g Luminosite) GetPixel(x uint, y uint, image Image) Color {
 	if blue > 255 {
 		blue = 255
 	}
+	return Color{uint8(red), uint8(green), uint8(blue)}
+}
+
+type Flou struct {
+	Strength float32
+}
+
+func (g Flou) PrepareImage(image Image, y_min uint, y_max uint) {
+}
+
+func (g Flou) GetPixel(x uint, y uint, image Image) Color {
+	color := image.GetAt(x, y)
+	red := (255-float32(color.R))*g.Strength + float32(color.R)*(1-g.Strength)
+	green := (255-float32(color.G))*g.Strength + float32(color.G)*(1-g.Strength)
+	blue := (255-float32(color.B))*g.Strength + float32(color.B)*(1-g.Strength)
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
