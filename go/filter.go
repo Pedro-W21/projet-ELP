@@ -47,6 +47,22 @@ func (g Gaussian) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 	return g
 }
 
+type Negatif struct {
+	Strength float32
+	// % de fondu vers le négatif
+	// renvoie input pour 0
+	// renvoie neg pour 1
+}
+
+func (g Negatif) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+	return g
+}
+
+func (g Negatif) GetPixel(x uint, y uint, image Image) Color {
+	color := image.GetAt(x, y)
+	return Color{255 - color.R, 255 - color.G, 255 - color.B}
+}
+
 type Neg_Fondu struct {
 	Strength float32
 	// % de fondu vers le négatif
@@ -60,9 +76,9 @@ func (g Neg_Fondu) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 
 func (g Neg_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	color := image.GetAt(x, y)
-	red := (255 - color.R)
-	green := (255 - color.G)
-	blue := (255 - color.B)
+	red := float32(255-color.R)*g.Strength + float32(color.R)*(1-g.Strength)
+	green := float32(255-color.G)*g.Strength + float32(color.G)*(1-g.Strength)
+	blue := float32(255-color.B)*g.Strength + float32(color.B)*(1-g.Strength)
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
@@ -179,7 +195,7 @@ func (g Flou_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	droite := image.GetAtInfaillible(X+1, Y)
 	bas := image.GetAtInfaillible(X, Y+1)
 	red := float32(haut.R+gauche.R+droite.R+bas.R)*g.Strength/4 + float32(centre.R)*(1-g.Strength)
-	green := float32(haut.G+gauche.G+droite.R+bas.G)*g.Strength/4 + float32(centre.G)*(1-g.Strength)
-	blue := float32(haut.B+gauche.B+droite.B+bas.B)*g.Strength + float32(centre.B)*(1-g.Strength)
+	green := float32(haut.G+gauche.G+droite.G+bas.G)*g.Strength/4 + float32(centre.G)*(1-g.Strength)
+	blue := float32(haut.B+gauche.B+droite.B+bas.B)*g.Strength/4 + float32(centre.B)*(1-g.Strength)
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
