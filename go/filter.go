@@ -139,6 +139,26 @@ func (g Luminosite) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
+type Flou_moy struct {
+}
+
+func (g Flou_moy) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+	return g
+}
+
+func (g Flou_moy) GetPixel(x uint, y uint, image Image) Color {
+	var X int = int(x)
+	var Y int = int(y)
+	haut_gauche := image.GetAtInfaillible(X, Y)
+	haut_droite := image.GetAtInfaillible(X+1, Y)
+	bas_gauche := image.GetAtInfaillible(X, Y+1)
+	bas_droite := image.GetAtInfaillible(X+1, Y+1)
+	rouge := (haut_gauche.R + haut_droite.R + bas_gauche.R + bas_droite.R) / 4
+	bleu := (haut_gauche.B + haut_droite.B + bas_gauche.B + bas_droite.B) / 4
+	vert := (haut_gauche.G + haut_droite.G + bas_gauche.G + bas_droite.G) / 4
+	return Color{rouge, bleu, vert}
+}
+
 type Flou_Fondu struct {
 	Strength float32
 	// % de fondu vers flou par moyenne (forme +)
