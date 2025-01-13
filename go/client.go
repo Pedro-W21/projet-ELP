@@ -83,7 +83,7 @@ func client(reader io.Reader, request_id int) ClientRequest {
 	data := []Color{}
 	data = append(data, Color{0, 0, 0})
 	img_vide := Image{data, 1, 1}
-	filt := Gaussian{0.5}
+	filt := Gaussian{0.5, make([]float32, 0), 0.0}
 	none := ClientRequest{0, img_vide, filt}
 
 	//récolte le reste des data
