@@ -155,9 +155,9 @@ func client(reader io.Reader, request_id int) ClientRequest {
 
 	var structFiltre Filter
 	if typeFiltre == 1 {
-		structFiltre = Gaussian{puissance}
+		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
 	} else {
-		structFiltre = Gaussian{puissance} //A VOIR POUR LES AUTRES FILTRES
+		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0} //A VOIR POUR LES AUTRES FILTRES
 	}
 	var req_id uint = uint(request_id)
 	structAenvoyer := ClientRequest{req_id, structImage, structFiltre}

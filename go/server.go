@@ -27,6 +27,7 @@ type TCPServer struct {
 }
 
 type ClientRequestResponse struct {
+	Request_id          uint
 	Final_image         Image
 	Waiting_for_threads uint
 }
@@ -61,7 +62,7 @@ func HandleClient(connection net.Conn) {
 			for i := 0; i < total_cpu; i++ {
 				input <- Input{val.Sent_image, val.Filter_data, uint(i * (int(val.Sent_image.Hauteur) / total_cpu)), uint((i + 1) * (int(val.Sent_image.Hauteur) / total_cpu)), false}
 			}
-			final := ClientRequestResponse{Final_image: MakeImage(val.Sent_image.Longueur, val.Sent_image.Hauteur, Color{0, 0, 0}), Waiting_for_threads: uint(total_cpu)}
+			final := ClientRequestResponse{Request_id: val.Request_id, Final_image: MakeImage(val.Sent_image.Longueur, val.Sent_image.Hauteur, Color{0, 0, 0}), Waiting_for_threads: uint(total_cpu)}
 			for i := 0; i < total_cpu; i++ {
 				partiel := <-output
 				final.Final_image.CopyStripesFrom(partiel.image, partiel.y_min, partiel.y_max)
