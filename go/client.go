@@ -185,7 +185,7 @@ func pour_chaque_requete(id_en_cours int, reader io.Reader, conn net.Conn) {
 		fmt.Println("Erreur lors de l'encodage:", erreur)
 		return
 	}
-	fmt.Println("Les données ont été envoyées avec succès pour la requete %d", id_en_cours)
+	fmt.Printf("Les données ont été envoyées avec succès pour la requete %d", id_en_cours)
 
 	//boucle continue pour écouter le canal en continu
 	longueur := structAenvoyer.Sent_image.Longueur
