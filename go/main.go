@@ -14,7 +14,7 @@ func main() {
 	mode := requete("Mode de fonctionnement ?", reader)
 	mode = strings.TrimSpace(mode)
 	if mode == "client" {
-		client()
+		principale()
 	} else {
 		fmt.Println("Serveur lancé sur le port 8000")
 		server()
