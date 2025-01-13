@@ -177,8 +177,6 @@ func client() {
 	}
 	fmt.Println("Les données ont été envoyées avec succès!:", erreur)
 
-	//code pour attendre et écouter sur le port (?)
-
 	//boucle continue pour écouter le canal
 	for {
 		decoder := gob.NewDecoder(conn)
@@ -193,4 +191,4 @@ func client() {
 }
 
 //reste à changer:
-//voir le request id (ligne 116) et les autres filtres (ligne 67 et 113) avec les autres
+//voir le request id (ligne 169) et les autres filtres (ligne 110 et 163) avec les autres
