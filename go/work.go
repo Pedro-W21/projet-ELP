@@ -25,7 +25,7 @@ func Work(input chan Input, output chan Output) {
 		}
 		work := MakeImage(pb.image.Longueur, pb.y_max-pb.y_min, Color{0, 0, 0})
 		var x, y uint
-		filter.PrepareImage(pb.image, pb.y_min, pb.y_max)
+		pb.filter.PrepareImage(pb.image, pb.y_min, pb.y_max)
 		for y = pb.y_min; y < pb.y_max; y++ {
 			for x = 0; x < pb.image.Longueur; x++ {
 				work.Data[(y-pb.y_min)*work.Longueur+x] = pb.filter.GetPixel(x, y, pb.image)
