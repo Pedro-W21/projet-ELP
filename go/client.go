@@ -249,6 +249,8 @@ func principale() {
 	gob.Register(Neg_Fondu{})
 	gob.Register(Chaud{})
 	gob.Register(Luminosite{})
+	gob.Register(Flou_moy{})
+	gob.Register(Negatif{})
 	//connexion au serveur
 	var port int
 	fmt.Print("Saisissez le port sur lequel vous voulez communiquer avec le serveur : \n")

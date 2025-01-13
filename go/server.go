@@ -105,6 +105,8 @@ func server() {
 	gob.Register(Neg_Fondu{})
 	gob.Register(Chaud{})
 	gob.Register(Luminosite{})
+	gob.Register(Flou_moy{})
+	gob.Register(Negatif{})
 	if err != nil {
 		fmt.Println("Erreur lors de la création du serveur : ", err)
 	}
