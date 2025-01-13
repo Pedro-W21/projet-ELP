@@ -69,11 +69,14 @@ func HandleClient(connection net.Conn) {
 
 			}
 			client.encoder.Encode(&final)
+			client.encoder = *gob.NewEncoder(connection)
 			val = &ClientRequest{}
+			client.decoder = *gob.NewDecoder(connection)
 		} else {
-			break
+			// break
 		}
 	}
+	fmt.Println("FIN DU TRAVAIL")
 	for i := 0; i < total_cpu; i++ {
 		input <- Input{fin: true}
 	}
@@ -97,6 +100,11 @@ func (server TCPServer) listening_loop() {
 func server() {
 	tcp_server, err := MakeTCPServer("localhost:8000")
 	gob.Register(Gaussian{})
+	gob.Register(Froid{})
+	gob.Register(Flou_Fondu{})
+	gob.Register(Neg_Fondu{})
+	gob.Register(Chaud{})
+	gob.Register(Luminosite{})
 	if err != nil {
 		fmt.Println("Erreur lors de la création du serveur : ", err)
 	}

@@ -111,10 +111,58 @@ func client(reader io.Reader, request_id int) ClientRequest {
 			return none
 		}
 		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
+	} else if filtre == "Froid" {
+		p := requete("Quelle puissance voulez-vous pour le filtre froid? Entrez une valeur décimale entre -1 et 1 (inclus, 0 ne change rien)", reader)
+		p = strings.TrimSpace(p)
+		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
+		puissance = float32(P)                  //conversion de P (float64) en  float32
+		if probleme != nil {
+			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			return none
+		}
+		structFiltre = Froid{puissance}
+	} else if filtre == "Chaud" {
+		p := requete("Quelle puissance voulez-vous pour le filtre chaud? Entrez une valeur décimale entre -1 et 1 (inclus, 0 ne change rien)", reader)
+		p = strings.TrimSpace(p)
+		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
+		puissance = float32(P)                  //conversion de P (float64) en  float32
+		if probleme != nil {
+			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			return none
+		}
+		structFiltre = Chaud{puissance}
+	} else if filtre == "Luminosite" {
+		p := requete("Quelle puissance voulez-vous pour le filtre Luminosite? Entrez une valeur décimale entre 0 et 1 (inclus, 1 ne change rien)", reader)
+		p = strings.TrimSpace(p)
+		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
+		puissance = float32(P)                  //conversion de P (float64) en  float32
+		if probleme != nil {
+			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			return none
+		}
+		structFiltre = Luminosite{puissance}
+	} else if filtre == "Flou_Fondu" {
+		p := requete("Quelle puissance voulez-vous pour le filtre Flou_fondu? Entrez une valeur décimale entre 0 et 1 (inclus, 0 ne change rien)", reader)
+		p = strings.TrimSpace(p)
+		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
+		puissance = float32(P)                  //conversion de P (float64) en  float32
+		if probleme != nil {
+			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			return none
+		}
+		structFiltre = Flou_Fondu{puissance}
+	} else if filtre == "Neg_fondu" {
+		p := requete("Quelle puissance voulez-vous pour le filtre Neg_fondu? Entrez une valeur décimale entre 0 et 1 (inclus, 0 ne change rien)", reader)
+		p = strings.TrimSpace(p)
+		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
+		puissance = float32(P)                  //conversion de P (float64) en  float32
+		if probleme != nil {
+			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			return none
+		}
+		structFiltre = Neg_Fondu{puissance}
 	} else {
-		P = 0
-		puissance = 0
-		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
+		structFiltre = Gaussian{0.0, make([]float32, 0), 0.0}
 	}
 
 	// aller à l'emplacement de l'image, lire les données et les récupérer sous forme de pixels entier 32 bits
@@ -192,6 +240,11 @@ func pour_chaque_requete(id_en_cours int, reader io.Reader, conn net.Conn) {
 func principale() {
 	//pour se connecter au serveur
 	gob.Register(Gaussian{}) //RAJOUTER TOUS LES FILTRES APRES
+	gob.Register(Froid{})
+	gob.Register(Flou_Fondu{})
+	gob.Register(Neg_Fondu{})
+	gob.Register(Chaud{})
+	gob.Register(Luminosite{})
 	//connexion au serveur
 	var port int
 	fmt.Print("Saisissez le port sur lequel vous voulez communiquer avec le serveur : \n")
@@ -229,7 +282,7 @@ func principale() {
 
 	// boucle pour faire les actions sur toutes les requetes
 	for i := 1; i <= request_id; i++ {
-		go pour_chaque_requete(request_id, reader, conn)
+		pour_chaque_requete(i, reader, conn)
 	}
 }
 
