@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"net"
 	"runtime"
@@ -8,14 +9,16 @@ import (
 
 type ClientData struct {
 	connection         net.Conn
+	decoder            gob.Decoder
+	encoder            gob.Encoder
 	last_request_id    uint
 	requests_in_flight map[uint]ClientRequestResponse
 }
 
 type ClientRequest struct {
-	request_id  uint
-	image       Image
-	filter_data Filter
+	Request_id  uint
+	Sent_image  Image
+	Filter_data Filter
 }
 
 type TCPServer struct {
@@ -24,8 +27,8 @@ type TCPServer struct {
 }
 
 type ClientRequestResponse struct {
-	final_image         Image
-	waiting_for_threads uint
+	Final_image         Image
+	Waiting_for_threads uint
 }
 
 type TCPServerSenderThread struct {
@@ -42,19 +45,37 @@ func MakeTCPServer(ip_and_port string) (TCPServer, error) {
 }
 
 func HandleClient(connection net.Conn) {
-	client := ClientData{connection, 0, make(map[uint]ClientRequestResponse)}
+	client := ClientData{connection, *gob.NewDecoder(connection), *gob.NewEncoder(connection), 0, make(map[uint]ClientRequestResponse)}
 	defer client.connection.Close()
-	for {
-
+	val := &ClientRequest{}
+	total_cpu := runtime.NumCPU()
+	input := make(chan Input)
+	output := make(chan Output)
+	for i := 0; i < total_cpu; i++ {
+		go Work(input, output)
 	}
-}
+	for {
+		result := client.decoder.Decode(&val)
+		if result == nil {
 
-func DecodeJSONRequest(request string) ClientRequest {
+			for i := 0; i < total_cpu; i++ {
+				input <- Input{val.Sent_image, val.Filter_data, uint(i * (int(val.Sent_image.Hauteur) / total_cpu)), uint((i + 1) * (int(val.Sent_image.Hauteur) / total_cpu)), false}
+			}
+			final := ClientRequestResponse{Final_image: MakeImage(val.Sent_image.Longueur, val.Sent_image.Hauteur, Color{0, 0, 0}), Waiting_for_threads: uint(total_cpu)}
+			for i := 0; i < total_cpu; i++ {
+				partiel := <-output
+				final.Final_image.CopyStripesFrom(partiel.image, partiel.y_min, partiel.y_max)
 
-}
-
-func InitResponseFromRequest(request ClientRequest) ClientRequestResponse {
-	return ClientRequestResponse{MakeImage(request.image.longueur, request.image.hauteur, Color{0, 0, 0}), uint(runtime.NumCPU())}
+			}
+			client.encoder.Encode(&final)
+			val = &ClientRequest{}
+		} else {
+			break
+		}
+	}
+	for i := 0; i < total_cpu; i++ {
+		input <- Input{fin: true}
+	}
 }
 
 func (server TCPServer) listening_loop() {
@@ -70,4 +91,13 @@ func (server TCPServer) listening_loop() {
 		// Handle client connection in a goroutine
 		go HandleClient(conn)
 	}
+}
+
+func server() {
+	tcp_server, err := MakeTCPServer("localhost:8000")
+	gob.Register(Gaussian{})
+	if err != nil {
+		fmt.Println("Erreur lors de la création du serveur : ", err)
+	}
+	tcp_server.listening_loop()
 }
