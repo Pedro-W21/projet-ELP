@@ -163,6 +163,8 @@ func client(reader io.Reader, request_id int) ClientRequest {
 		structFiltre = Neg_Fondu{puissance}
 	} else if filtre == "Flou_moy" {
 		structFiltre = Flou_moy{}
+	} else if filtre == "Negatif" {
+		structFiltre = Negatif{}
 	} else {
 		structFiltre = Gaussian{0.0, make([]float32, 0), 0.0}
 	}
