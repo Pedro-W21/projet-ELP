@@ -151,8 +151,8 @@ func client(reader io.Reader, request_id int) ClientRequest {
 			return none
 		}
 		structFiltre = Flou_Fondu{puissance}
-	} else if filtre == "Neg_fondu" {
-		p := requete("Quelle puissance voulez-vous pour le filtre Neg_fondu? Entrez une valeur décimale entre 0 et 1 (inclus, 0 ne change rien)", reader)
+	} else if filtre == "Neg_Fondu" {
+		p := requete("Quelle puissance voulez-vous pour le filtre Neg_Fondu? Entrez une valeur décimale entre 0 et 1 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
@@ -161,6 +161,10 @@ func client(reader io.Reader, request_id int) ClientRequest {
 			return none
 		}
 		structFiltre = Neg_Fondu{puissance}
+	} else if filtre == "Flou_moy" {
+		structFiltre = Flou_moy{}
+	} else if filtre == "Negatif" {
+		structFiltre = Negatif{}
 	} else {
 		structFiltre = Gaussian{0.0, make([]float32, 0), 0.0}
 	}
@@ -245,6 +249,8 @@ func principale() {
 	gob.Register(Neg_Fondu{})
 	gob.Register(Chaud{})
 	gob.Register(Luminosite{})
+	gob.Register(Flou_moy{})
+	gob.Register(Negatif{})
 	//connexion au serveur
 	var port int
 	fmt.Print("Saisissez le port sur lequel vous voulez communiquer avec le serveur : \n")

@@ -73,7 +73,7 @@ func HandleClient(connection net.Conn) {
 			val = &ClientRequest{}
 			client.decoder = *gob.NewDecoder(connection)
 		} else {
-			// break
+			break
 		}
 	}
 	fmt.Println("FIN DU TRAVAIL")
@@ -105,6 +105,8 @@ func server() {
 	gob.Register(Neg_Fondu{})
 	gob.Register(Chaud{})
 	gob.Register(Luminosite{})
+	gob.Register(Flou_moy{})
+	gob.Register(Negatif{})
 	if err != nil {
 		fmt.Println("Erreur lors de la création du serveur : ", err)
 	}
