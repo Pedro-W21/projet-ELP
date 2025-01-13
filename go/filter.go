@@ -47,6 +47,9 @@ func (g Gaussian) PrepareImage(image Image, y_min uint, y_max uint) {
 
 type Neg_Fondu struct {
 	Strength float32
+	// % de fondu vers le négatif
+	// renvoie input pour 0
+	// renvoie neg pour 1
 }
 
 func (g Neg_Fondu) PrepareImage(image Image, y_min uint, y_max uint) {
@@ -60,8 +63,10 @@ func (g Neg_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
-type Froid struct {
+type Froid struct { //renforce ou diminue les composantes froides, selon si str + ou -
 	Strength float32
+	// % de bleu ajouté et de rouge/vert retiré
+	//renvoie input pour 0
 }
 
 func (g Froid) PrepareImage(image Image, y_min uint, y_max uint) {
@@ -78,8 +83,10 @@ func (g Froid) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
-type Chaud struct {
+type Chaud struct { //renforce ou diminue les composantes chaudes, selon si str + ou -
 	Strength float32
+	// % de rouge ajouté et de bleu retiré (et double du % ajouté au vert)
+	//renvoie input pour 0
 }
 
 func (g Chaud) PrepareImage(image Image, y_min uint, y_max uint) {
@@ -99,8 +106,11 @@ func (g Chaud) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
-type Luminosite struct {
+type Luminosite struct { //illumine ou assombrit l'image, selon si str > ou < à 1
 	Strength float32
+	//coefficient de multiplication apliqué aux valeurs rgb
+	//renvoie image noire pour 0
+	//renvoie input pour 1
 }
 
 func (g Luminosite) PrepareImage(image Image, y_min uint, y_max uint) {
@@ -123,17 +133,26 @@ func (g Luminosite) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
-type Flou struct {
+type Flou_Fondu struct {
 	Strength float32
+	// % de fondu vers flou par moyenne (forme +)
+	// renvoie input pour 0
+	// renvoie flou pour 1
 }
 
-func (g Flou) PrepareImage(image Image, y_min uint, y_max uint) {
+func (g Flou_Fondu) PrepareImage(image Image, y_min uint, y_max uint) {
 }
 
-func (g Flou) GetPixel(x uint, y uint, image Image) Color {
-	color := image.GetAt(x, y)
-	red := (255-float32(color.R))*g.Strength + float32(color.R)*(1-g.Strength)
-	green := (255-float32(color.G))*g.Strength + float32(color.G)*(1-g.Strength)
-	blue := (255-float32(color.B))*g.Strength + float32(color.B)*(1-g.Strength)
+func (g Flou_Fondu) GetPixel(x uint, y uint, image Image) Color {
+	X := int(x)
+	Y := int(y)
+	haut := image.GetAtInfaillible(X, Y-1)
+	gauche := image.GetAtInfaillible(X-1, Y)
+	centre := image.GetAtInfaillible(X, Y)
+	droite := image.GetAtInfaillible(X+1, Y)
+	bas := image.GetAtInfaillible(X, Y+1)
+	red := float32(haut.R+gauche.R+droite.R+bas.R)*g.Strength/4 + float32(centre.R)*(1-g.Strength)
+	green := float32(haut.G+gauche.G+droite.R+bas.G)*g.Strength/4 + float32(centre.G)*(1-g.Strength)
+	blue := float32(haut.B+gauche.B+droite.B+bas.B)*g.Strength + float32(centre.B)*(1-g.Strength)
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
