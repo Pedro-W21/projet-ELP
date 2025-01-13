@@ -9,16 +9,18 @@ type Gaussian struct {
 	Strength float32
 }
 
+func (g Gaussian) PrepareImage(image Image, y_min uint, y_max uint) {
+}
+
 func (g Gaussian) GetPixel(x uint, y uint, image Image) Color {
 	return Color{0, 0, 0}
 }
 
-func (g Gaussian) PrepareImage(image Image, y_min uint, y_max uint) {
-
-}
-
 type Negatif struct {
 	Strength float32
+}
+
+func (g Negatif) PrepareImage(image Image, y_min uint, y_max uint) {
 }
 
 func (g Negatif) GetPixel(x uint, y uint, image Image) Color {
@@ -31,6 +33,9 @@ func (g Negatif) GetPixel(x uint, y uint, image Image) Color {
 
 type Froid struct {
 	Strength float32
+}
+
+func (g Froid) PrepareImage(image Image, y_min uint, y_max uint) {
 }
 
 func (g Froid) GetPixel(x uint, y uint, image Image) Color {
@@ -46,6 +51,9 @@ func (g Froid) GetPixel(x uint, y uint, image Image) Color {
 
 type Chaud struct {
 	Strength float32
+}
+
+func (g Chaud) PrepareImage(image Image, y_min uint, y_max uint) {
 }
 
 func (g Chaud) GetPixel(x uint, y uint, image Image) Color {
@@ -64,6 +72,9 @@ func (g Chaud) GetPixel(x uint, y uint, image Image) Color {
 
 type Luminosite struct {
 	Strength float32
+}
+
+func (g Luminosite) PrepareImage(image Image, y_min uint, y_max uint) {
 }
 
 func (g Luminosite) GetPixel(x uint, y uint, image Image) Color {
