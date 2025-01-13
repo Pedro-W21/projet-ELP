@@ -169,10 +169,13 @@ func (g Flou_moy) GetPixel(x uint, y uint, image Image) Color {
 	haut_droite := image.GetAtInfaillible(X+1, Y)
 	bas_gauche := image.GetAtInfaillible(X, Y+1)
 	bas_droite := image.GetAtInfaillible(X+1, Y+1)
-	rouge := (haut_gauche.R + haut_droite.R + bas_gauche.R + bas_droite.R) / 4
-	bleu := (haut_gauche.B + haut_droite.B + bas_gauche.B + bas_droite.B) / 4
-	vert := (haut_gauche.G + haut_droite.G + bas_gauche.G + bas_droite.G) / 4
-	return Color{rouge, bleu, vert}
+	rouge := uint16((haut_gauche.R + haut_droite.R + bas_gauche.R + bas_droite.R) / 4)
+	bleu := uint16((haut_gauche.B + haut_droite.B + bas_gauche.B + bas_droite.B) / 4)
+	vert := uint16((haut_gauche.G + haut_droite.G + bas_gauche.G + bas_droite.G) / 4)
+	var R uint8 = uint8(rouge)
+	var V uint8 = uint8(vert)
+	var B uint8 = uint8(bleu)
+	return Color{R, V, B}
 }
 
 type Flou_Fondu struct {
