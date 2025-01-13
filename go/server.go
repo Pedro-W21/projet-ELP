@@ -73,7 +73,7 @@ func HandleClient(connection net.Conn) {
 			val = &ClientRequest{}
 			client.decoder = *gob.NewDecoder(connection)
 		} else {
-			// break
+			break
 		}
 	}
 	fmt.Println("FIN DU TRAVAIL")
