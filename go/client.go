@@ -96,12 +96,11 @@ func client(reader io.Reader, request_id int) ClientRequest {
 	filtre = requete(texte2, reader)
 	filtre = strings.TrimSpace(filtre)
 
-	var typeFiltre int
 	var P float64
 	var puissance float32
 	var probleme error
+	var structFiltre Filter
 	if filtre == "Gaussien" {
-		typeFiltre = 1
 		p := requete("Quelle puissance voulez-vous pour le filtre gaussien? Entrez une valeur décimale de 0.5 à 5.", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
@@ -110,10 +109,11 @@ func client(reader io.Reader, request_id int) ClientRequest {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
 			return none
 		}
+		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
 	} else {
-		typeFiltre = 2
 		P = 0
 		puissance = 0
+		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
 	}
 
 	// aller à l'emplacement de l'image, lire les données et les récupérer sous forme de pixels entier 32 bits
@@ -153,12 +153,6 @@ func client(reader io.Reader, request_id int) ClientRequest {
 	}
 	structImage := Image{structCouleur, longueur, hauteur}
 
-	var structFiltre Filter
-	if typeFiltre == 1 {
-		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
-	} else {
-		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0} //A VOIR POUR LES AUTRES FILTRES
-	}
 	var req_id uint = uint(request_id)
 	structAenvoyer := ClientRequest{req_id, structImage, structFiltre}
 	return structAenvoyer
