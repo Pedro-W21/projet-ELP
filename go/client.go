@@ -132,7 +132,7 @@ func client(reader io.Reader, request_id int) ClientRequest {
 		}
 		structFiltre = Chaud{puissance}
 	} else if filtre == "Luminosite" {
-		p := requete("Quelle puissance voulez-vous pour le filtre Luminosite? Entrez une valeur décimale entre 0 et 1 (inclus, 1 ne change rien)", reader)
+		p := requete("Quelle puissance voulez-vous pour le filtre Luminosite? Entrez une valeur décimale entre 0 et 2 (inclus, 1 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
