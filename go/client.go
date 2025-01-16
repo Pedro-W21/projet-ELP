@@ -212,14 +212,15 @@ func client(reader io.Reader, request_id int) ClientRequest {
 	}
 	if format != "jpeg" && format != "png" {
 		fmt.Println("Erreur, fichier pas en jpeg ou png")
-		for j := 0; j < 2; j++ {
+		for {
 			fmt.Println("Erreur de format :", err)
 			chemin = requete("Veuillez re-saisir une image en jpeg ou png : ", reader)
 			chemin = strings.TrimSpace(chemin)
 			fichier, err := os.Open(chemin)
 			img, format, err = image.Decode(fichier)
 			if err != nil {
-				j = 0
+			} else {
+				break
 			}
 		}
 	}

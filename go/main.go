@@ -13,6 +13,7 @@ func main() {
 	mode = strings.TrimSpace(mode)
 	if mode == "client" {
 		principale()
+		return
 	} else {
 		fmt.Println("Serveur lancé sur le port 8000")
 		server()
