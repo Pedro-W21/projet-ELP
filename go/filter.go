@@ -168,7 +168,7 @@ func (g Flou_moy) GetPixel(x uint, y uint, image Image) Color {
 	X := int(x)
 	Y := int(y)
 	color := image.GetAtInfaillible(X, Y)
-	var sumR, sumG, sumB, count float32 = 0.0, 0.0, 0.0, 0.0
+	var sumR, sumG, sumB, count float32 = 0, 0, 0, 0
 	for i := X - (X % g.pas_x); i < X-(X%g.pas_x)+g.pas_x; i++ {
 		for j := Y - (Y % g.pas_y); j < Y-(Y%g.pas_y)+g.pas_y; j++ {
 			sumR += float32(color.R)
@@ -183,27 +183,36 @@ func (g Flou_moy) GetPixel(x uint, y uint, image Image) Color {
 	return Color{R, G, B}
 }
 
-type Flou_Fondu struct {
+type Flou_Fondu struct { //Génère un fondu entre input et flou_moy
 	Strength float32 // % de flou (0=input à 100=1pixel pour toute l'image)
-	//Fondu    float32 // % de fondu (0=input à 100=flou_moy)
+	Fondu    float32 // % de fondu (0=input à 100=flou_moy)
+	pas_x    int     //longueur du gros pixel
+	pas_y    int     //hauteur du gros pixel
 }
 
 func (g Flou_Fondu) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+	g.pas_x = int(g.Strength / 100 * float32(image.Longueur))
+	g.pas_y = int(g.Strength / 100 * float32(image.Hauteur))
 	return g
 }
 
 func (g Flou_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	X := int(x)
 	Y := int(y)
-	haut := image.GetAtInfaillible(X, Y-1)
-	gauche := image.GetAtInfaillible(X-1, Y)
-	centre := image.GetAtInfaillible(X, Y)
-	droite := image.GetAtInfaillible(X+1, Y)
-	bas := image.GetAtInfaillible(X, Y+1)
-	red := float32(haut.R+gauche.R+droite.R+bas.R)*g.Strength/4 + float32(centre.R)*(1-g.Strength)
-	green := float32(haut.G+gauche.G+droite.R+bas.G)*g.Strength/4 + float32(centre.G)*(1-g.Strength)
-	blue := float32(haut.B+gauche.B+droite.B+bas.B)*g.Strength + float32(centre.B)*(1-g.Strength)
-	return Color{uint8(red), uint8(green), uint8(blue)}
+	color := image.GetAtInfaillible(X, Y)
+	var sumR, sumG, sumB, count float32 = 0, 0, 0, 0
+	for i := X - (X % g.pas_x); i < X-(X%g.pas_x)+g.pas_x; i++ {
+		for j := Y - (Y % g.pas_y); j < Y-(Y%g.pas_y)+g.pas_y; j++ {
+			sumR += float32(color.R)
+			sumG += float32(color.G)
+			sumB += float32(color.B)
+			count += 1
+		}
+	}
+	R := uint8((sumR/count)*g.Fondu/100 + float32(color.R)*(1-g.Fondu)/100)
+	G := uint8((sumG/count)*g.Fondu/100 + float32(color.G)*(1-g.Fondu)/100)
+	B := uint8((sumB/count)*g.Fondu/100 + float32(color.B)*(1-g.Fondu)/100)
+	return Color{R, G, B}
 }
 
 type Jeu_Vie struct {
