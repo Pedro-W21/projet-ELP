@@ -109,6 +109,7 @@ func server(reader io.Reader) {
 		fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
 	}
 	tcp_server, err := MakeTCPServer(fmt.Sprintf("localhost:%d", port))
+	fmt.Println("Serveur créé sur le port ", port)
 	gob.Register(Gaussian{})
 	gob.Register(Froid{})
 	gob.Register(Flou_Fondu{})
