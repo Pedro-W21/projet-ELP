@@ -102,7 +102,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		}
 		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
 	} else if filtre == "Froid" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre froid? Entrez une valeur décimale entre -1 et 1 (inclus, 0 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre froid? Entrez une valeur décimale entre -100 et 100 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
@@ -112,7 +112,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		}
 		structFiltre = Froid{puissance}
 	} else if filtre == "Chaud" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre chaud? Entrez une valeur décimale entre -1 et 1 (inclus, 0 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre chaud? Entrez une valeur décimale entre -100 et 100 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
@@ -122,7 +122,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		}
 		structFiltre = Chaud{puissance}
 	} else if filtre == "Luminosite" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre Luminosite? Entrez une valeur décimale entre 0 et 2 (inclus, 1 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre Luminosite? Entrez une valeur décimale entre -100 et 100 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
@@ -150,7 +150,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		}
 		structFiltre = Flou_Fondu{puissance, fondu, 0, 0}
 	} else if filtre == "Neg_Fondu" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre Neg_Fondu? Entrez une valeur décimale entre 0 et 1 (inclus, 0 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre Neg_Fondu? Entrez une valeur décimale entre 0 et 100 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
