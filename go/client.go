@@ -165,7 +165,15 @@ func client(reader io.Reader, request_id int) ClientRequest {
 	} else if filtre == "Jeu_Vie" {
 		structFiltre = Jeu_Vie{}
 	} else if filtre == "Flou_moy" {
-		structFiltre = Flou_moy{}
+		p := requete("\nQuelle puissance voulez-vous pour le filtre Flou_moy? Entrez une valeur entre 0 et 100 (inclus, 0 ne change rien)", reader)
+		p = strings.TrimSpace(p)
+		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
+		puissance = float32(P)                  //conversion de P (float64) en  float32
+		if probleme != nil {
+			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			return none
+		}
+		structFiltre = Flou_moy{puissance}
 	} else if filtre == "Negatif" {
 		structFiltre = Negatif{}
 	} else {
