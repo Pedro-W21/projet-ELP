@@ -212,9 +212,9 @@ func (g Flou_Fondu) GetPixel(x uint, y uint, image Image) Color {
 		}
 	}
 	color := image.GetAtInfaillible(X, Y)
-	R := uint8((sumR/count)*g.Fondu/100 + float32(color.R)*(1-g.Fondu)/100)
-	G := uint8((sumG/count)*g.Fondu/100 + float32(color.G)*(1-g.Fondu)/100)
-	B := uint8((sumB/count)*g.Fondu/100 + float32(color.B)*(1-g.Fondu)/100)
+	R := uint8((sumR/count)*g.Fondu/100 + float32(color.R)*(1-g.Fondu/100))
+	G := uint8((sumG/count)*g.Fondu/100 + float32(color.G)*(1-g.Fondu/100))
+	B := uint8((sumB/count)*g.Fondu/100 + float32(color.B)*(1-g.Fondu/100))
 	return Color{R, G, B}
 }
 
