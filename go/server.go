@@ -11,11 +11,9 @@ import (
 )
 
 type ClientData struct {
-	connection         net.Conn
-	decoder            gob.Decoder
-	encoder            gob.Encoder
-	last_request_id    uint
-	requests_in_flight map[uint]ClientRequestResponse
+	connection net.Conn
+	decoder    gob.Decoder
+	encoder    gob.Encoder
 }
 
 type ClientRequest struct {
@@ -49,7 +47,7 @@ func MakeTCPServer(ip_and_port string) (TCPServer, error) {
 }
 
 func HandleClient(connection net.Conn) {
-	client := ClientData{connection, *gob.NewDecoder(connection), *gob.NewEncoder(connection), 0, make(map[uint]ClientRequestResponse)}
+	client := ClientData{connection, *gob.NewDecoder(connection), *gob.NewEncoder(connection)}
 	defer client.connection.Close()
 	val := &ClientRequest{}
 	total_cpu := runtime.NumCPU()
