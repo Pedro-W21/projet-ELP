@@ -3,11 +3,14 @@ package main
 import (
 	"math"
 	"math/cmplx"
+	"sync"
 )
 
 type Filter interface {
 	GetPixel(x uint, y uint, image Image) Color
-	PrepareImage(image Image, y_min uint, y_max uint) Filter
+	PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter
+	NeedToSync() bool
+	ChangeAfterSync(cmap *sync.Map) Filter
 }
 
 const GAUSSIAN_KERNEL_SIDE int = 7
@@ -35,7 +38,7 @@ func (g Gaussian) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(total_R * g.Kernel_total), uint8(total_G * g.Kernel_total), uint8(total_B * g.Kernel_total)}
 }
 
-func (g Gaussian) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+func (g Gaussian) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
 	g.Kernel = make([]float32, GAUSSIAN_KERNEL_SIDE*GAUSSIAN_KERNEL_SIDE)
 	total := 0.0
 	for x := 0; x < GAUSSIAN_KERNEL_SIDE; x++ {
@@ -47,17 +50,29 @@ func (g Gaussian) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 	g.Kernel_total = 1.0 / float32(total)
 	return g
 }
+func (g Gaussian) NeedToSync() bool {
+	return false
+}
+func (g Gaussian) ChangeAfterSync(cmap *sync.Map) Filter {
+	return g
+}
 
 type Negatif struct {
 }
 
-func (g Negatif) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+func (g Negatif) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
 	return g
 }
 
 func (g Negatif) GetPixel(x uint, y uint, image Image) Color {
 	color := image.GetAt(x, y)
 	return Color{255 - color.R, 255 - color.G, 255 - color.B}
+}
+func (g Negatif) NeedToSync() bool {
+	return false
+}
+func (g Negatif) ChangeAfterSync(cmap *sync.Map) Filter {
+	return g
 }
 
 type Neg_Fondu struct {
@@ -67,7 +82,7 @@ type Neg_Fondu struct {
 	// renvoie neg pour 1
 }
 
-func (g Neg_Fondu) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+func (g Neg_Fondu) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
 	return g
 }
 
@@ -79,13 +94,20 @@ func (g Neg_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
+func (g Neg_Fondu) NeedToSync() bool {
+	return false
+}
+func (g Neg_Fondu) ChangeAfterSync(cmap *sync.Map) Filter {
+	return g
+}
+
 type Froid struct { //renforce ou diminue les composantes froides, selon si str + ou -
 	Strength float32
 	// % de bleu ajouté et de rouge/vert retiré
 	//renvoie input pour 0
 }
 
-func (g Froid) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+func (g Froid) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
 	return g
 }
 
@@ -100,13 +122,20 @@ func (g Froid) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
+func (g Froid) NeedToSync() bool {
+	return false
+}
+func (g Froid) ChangeAfterSync(cmap *sync.Map) Filter {
+	return g
+}
+
 type Chaud struct { //renforce ou diminue les composantes chaudes, selon si str + ou -
 	Strength float32
 	// % de rouge ajouté et de bleu retiré (et double du % ajouté au vert)
 	//renvoie input pour 0
 }
 
-func (g Chaud) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+func (g Chaud) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
 	return g
 }
 
@@ -124,6 +153,13 @@ func (g Chaud) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
+func (g Chaud) NeedToSync() bool {
+	return false
+}
+func (g Chaud) ChangeAfterSync(cmap *sync.Map) Filter {
+	return g
+}
+
 type Luminosite struct { //illumine ou assombrit l'image, selon si str > ou < à 1
 	Strength float32
 	//coefficient de multiplication apliqué aux valeurs rgb
@@ -131,7 +167,7 @@ type Luminosite struct { //illumine ou assombrit l'image, selon si str > ou < à
 	//renvoie input pour 1
 }
 
-func (g Luminosite) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+func (g Luminosite) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
 	return g
 }
 
@@ -151,6 +187,12 @@ func (g Luminosite) GetPixel(x uint, y uint, image Image) Color {
 	}
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
+func (g Luminosite) NeedToSync() bool {
+	return false
+}
+func (g Luminosite) ChangeAfterSync(cmap *sync.Map) Filter {
+	return g
+}
 
 type Flou_moy struct { //Réduit la définition perçue, mais pas la définition réelle
 	Strength float32 // % de flou (0=input à 100=1pixel pour toute l'image)
@@ -158,7 +200,7 @@ type Flou_moy struct { //Réduit la définition perçue, mais pas la définition
 	pas_y    int     //hauteur du gros pixel
 }
 
-func (g Flou_moy) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+func (g Flou_moy) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
 	g.pas_x = int(g.Strength / 100 * float32(image.Longueur))
 	g.pas_y = int(g.Strength / 100 * float32(image.Hauteur))
 	return g
@@ -182,6 +224,12 @@ func (g Flou_moy) GetPixel(x uint, y uint, image Image) Color {
 	B := uint8(sumB / count)
 	return Color{R, G, B}
 }
+func (g Flou_moy) NeedToSync() bool {
+	return false
+}
+func (g Flou_moy) ChangeAfterSync(cmap *sync.Map) Filter {
+	return g
+}
 
 type Flou_Fondu struct { //Génère un fondu entre input et flou_moy
 	Strength float32 // % de flou (0=input à 100=1pixel pour toute l'image)
@@ -190,7 +238,7 @@ type Flou_Fondu struct { //Génère un fondu entre input et flou_moy
 	pas_y    int     //hauteur du gros pixel
 }
 
-func (g Flou_Fondu) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+func (g Flou_Fondu) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
 	g.pas_x = int(g.Strength / 100 * float32(image.Longueur))
 	g.pas_y = int(g.Strength / 100 * float32(image.Hauteur))
 	return g
@@ -215,6 +263,13 @@ func (g Flou_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	return Color{R, G, B}
 }
 
+func (g Flou_Fondu) NeedToSync() bool {
+	return false
+}
+func (g Flou_Fondu) ChangeAfterSync(cmap *sync.Map) Filter {
+	return g
+}
+
 type Jeu_Vie struct {
 	Strength float32
 	// % de fondu vers flou par moyenne (forme +)
@@ -222,7 +277,7 @@ type Jeu_Vie struct {
 	// renvoie flou pour 1
 }
 
-func (g Jeu_Vie) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+func (g Jeu_Vie) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
 	return g
 }
 
@@ -272,28 +327,65 @@ func (g Jeu_Vie) GetPixel(x uint, y uint, image Image) Color {
 	return image.GetAt(x, y)
 }
 
-type Fourier struct {
+func (g Jeu_Vie) NeedToSync() bool {
+	return false
+}
+func (g Jeu_Vie) ChangeAfterSync(cmap *sync.Map) Filter {
+	return g
 }
 
-func (f Fourier) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+type Fourier struct {
+	Max_value     float64
+	Internal_data []float64
+}
+
+func (f Fourier) PrepareImage(image Image, y_min uint, y_max uint, cmap *sync.Map) Filter {
+	max := 0.0
+	internal_data := make([]float64, image.Longueur*image.Hauteur)
+	un_sur_longueur := 1.0 / float64(image.Longueur)
+	un_sur_hauteur := 1.0 / float64(image.Hauteur)
+	for y := y_min; y < y_max; y++ {
+		for x := uint(0); x < image.Longueur; x++ {
+			final_r := complex(0, 0)
+			for m := 0; m < int(image.Hauteur); m++ {
+				for n := 0; n < int(image.Longueur); n++ {
+					m_centered := (m + int(image.Hauteur)/2) % int(image.Hauteur)
+					y_centered := (y + image.Hauteur/2) % image.Hauteur
+					x_centered := ((x + image.Longueur/2) % image.Longueur)
+					n_centered := (n + int(image.Longueur)/2) % int(image.Longueur)
+					color := image.GetAt(uint(n_centered), uint(m_centered))
+					local_complex := cmplx.Exp(complex(0, -2.0*math.Pi*(float64(n_centered*int(x_centered))*un_sur_longueur+float64(m_centered*int(y_centered))*un_sur_hauteur)))
+					final_r += local_complex * complex(float64(color.R)*0.00392156862, 0) // On multiplie par 1/255
+				}
+			}
+			real_part_r := math.Log(1.0 + cmplx.Abs(final_r))
+			if real_part_r > max {
+				max = real_part_r
+			}
+			internal_data[y*image.Longueur+x] = real_part_r
+		}
+	}
+	f.Internal_data = internal_data
+	f.Max_value = 1.0 / max
+	cmap.Store(y_min, f.Max_value)
 	return f
 }
 
 func (f Fourier) GetPixel(x uint, y uint, image Image) Color {
-	final_r := complex(0, 0)
-	final_g := complex(0, 0)
-	final_b := complex(0, 0)
-	for m := 0; m < int(image.Hauteur); m++ {
-		for n := 0; n < int(image.Longueur); n++ {
-			color := image.GetAt(uint(n), uint(m))
-			local_complex := cmplx.Exp(complex(0, -2.0*math.Pi*(float64(n*int(x))/float64(image.Longueur)+float64(m*int(y))/float64(image.Hauteur))))
-			final_r += local_complex * complex(float64(color.R), 0)
-			final_g += local_complex * complex(float64(color.G), 0)
-			final_b += local_complex * complex(float64(color.B), 0)
+	real_part_r := f.Internal_data[y*image.Longueur+x] * f.Max_value * 255.0
+	return Color{uint8(real_part_r), uint8(real_part_r), uint8(real_part_r)}
+}
+
+func (g Fourier) NeedToSync() bool {
+	return true
+}
+func (g Fourier) ChangeAfterSync(cmap *sync.Map) Filter {
+	cmap.Range(func(key, value interface{}) bool {
+		float_value := value.(float64)
+		if float_value < g.Max_value {
+			g.Max_value = float_value
 		}
-	}
-	real_part_r := cmplx.Abs(final_r)
-	real_part_g := cmplx.Abs(final_g)
-	real_part_b := cmplx.Abs(final_b)
-	return Color{uint8(real_part_r), uint8(real_part_g), uint8(real_part_b)}
+		return true
+	})
+	return g
 }
