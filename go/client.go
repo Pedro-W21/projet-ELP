@@ -263,7 +263,7 @@ func ecoute(conn net.Conn, longueur uint, hauteur uint) {
 		fmt.Println("Erreur lors du décodage:", er)
 		return
 	}
-	go traitement(recu, longueur, hauteur) //pour traiter ce qu'on a reçu en même temps
+	traitement(recu, longueur, hauteur) //pour traiter ce qu'on a reçu en même temps
 }
 
 func pour_chaque_requete(id_en_cours int, reader io.Reader, conn net.Conn) {
@@ -280,7 +280,7 @@ func pour_chaque_requete(id_en_cours int, reader io.Reader, conn net.Conn) {
 	//boucle continue pour écouter le canal en continu
 	longueur := structAenvoyer.Sent_image.Longueur
 	hauteur := structAenvoyer.Sent_image.Hauteur
-	go ecoute(conn, longueur, hauteur)
+	ecoute(conn, longueur, hauteur)
 }
 
 // fonction principale //////////////////////////////////////////////////////////////////////////////////
