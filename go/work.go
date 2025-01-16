@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 type Input struct {
 	image  Image
 	filter Filter
@@ -19,7 +17,6 @@ type Output struct {
 func Work(input chan Input, output chan Output) {
 	for {
 		pb := <-input
-		fmt.Println("COMMENCE LE TRAVAIL")
 		if pb.fin {
 			break
 		}

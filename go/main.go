@@ -8,10 +8,8 @@ import (
 )
 
 func main() {
-	//var image_test Image = MakeImage(1000, 1000, Color{0, 255, 0})
-	//fmt.Println(image_test.GetAt(200, 500))
 	reader := bufio.NewReader(os.Stdin)
-	mode := requete("Mode de fonctionnement ?", reader)
+	mode := requete("Choisissez votre mode de fonctionnement: entrez 'client' si vous voulez avoir l'interface client. Toute autre entrée lancera le mode serveur ", reader)
 	mode = strings.TrimSpace(mode)
 	if mode == "client" {
 		principale()
