@@ -76,7 +76,6 @@ func HandleClient(connection net.Conn) {
 			break
 		}
 	}
-	fmt.Println("FIN DU TRAVAIL")
 	for i := 0; i < total_cpu; i++ {
 		input <- Input{fin: true}
 	}
