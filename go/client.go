@@ -78,25 +78,12 @@ func traitement(recu ClientRequestResponse, longueur uint, hauteur uint) {
 	fmt.Printf("Image enregistrée sous le nom 'resultat%d.png'.\n", recu.Request_id)
 }
 
-// fonction pour demander des trucs au client /////////////////////////////////////////////////////////////////////
-func client(reader io.Reader, request_id int) ClientRequest {
-	//initialisation d'un clientrequest à vide pour sortir de la fonction en cas d'erreur
-	data := []Color{}
-	data = append(data, Color{0, 0, 0})
-	img_vide := Image{data, 1, 1}
-	filt := Gaussian{0.5, make([]float32, 0), 0.0}
-	none := ClientRequest{0, img_vide, filt}
-
-	//récolte le reste des data
-	var chemin, filtre string
-
+// fonction pour choisir le filtre //////////////////////////////////////////////////////////////////////////////
+func demande_filtre(reader io.Reader, request_id int) Filter {
+	var filtre string
 	texte2 := fmt.Sprintf("\nEntrez le filtre que vous voulez appliquer à l'image %d. Vous avez le choix entre : \n1. Le filtre Gaussien: dans ce cas tapez Gaussien\n2. Un floutage: dans ce cas tapez Flou\n3. Le filtre négatif: dans ce cas tapez Negatif\n4. Le fondu négatif: dans ce cas tapez Neg_Fondu\n5. Augmenter la froideur: dans ce cas tapez Froid\n6. Augmenter la chaleur: dans ce cas tapez Chaud\n7. Augmenter la luminosité: dans ce cas tapez Luminosite\n8. Appliquer un flou moyen: dans ce cas tapez Flou_moy\n9. Appliquer un flou fondu: dans ce cas tapez Flou_fondu\n10. Faire un jeu de la vie avec l'image (il faut que l'image soit en noir et blanc dans ce cas!!): dans ce cas tapez Jeu_Vie", request_id)
 	filtre = requete(texte2, reader)
 	filtre = strings.TrimSpace(filtre)
-
-	texte1 := fmt.Sprintf("\nEntrez le chemin de l'image numéro %d", request_id)
-	chemin = requete(texte1, reader)
-	chemin = strings.TrimSpace(chemin)
 
 	var P float64
 	var F float64
@@ -111,7 +98,7 @@ func client(reader io.Reader, request_id int) ClientRequest {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
-			return none
+			demande_filtre(reader, request_id)
 		}
 		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
 	} else if filtre == "Froid" {
@@ -121,7 +108,7 @@ func client(reader io.Reader, request_id int) ClientRequest {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
-			return none
+			demande_filtre(reader, request_id)
 		}
 		structFiltre = Froid{puissance}
 	} else if filtre == "Chaud" {
@@ -131,7 +118,7 @@ func client(reader io.Reader, request_id int) ClientRequest {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
-			return none
+			demande_filtre(reader, request_id)
 		}
 		structFiltre = Chaud{puissance}
 	} else if filtre == "Luminosite" {
@@ -141,7 +128,7 @@ func client(reader io.Reader, request_id int) ClientRequest {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
-			return none
+			demande_filtre(reader, request_id)
 		}
 		structFiltre = Luminosite{puissance}
 	} else if filtre == "Flou_Fondu" {
@@ -153,13 +140,13 @@ func client(reader io.Reader, request_id int) ClientRequest {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
-			return none
+			demande_filtre(reader, request_id)
 		}
 		F, probleme = strconv.ParseFloat(f, 32) //conversion de f (string) en float64
 		fondu = float32(F)                      //conversion de F (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
-			return none
+			demande_filtre(reader, request_id)
 		}
 		structFiltre = Flou_Fondu{puissance, fondu, 0, 0}
 	} else if filtre == "Neg_Fondu" {
@@ -169,7 +156,7 @@ func client(reader io.Reader, request_id int) ClientRequest {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
-			return none
+			demande_filtre(reader, request_id)
 		}
 		structFiltre = Neg_Fondu{puissance}
 	} else if filtre == "Jeu_Vie" {
@@ -181,27 +168,60 @@ func client(reader io.Reader, request_id int) ClientRequest {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
-			return none
+			demande_filtre(reader, request_id)
 		}
 		structFiltre = Flou_moy{puissance, 0, 0}
 	} else if filtre == "Negatif" {
 		structFiltre = Negatif{}
 	} else {
 		fmt.Println("\nVeuillez entrer un filtre valide")
-		structFiltre = Gaussian{0.0, make([]float32, 0), 0.0}
+		demande_filtre(reader, request_id)
 	}
+	return structFiltre
+}
+
+// fonction pour demander des trucs au client /////////////////////////////////////////////////////////////////////
+func client(reader io.Reader, request_id int) ClientRequest {
+	//initialisation d'un clientrequest à vide pour sortir de la fonction en cas d'erreur
+	data := []Color{}
+	data = append(data, Color{0, 0, 0})
+
+	//récolte le reste des data
+	var chemin string
+
+	texte1 := fmt.Sprintf("\nEntrez le chemin de l'image numéro %d", request_id)
+	chemin = requete(texte1, reader)
+	chemin = strings.TrimSpace(chemin)
 
 	// aller à l'emplacement de l'image, lire les données et les récupérer sous forme de pixels entier 32 bits
 	fichier, err := os.Open(chemin)           //on ouvre l'image
 	img, format, err := image.Decode(fichier) //le decode
 
 	if err != nil {
-		fmt.Println("Erreur lors de l'ouverture et/ou décodage de l'image:", err)
-		return none
+		for {
+			fmt.Println("Erreur lors de l'ouverture et/ou décodage de l'image:", err)
+			chemin = requete("Veuillez re-saisir un chemin correct: ", reader)
+			chemin = strings.TrimSpace(chemin)
+			fichier, err := os.Open(chemin)
+			img, format, err = image.Decode(fichier)
+			if err != nil {
+			} else {
+				break
+			}
+		}
 	}
 	if format != "jpeg" && format != "png" {
 		fmt.Println("Erreur, fichier pas en jpeg ou png")
-		return none
+		for j := 0; j < 2; j++ {
+			fmt.Println("Erreur de format :", err)
+			chemin = requete("Veuillez re-saisir une image en jpeg ou png : ", reader)
+			chemin = strings.TrimSpace(chemin)
+			fichier, err := os.Open(chemin)
+			img, format, err = image.Decode(fichier)
+			if err != nil {
+				j = 0
+			}
+		}
 	}
 
 	//récupère la taille
@@ -229,6 +249,7 @@ func client(reader io.Reader, request_id int) ClientRequest {
 	structImage := Image{structCouleur, longueur, hauteur}
 
 	var req_id uint = uint(request_id)
+	structFiltre := demande_filtre(reader, request_id)
 	structAenvoyer := ClientRequest{req_id, structImage, structFiltre}
 	return structAenvoyer
 }
@@ -291,26 +312,10 @@ func principale() {
 
 	//déjà récupérer sur combien d'images on fait
 	reader := bufio.NewReader(os.Stdin)
-	var id string
-	id = requete("Sur combien d'images voulez-vous appliquer des filtres? ", reader)
-	id = strings.TrimSpace(id)
-	//traitement des erreurs :
-	var ERR error
-	var request_id int
-	request_id, ERR = strconv.Atoi(id)
-	c := 0
-	for c != 1 {
-		if ERR != nil {
-			id = requete("Veuillez entrer le nombre d'images avec un nombre entier ", reader)
-			c = -1
-		} else {
-			c = 1
-		}
-		request_id, ERR = strconv.Atoi(id)
-	}
-
+	i := 0
 	// boucle pour faire les actions sur toutes les requetes
-	for i := 1; i <= request_id; i++ {
+	for {
+		i += 1
 		pour_chaque_requete(i, reader, conn)
 	}
 }
