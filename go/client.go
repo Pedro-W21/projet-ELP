@@ -146,7 +146,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		fondu = float32(F)                      //conversion de F (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
-			return none
+			demande_filtre(reader, request_id)
 		}
 		structFiltre = Flou_Fondu{puissance, fondu, 0, 0}
 	} else if filtre == "Neg_Fondu" {
