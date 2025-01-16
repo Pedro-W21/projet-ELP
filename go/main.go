@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strings"
 )
@@ -15,8 +14,6 @@ func main() {
 		principale()
 		return
 	} else {
-		fmt.Println("Serveur lancé sur le port 8000")
-		server()
+		server(reader)
 	}
-
 }

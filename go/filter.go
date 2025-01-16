@@ -73,9 +73,10 @@ func (g Neg_Fondu) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 
 func (g Neg_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	color := image.GetAt(x, y)
-	red := float32(255-color.R)*g.Strength + float32(color.R)*(1-g.Strength)
-	green := float32(255-color.G)*g.Strength + float32(color.G)*(1-g.Strength)
-	blue := float32(255-color.B)*g.Strength + float32(color.B)*(1-g.Strength)
+	coeff := g.Strength / 100
+	red := float32(255-color.R)*coeff + float32(color.R)*(1-coeff)
+	green := float32(255-color.G)*coeff + float32(color.G)*(1-coeff)
+	blue := float32(255-color.B)*coeff + float32(color.B)*(1-coeff)
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
@@ -91,9 +92,9 @@ func (g Froid) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 
 func (g Froid) GetPixel(x uint, y uint, image Image) Color {
 	color := image.GetAt(x, y)
-	red := float32(color.R) * (1 - g.Strength)
-	green := float32(color.G) * (1 - g.Strength)
-	blue := float32(color.B) * (1 + g.Strength)
+	red := float32(color.R) * (1 - g.Strength/100)
+	green := float32(color.G) * (1 - g.Strength/100)
+	blue := float32(color.B) * (1 + g.Strength/100)
 	if blue > 255 {
 		blue = 255
 	}
@@ -112,9 +113,9 @@ func (g Chaud) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 
 func (g Chaud) GetPixel(x uint, y uint, image Image) Color {
 	color := image.GetAt(x, y)
-	red := float32(color.R) * (1 + g.Strength)
-	green := float32(color.G) * (1 + g.Strength/2)
-	blue := float32(color.B) * (1 - g.Strength)
+	red := float32(color.R) * (1 + g.Strength/100)
+	green := float32(color.G) * (1 + g.Strength/200)
+	blue := float32(color.B) * (1 - g.Strength/100)
 	if red > 255 {
 		red = 255
 	}
@@ -124,11 +125,12 @@ func (g Chaud) GetPixel(x uint, y uint, image Image) Color {
 	return Color{uint8(red), uint8(green), uint8(blue)}
 }
 
-type Luminosite struct { //illumine ou assombrit l'image, selon si str > ou < à 1
+type Luminosite struct { //illumine ou assombrit l'image, selon si str resp. > ou < à 0
 	Strength float32
-	//coefficient de multiplication apliqué aux valeurs rgb
-	//renvoie image noire pour 0
-	//renvoie input pour 1
+	// % de chaque couleur ajouté
+	//renvoie image noire pour -100%
+	//renvoie input pour 0%
+	//fait saturer pour str élevée
 }
 
 func (g Luminosite) PrepareImage(image Image, y_min uint, y_max uint) Filter {
@@ -137,9 +139,9 @@ func (g Luminosite) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 
 func (g Luminosite) GetPixel(x uint, y uint, image Image) Color {
 	color := image.GetAt(x, y)
-	red := float32(color.R) * g.Strength
-	green := float32(color.G) * g.Strength
-	blue := float32(color.B) * g.Strength
+	red := float32(color.R) * (1 + g.Strength/100)
+	green := float32(color.G) * (1 + g.Strength/100)
+	blue := float32(color.B) * (1 + g.Strength/100)
 	if red > 255 {
 		red = 255
 	}
@@ -167,10 +169,10 @@ func (g Flou_moy) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 func (g Flou_moy) GetPixel(x uint, y uint, image Image) Color {
 	X := int(x)
 	Y := int(y)
-	color := image.GetAtInfaillible(X, Y)
 	var sumR, sumG, sumB, count float32 = 0, 0, 0, 0
 	for i := X - (X % g.pas_x); i < X-(X%g.pas_x)+g.pas_x; i++ {
 		for j := Y - (Y % g.pas_y); j < Y-(Y%g.pas_y)+g.pas_y; j++ {
+			color := image.GetAtInfaillible(i, j)
 			sumR += float32(color.R)
 			sumG += float32(color.G)
 			sumB += float32(color.B)
@@ -199,16 +201,17 @@ func (g Flou_Fondu) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 func (g Flou_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	X := int(x)
 	Y := int(y)
-	color := image.GetAtInfaillible(X, Y)
 	var sumR, sumG, sumB, count float32 = 0, 0, 0, 0
 	for i := X - (X % g.pas_x); i < X-(X%g.pas_x)+g.pas_x; i++ {
 		for j := Y - (Y % g.pas_y); j < Y-(Y%g.pas_y)+g.pas_y; j++ {
+			color := image.GetAtInfaillible(i, j)
 			sumR += float32(color.R)
 			sumG += float32(color.G)
 			sumB += float32(color.B)
 			count += 1
 		}
 	}
+	color := image.GetAtInfaillible(X, Y)
 	R := uint8((sumR/count)*g.Fondu/100 + float32(color.R)*(1-g.Fondu)/100)
 	G := uint8((sumG/count)*g.Fondu/100 + float32(color.G)*(1-g.Fondu)/100)
 	B := uint8((sumB/count)*g.Fondu/100 + float32(color.B)*(1-g.Fondu)/100)
