@@ -89,13 +89,14 @@ func client(reader io.Reader, request_id int) ClientRequest {
 
 	//récolte le reste des data
 	var chemin, filtre string
+
+	texte2 := fmt.Sprintf("Entrez le filtre que vous voulez appliquer à l'image %d. Vous avez le choix entre : \n1. Le filtre Gaussien: dans ce cas tapez Gaussien\n2. Un floutage: dans ce cas tapez Flou\n3. Le filtre négatif: dans ce cas tapez Negatif\n4. Le fondu négatif: dans ce cas tapez Neg_Fondu\n5. Augmenter la froideur: dans ce cas tapez Froid\n6. Augmenter la chaleur: dans ce cas tapez Chaud\n7. Augmenter la luminosité: dans ce cas tapez Luminosite\n8. Appliquer un flou moyen: dans ce cas tapez Flou_moy\n9. Appliquer un flou fondu: dans ce cas tapez Flou_fondu\n10. Faire un jeu de la vie avec l'image (il faut que l'image soit en noir et blanc dans ce cas!!): dans ce cas tapez Jeu_Vie", request_id)
+	filtre = requete(texte2, reader)
+	filtre = strings.TrimSpace(filtre)
+
 	texte1 := fmt.Sprintf("Entrez le chemin de l'image numéro : %d", request_id)
 	chemin = requete(texte1, reader)
 	chemin = strings.TrimSpace(chemin)
-
-	texte2 := fmt.Sprintf("Entrez le filtre que vous voulez appliquer à l'image %d. Vous avez le choix entre : \n1. Le filtre Gaussien: dans ce cas tapez Gaussien\n2. Un floutage: dans ce cas tapez Flou", request_id)
-	filtre = requete(texte2, reader)
-	filtre = strings.TrimSpace(filtre)
 
 	var P float64
 	var puissance float32
@@ -161,11 +162,14 @@ func client(reader io.Reader, request_id int) ClientRequest {
 			return none
 		}
 		structFiltre = Neg_Fondu{puissance}
+	} else if filtre == "Jeu_Vie" {
+		structFiltre = Jeu_Vie{}
 	} else if filtre == "Flou_moy" {
 		structFiltre = Flou_moy{}
 	} else if filtre == "Negatif" {
 		structFiltre = Negatif{}
 	} else {
+		fmt.Println("Veuillez entrer un filtre valide")
 		structFiltre = Gaussian{0.0, make([]float32, 0), 0.0}
 	}
 
@@ -243,7 +247,7 @@ func pour_chaque_requete(id_en_cours int, reader io.Reader, conn net.Conn) {
 // fonction principale //////////////////////////////////////////////////////////////////////////////////
 func principale() {
 	//pour se connecter au serveur
-	gob.Register(Gaussian{}) //RAJOUTER TOUS LES FILTRES APRES
+	gob.Register(Gaussian{})
 	gob.Register(Froid{})
 	gob.Register(Flou_Fondu{})
 	gob.Register(Neg_Fondu{})
@@ -251,6 +255,7 @@ func principale() {
 	gob.Register(Luminosite{})
 	gob.Register(Flou_moy{})
 	gob.Register(Negatif{})
+	gob.Register(Jeu_Vie{})
 	//connexion au serveur
 	var port int
 	fmt.Print("Saisissez le port sur lequel vous voulez communiquer avec le serveur : \n")
@@ -291,6 +296,3 @@ func principale() {
 		pour_chaque_requete(i, reader, conn)
 	}
 }
-
-//reste à changer:
-//les autres filtres (ligne 95 et 103) avec les autres

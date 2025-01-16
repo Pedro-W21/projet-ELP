@@ -48,10 +48,6 @@ func (g Gaussian) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 }
 
 type Negatif struct {
-	Strength float32
-	// % de fondu vers le négatif
-	// renvoie input pour 0
-	// renvoie neg pour 1
 }
 
 func (g Negatif) PrepareImage(image Image, y_min uint, y_max uint) Filter {
