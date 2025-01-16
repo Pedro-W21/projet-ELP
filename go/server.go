@@ -3,8 +3,11 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"io"
 	"net"
 	"runtime"
+	"strconv"
+	"strings"
 )
 
 type ClientData struct {
@@ -96,8 +99,18 @@ func (server TCPServer) listening_loop() {
 	}
 }
 
-func server() {
-	tcp_server, err := MakeTCPServer("localhost:8000")
+func server(reader io.Reader) {
+	var P float64
+	var probleme error
+	var port int
+	p := requete("\nSur quel port voulez-vous créer le serveur ?", reader)
+	p = strings.TrimSpace(p)
+	P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
+	port = int(P)                           //conversion de P (float64) en  float32
+	if probleme != nil {
+		fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+	}
+	tcp_server, err := MakeTCPServer(fmt.Sprintf("localhost:%d", port))
 	gob.Register(Gaussian{})
 	gob.Register(Froid{})
 	gob.Register(Flou_Fondu{})
