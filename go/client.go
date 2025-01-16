@@ -264,6 +264,7 @@ func principale() {
 	gob.Register(Flou_moy{})
 	gob.Register(Negatif{})
 	gob.Register(Jeu_Vie{})
+	gob.Register(Fourier{})
 	//connexion au serveur
 	var port int
 	fmt.Print("Saisissez le port sur lequel vous voulez communiquer avec le serveur : \n")

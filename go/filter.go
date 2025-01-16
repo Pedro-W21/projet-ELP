@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"math/cmplx"
 )
 
 type Filter interface {
@@ -260,4 +261,30 @@ func (g Jeu_Vie) GetPixel(x uint, y uint, image Image) Color {
 		}
 	}
 	return image.GetAt(x, y)
+}
+
+type Fourier struct {
+}
+
+func (f Fourier) PrepareImage(image Image, y_min uint, y_max uint) Filter {
+	return f
+}
+
+func (f Fourier) GetPixel(x uint, y uint, image Image) Color {
+	final_r := complex(0, 0)
+	final_g := complex(0, 0)
+	final_b := complex(0, 0)
+	for m := 0; m < int(image.Hauteur); m++ {
+		for n := 0; n < int(image.Longueur); n++ {
+			color := image.GetAt(uint(n), uint(m))
+			local_complex := cmplx.Exp(complex(0, -2.0*math.Pi*(float64(n*int(x))/float64(image.Longueur)+float64(m*int(y))/float64(image.Hauteur))))
+			final_r += local_complex * complex(float64(color.R), 0)
+			final_g += local_complex * complex(float64(color.G), 0)
+			final_b += local_complex * complex(float64(color.B), 0)
+		}
+	}
+	real_part_r := cmplx.Abs(final_r)
+	real_part_g := cmplx.Abs(final_g)
+	real_part_b := cmplx.Abs(final_b)
+	return Color{uint8(real_part_r), uint8(real_part_g), uint8(real_part_b)}
 }
