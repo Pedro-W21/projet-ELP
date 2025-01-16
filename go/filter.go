@@ -169,10 +169,10 @@ func (g Flou_moy) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 func (g Flou_moy) GetPixel(x uint, y uint, image Image) Color {
 	X := int(x)
 	Y := int(y)
-	color := image.GetAtInfaillible(X, Y)
 	var sumR, sumG, sumB, count float32 = 0, 0, 0, 0
 	for i := X - (X % g.pas_x); i < X-(X%g.pas_x)+g.pas_x; i++ {
 		for j := Y - (Y % g.pas_y); j < Y-(Y%g.pas_y)+g.pas_y; j++ {
+			color := image.GetAtInfaillible(i, j)
 			sumR += float32(color.R)
 			sumG += float32(color.G)
 			sumB += float32(color.B)
@@ -201,10 +201,10 @@ func (g Flou_Fondu) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 func (g Flou_Fondu) GetPixel(x uint, y uint, image Image) Color {
 	X := int(x)
 	Y := int(y)
-	color := image.GetAtInfaillible(X, Y)
 	var sumR, sumG, sumB, count float32 = 0, 0, 0, 0
 	for i := X - (X % g.pas_x); i < X-(X%g.pas_x)+g.pas_x; i++ {
 		for j := Y - (Y % g.pas_y); j < Y-(Y%g.pas_y)+g.pas_y; j++ {
+			color := image.GetAtInfaillible(i, j)
 			sumR += float32(color.R)
 			sumG += float32(color.G)
 			sumB += float32(color.B)
