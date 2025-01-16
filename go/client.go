@@ -173,7 +173,7 @@ func client(reader io.Reader, request_id int) ClientRequest {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
 			return none
 		}
-		structFiltre = Flou_moy{puissance}
+		structFiltre = Flou_moy{puissance, 0, 0}
 	} else if filtre == "Negatif" {
 		structFiltre = Negatif{}
 	} else {
