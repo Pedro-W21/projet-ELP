@@ -12,7 +12,6 @@ func main() {
 	mode = strings.TrimSpace(mode)
 	if mode == "client" {
 		principale()
-		return
 	} else {
 		server(reader)
 	}
