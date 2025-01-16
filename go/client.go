@@ -81,10 +81,9 @@ func traitement(recu ClientRequestResponse, longueur uint, hauteur uint) {
 // fonction pour choisir le filtre //////////////////////////////////////////////////////////////////////////////
 func demande_filtre(reader io.Reader, request_id int) Filter {
 	var filtre string
-	texte2 := fmt.Sprintf("\nEntrez le filtre que vous voulez appliquer à l'image %d. Vous avez le choix entre : \n1. Le filtre Gaussien: dans ce cas tapez Gaussien\n2. Un floutage: dans ce cas tapez Flou\n3. Le filtre négatif: dans ce cas tapez Negatif\n4. Le fondu négatif: dans ce cas tapez Neg_Fondu\n5. Augmenter la froideur: dans ce cas tapez Froid\n6. Augmenter la chaleur: dans ce cas tapez Chaud\n7. Augmenter la luminosité: dans ce cas tapez Luminosite\n8. Appliquer un flou moyen: dans ce cas tapez Flou_moy\n9. Appliquer un flou fondu: dans ce cas tapez Flou_fondu\n10. Faire un jeu de la vie avec l'image (il faut que l'image soit en noir et blanc dans ce cas!!): dans ce cas tapez Jeu_Vie\n11.Faire la transformée de Fourier discrète 2D de l'image (l'image doit être en échelle de gris), tapez Fourier\n", request_id)
+	texte2 := fmt.Sprintf("\nEntrez le filtre que vous voulez appliquer à l'image %d. Vous avez le choix entre : \n1. Le filtre Gaussien: dans ce cas tapez Gaussien\n2. Un floutage: dans ce cas tapez Flou\n3. Le filtre négatif: dans ce cas tapez Negatif\n4. Le fondu négatif: dans ce cas tapez Neg_Fondu\n5. Augmenter la froideur: dans ce cas tapez Froid\n6. Augmenter la chaleur: dans ce cas tapez Chaud\n7. Augmenter la luminosité: dans ce cas tapez Luminosite\n8. Appliquer un flou moyen: dans ce cas tapez Flou_moy\n9. Appliquer un flou fondu: dans ce cas tapez Flou_fondu\n10. Faire un jeu de la vie avec l'image (il faut que l'image soit en noir et blanc dans ce cas!!): dans ce cas tapez Jeu_Vie\n11.Faire la transformée de Fourier discrète 2D de l'image (l'image doit être en échelle de gris): dans ce cas tapez Fourier\n", request_id)
 	filtre = requete(texte2, reader)
 	filtre = strings.TrimSpace(filtre)
-
 	var P float64
 	var F float64
 	var puissance float32
@@ -102,7 +101,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		}
 		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
 	} else if filtre == "Froid" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre froid? Entrez une valeur décimale entre -1 et 1 (inclus, 0 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre froid? Entrez une valeur décimale entre -100 et 100 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
@@ -112,7 +111,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		}
 		structFiltre = Froid{puissance}
 	} else if filtre == "Chaud" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre chaud? Entrez une valeur décimale entre -1 et 1 (inclus, 0 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre chaud? Entrez une valeur décimale entre -100 et 100 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
@@ -122,7 +121,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		}
 		structFiltre = Chaud{puissance}
 	} else if filtre == "Luminosite" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre Luminosite? Entrez une valeur décimale entre 0 et 2 (inclus, 1 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre Luminosite? Entrez une valeur décimale entre -100 et 100 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
@@ -132,7 +131,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		}
 		structFiltre = Luminosite{puissance}
 	} else if filtre == "Flou_Fondu" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre Flou_Fondu? Entrez une valeur entre 0 et 100 (inclus, 0 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre Flou_Fondu? Entrez une valeur entre 0 et 100 (inclus, 0 ne change rien, attention même 1 floute beaucoup)", reader)
 		f := requete("\nQuelle pourcentage de fondu voulez-vous pour le filtre Flou_Fondu? Entrez une valeur entre 0 et 100 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		f = strings.TrimSpace(f)
@@ -150,7 +149,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		}
 		structFiltre = Flou_Fondu{puissance, fondu, 0, 0}
 	} else if filtre == "Neg_Fondu" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre Neg_Fondu? Entrez une valeur décimale entre 0 et 1 (inclus, 0 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre Neg_Fondu? Entrez une valeur décimale entre 0 et 100 (inclus, 0 ne change rien)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
@@ -162,7 +161,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 	} else if filtre == "Jeu_Vie" {
 		structFiltre = Jeu_Vie{}
 	} else if filtre == "Flou_moy" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre Flou_moy? Entrez une valeur entre 0 et 100 (inclus, 0 ne change rien)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre Flou_Fondu? Entrez une valeur entre 0 et 100 (inclus, 0 ne change rien, attention même 1 floute beaucoup)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
@@ -214,14 +213,15 @@ func client(reader io.Reader, request_id int) ClientRequest {
 	}
 	if format != "jpeg" && format != "png" {
 		fmt.Println("Erreur, fichier pas en jpeg ou png")
-		for j := 0; j < 2; j++ {
+		for {
 			fmt.Println("Erreur de format :", err)
 			chemin = requete("Veuillez re-saisir une image en jpeg ou png : ", reader)
 			chemin = strings.TrimSpace(chemin)
 			fichier, err := os.Open(chemin)
 			img, format, err = image.Decode(fichier)
 			if err != nil {
-				j = 0
+			} else {
+				break
 			}
 		}
 	}
@@ -265,7 +265,7 @@ func ecoute(conn net.Conn, longueur uint, hauteur uint) {
 		fmt.Println("Erreur lors du décodage:", er)
 		return
 	}
-	go traitement(recu, longueur, hauteur) //pour traiter ce qu'on a reçu en même temps
+	traitement(recu, longueur, hauteur) //pour traiter ce qu'on a reçu en même temps
 }
 
 func pour_chaque_requete(id_en_cours int, reader io.Reader, conn net.Conn) {
@@ -282,7 +282,7 @@ func pour_chaque_requete(id_en_cours int, reader io.Reader, conn net.Conn) {
 	//boucle continue pour écouter le canal en continu
 	longueur := structAenvoyer.Sent_image.Longueur
 	hauteur := structAenvoyer.Sent_image.Hauteur
-	go ecoute(conn, longueur, hauteur)
+	ecoute(conn, longueur, hauteur)
 }
 
 // fonction principale //////////////////////////////////////////////////////////////////////////////////

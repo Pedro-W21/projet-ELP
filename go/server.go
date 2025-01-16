@@ -3,17 +3,18 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"io"
 	"net"
 	"runtime"
+	"strconv"
+	"strings"
 	"sync"
 )
 
 type ClientData struct {
-	connection         net.Conn
-	decoder            gob.Decoder
-	encoder            gob.Encoder
-	last_request_id    uint
-	requests_in_flight map[uint]ClientRequestResponse
+	connection net.Conn
+	decoder    gob.Decoder
+	encoder    gob.Encoder
 }
 
 type ClientRequest struct {
@@ -47,7 +48,7 @@ func MakeTCPServer(ip_and_port string) (TCPServer, error) {
 }
 
 func HandleClient(connection net.Conn) {
-	client := ClientData{connection, *gob.NewDecoder(connection), *gob.NewEncoder(connection), 0, make(map[uint]ClientRequestResponse)}
+	client := ClientData{connection, *gob.NewDecoder(connection), *gob.NewEncoder(connection)}
 	defer client.connection.Close()
 	val := &ClientRequest{}
 	total_cpu := runtime.NumCPU()
@@ -102,8 +103,19 @@ func (server TCPServer) listening_loop() {
 	}
 }
 
-func server() {
-	tcp_server, err := MakeTCPServer("localhost:8000")
+func server(reader io.Reader) {
+	var P float64
+	var probleme error
+	var port int
+	p := requete("\nSur quel port voulez-vous créer le serveur ?", reader)
+	p = strings.TrimSpace(p)
+	P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
+	port = int(P)                           //conversion de P (float64) en  float32
+	if probleme != nil {
+		fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+	}
+	tcp_server, err := MakeTCPServer(fmt.Sprintf("localhost:%d", port))
+	fmt.Println("Serveur créé sur le port ", port)
 	gob.Register(Gaussian{})
 	gob.Register(Froid{})
 	gob.Register(Flou_Fondu{})
