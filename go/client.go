@@ -30,6 +30,7 @@ func traitement(recu ClientRequestResponse, longueur uint, hauteur uint) {
 
 	//pour recréer l'image
 	imageFinale := Image{recu.Final_image.Data, longueur, hauteur}
+	_ = imageFinale.Hauteur
 	var long int = int(longueur)
 	var haut int = int(hauteur)
 	RESULTAT := image.NewRGBA(image.Rect(0, 0, long, haut))
