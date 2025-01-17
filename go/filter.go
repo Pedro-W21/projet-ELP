@@ -219,7 +219,6 @@ func (g Flou_Fondu) GetPixel(x uint, y uint, image Image) Color {
 }
 
 type Jeu_Vie struct {
-	Strength float32
 	// % de fondu vers flou par moyenne (forme +)
 	// renvoie input pour 0
 	// renvoie flou pour 1
@@ -232,6 +231,7 @@ func (g Jeu_Vie) PrepareImage(image Image, y_min uint, y_max uint) Filter {
 func (g Jeu_Vie) GetPixel(x uint, y uint, image Image) Color {
 	X := int(x)
 	Y := int(y)
+	res := image.GetAt(x, y)
 	//couleurs :
 	color := make([]Color, 9)
 	color[0] = image.GetAtInfaillible(X-1, Y-1) //haut gauche
@@ -252,7 +252,7 @@ func (g Jeu_Vie) GetPixel(x uint, y uint, image Image) Color {
 			vie[i] = false
 		} else {
 			//Erreur du client
-			return Color{255, 0, 0}
+			println("Erreur du client")
 		}
 	}
 	//compte voisins
@@ -265,14 +265,14 @@ func (g Jeu_Vie) GetPixel(x uint, y uint, image Image) Color {
 	//application règles
 	if vie[4] {
 		if voisins != 2 && voisins != 3 {
-			return Color{0, 0, 0}
+			res = Color{0, 0, 0}
 		}
 	} else {
 		if voisins == 3 {
-			return Color{255, 255, 255}
+			res = Color{255, 255, 255}
 		}
 	}
-	return image.GetAt(x, y)
+	return res
 }
 
 type Fourier struct {
