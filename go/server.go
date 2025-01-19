@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type ClientData struct {
@@ -53,15 +54,20 @@ func HandleClient(connection net.Conn) {
 	total_cpu := runtime.NumCPU()
 	input := make(chan Input)
 	output := make(chan Output)
+	var cmap sync.Map
+	var sync_group sync.WaitGroup
 	for i := 0; i < total_cpu; i++ {
-		go Work(input, output)
+		go Work(input, output, &cmap, &sync_group)
 	}
 	for {
 		result := client.decoder.Decode(&val)
 		if result == nil {
-
+			if val.Filter_data.NeedToSync() {
+				cmap.Clear()
+				sync_group.Add(total_cpu)
+			}
 			for i := 0; i < total_cpu; i++ {
-				input <- Input{val.Sent_image, val.Filter_data, uint(i * (int(val.Sent_image.Hauteur) / total_cpu)), uint((i + 1) * (int(val.Sent_image.Hauteur) / total_cpu)), false}
+				input <- Input{val.Sent_image, val.Filter_data, uint(float32(i) * (float32(val.Sent_image.Hauteur) / float32(total_cpu))), uint(float32(i+1) * (float32(val.Sent_image.Hauteur) / float32(total_cpu))), false}
 			}
 			final := ClientRequestResponse{Request_id: val.Request_id, Final_image: MakeImage(val.Sent_image.Longueur, val.Sent_image.Hauteur, Color{0, 0, 0}), Waiting_for_threads: uint(total_cpu)}
 			for i := 0; i < total_cpu; i++ {
