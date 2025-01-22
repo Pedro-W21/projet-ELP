@@ -124,6 +124,7 @@ func server(reader io.Reader) {
 	gob.Register(Luminosite{})
 	gob.Register(Flou_moy{})
 	gob.Register(Negatif{})
+	gob.Register(Jeu_Vie{})
 	gob.Register(Fourier{})
 	if err != nil {
 		fmt.Println("Erreur lors de la création du serveur : ", err)
