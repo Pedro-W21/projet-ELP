@@ -307,7 +307,7 @@ func (g Jeu_Vie) GetPixel(x uint, y uint, image Image) Color {
 			vie[i] = false
 		} else {
 			//Erreur du client
-			println("Erreur du client")
+			return Color{255, 0, 0}
 		}
 	}
 	//compte voisins
