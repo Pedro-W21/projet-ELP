@@ -162,7 +162,7 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 	} else if filtre == "Jeu_Vie" {
 		structFiltre = Jeu_Vie{}
 	} else if filtre == "Flou_moy" {
-		p := requete("\nQuelle puissance voulez-vous pour le filtre Flou_Fondu? Entrez une valeur entre 0 et 100 (inclus, 0 ne change rien, attention même 1 floute beaucoup)", reader)
+		p := requete("\nQuelle puissance voulez-vous pour le filtre Flou_moy? Entrez une valeur entre 0 et 100 (inclus, 0 ne change rien, attention même 1 floute beaucoup)", reader)
 		p = strings.TrimSpace(p)
 		P, probleme = strconv.ParseFloat(p, 32) //conversion de p (string) en float64
 		puissance = float32(P)                  //conversion de P (float64) en  float32
