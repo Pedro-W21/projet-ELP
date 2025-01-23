@@ -2,23 +2,23 @@ module ParseurChemin exposing (..)
 import Parser exposing (..)
 
 
-type Chemin = Forward Int | Right Int | Left Int | Repeat Int (List Chemin)
+type Chemin = Forward Float | Right Float | Left Float | Repeat Int (List Chemin)
 
 extraitForward : Parser Chemin
 extraitForward = succeed Forward 
  |. symbol "Forward"
  |. spaces
- |= int
+ |= float
 extraitRight : Parser Chemin
 extraitRight = succeed Right
  |. symbol "Right"
  |. spaces
- |= int
+ |= float
 extraitLeft : Parser Chemin
 extraitLeft = succeed Left
  |. symbol "Left"
  |. spaces
- |= int
+ |= float
 
 extraitRepeat : Parser Chemin
 extraitRepeat = succeed Repeat

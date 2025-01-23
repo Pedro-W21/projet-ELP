@@ -6,6 +6,9 @@ import Html exposing (Html, button, div, text, input)
 import Html.Events exposing (onClick, onInput)
 import Html.Attributes exposing (..)
 import ParseurChemin exposing (Chemin)
+import Svg exposing (..)
+import Svg.Attributes exposing (viewBox,x, y, width, height, rx, ry, x1, x2, y1, y2)
+import CheminASvg exposing (..)
 
 
 
@@ -57,5 +60,6 @@ view model =
   div []
     [ input [ placeholder "Commande à afficher", value model.commande_str, onInput Change ] []
     , div [] []
-    , button [ onClick Render] [ text "Rendu des commandes" ]
+    , button [ onClick Render] [ Html.text "Rendu des commandes" ]
+    , svg [ Html.Attributes.width 300, Html.Attributes.height 300, viewBox "0 0 300 300" ] (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle 0 0 0) []))
     ]
