@@ -61,5 +61,5 @@ view model =
     [ input [ placeholder "Commande à afficher", value model.commande_str, onInput Change ] []
     , div [] []
     , button [ onClick Render] [ Html.text "Rendu des commandes" ]
-    , svg [ Html.Attributes.width 300, Html.Attributes.height 300, viewBox "0 0 300 300" ] (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle 0 150 0) []))
+    , svg [ Html.Attributes.width 300, Html.Attributes.height 300, viewBox "0 0 300 300" ] (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle 150 150 0) []))
     ]
