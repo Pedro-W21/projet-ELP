@@ -61,13 +61,19 @@ view model =
   div [
 
   Html.Attributes.style "display" "flex"
-  -- , Html.Attributes.style "align-items" "center"
+  , Html.Attributes.style "align-items" "center"
   , Html.Attributes.style "justify-content" "center"
   ]
     
     [ 
     
-    div [] [input [ placeholder "Commande à afficher", value model.commande_str, onInput Change ] []]
-    , div [] [button [ onClick Render] [ Html.text "Rendu des commandes" ]]
-    , div [] [svg [ Html.Attributes.width 300, Html.Attributes.height 300, viewBox "0 0 300 300" ] (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle 150 150 0) []))]
+    div [] [
+      input [ placeholder "Commande à afficher", value model.commande_str, onInput Change, Html.Attributes.style "width" "100%" ] []
+      , div [] []
+      , button [ onClick Render, Html.Attributes.style "width" "100%"] [ Html.text "Rendu des commandes" ]
+      , div [] []
+      , svg [ Html.Attributes.width 300, Html.Attributes.height 300, viewBox "0 0 300 300" ] (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle 150 150 0) []))
     ]
+    ]
+
+-- remplacer "<style>body { padding: 0; margin: 0; }</style>" par "<link rel="stylesheet" href="style.css">" pour avoir la feuille de style
