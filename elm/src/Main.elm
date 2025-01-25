@@ -47,8 +47,8 @@ unwrap res = case res of
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    Change str -> { model | commande_str=str }
-    Render -> {model | commandes=unwrap (run extraitListeChemin model.commande_str)}
+    Change str -> { model | commande_str=str } --change les messages/commandes = entre instructions dans cadre du haut
+    Render -> {model | commandes=unwrap (run extraitListeChemin model.commande_str)} --applique le change = clique sur bouton
 
 
 
