@@ -95,3 +95,4 @@ view model =
             [ Html.text msg ]
     ]
   ]
+--reste à essayer de centrer tout le monde et chercher comment faire une liste des instructions sous html
