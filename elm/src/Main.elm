@@ -24,12 +24,15 @@ main =
 -- MODEL
 
 
-type alias Model = { commandes:(List Chemin), commande_str:String }
+type alias Model = { commandes:(List Chemin), commande_str:String, erreur:Erreur }
 
+type Erreur
+    = Rien
+    | Message String
 
 init : Model
 init =
-  {commande_str="", commandes=[]}
+  {commande_str="", commandes=[], erreur=Rien}
 
 
 
@@ -49,8 +52,17 @@ update : Msg -> Model -> Model
 update msg model =
   case msg of
     Change str -> { model | commande_str=str } --change les messages/commandes = entre instructions dans cadre du haut
-    Render -> {model | commandes=unwrap (run extraitListeChemin model.commande_str)} --applique le change = clique sur bouton
-
+    Render -> let chemins = unwrap (run extraitListeChemin model.commande_str) in --applique le change = clique sur bouton
+            if List.isEmpty chemins then -- si la liste est vide y'a une erreur
+                { model
+                    | commandes = []
+                    , erreur = Message "Commande invalide, veuillez entrer une des commandes suivantes: " --A REMPLIR, COMMENT ON FAIT DES LISTES??
+                }
+            else --sinon ça va
+                { model
+                    | commandes = chemins
+                    , erreur = Rien
+                }
 
 
 -- VIEW
@@ -59,21 +71,27 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div [
-
-  Html.Attributes.style "display" "flex"
-  , Html.Attributes.style "align-items" "center"
-  , Html.Attributes.style "justify-content" "center"
+    Html.Attributes.style "display" "flex"
+    , Html.Attributes.style "align-items" "center"
+    , Html.Attributes.style "justify-content" "center"
+    ]
+      
+  [
+  div []
+    [ input [ placeholder "Commande à afficher", value model.commande_str, onInput Change ] []
+    , div [] []
+    , button [ onClick Render] [ Html.text "Rendu des commandes" ]
+    , div [] []
+    , case model.erreur of -- vérifie si on a une erreur ou pas
+      Rien -> --cas normal
+        svg [ Html.Attributes.width 300, Html.Attributes.height 300, viewBox "0 0 300 300" ] (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle 150 150 0) []))
+      Message msg -> --cas erreur, on récupère le message en string
+        div [ Html.Attributes.style "color" "red"
+              , Html.Attributes.style "display" "flex"
+              , Html.Attributes.style "align-items" "center"
+              , Html.Attributes.style "justify-content" "center"
+              , Html.Attributes.style "text-align" "center"
+              , Html.Attributes.style "width" "300px"]
+            [ Html.text msg ]
+    ]
   ]
-    
-    [ 
-    
-    div [] [
-      input [ placeholder "Commande à afficher", value model.commande_str, onInput Change, Html.Attributes.style "width" "100%" ] []
-      , div [] []
-      , button [ onClick Render, Html.Attributes.style "width" "100%"] [ Html.text "Rendu des commandes" ]
-      , div [] []
-      , svg [ Html.Attributes.width 300, Html.Attributes.height 300, viewBox "0 0 300 300" ] (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle 150 150 0) []))
-    ]
-    ]
-
--- remplacer "<style>body { padding: 0; margin: 0; }</style>" par "<link rel="stylesheet" href="style.css">" pour avoir la feuille de style
