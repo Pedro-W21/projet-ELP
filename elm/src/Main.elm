@@ -76,14 +76,15 @@ update msg model =
                     | commandes = chemins
                     , erreur = Rien
                     , dessinEnCours = True
+                    , svgPartiel = []
                     , svgFini = (Tuple.second (CheminASvg.getSvgDataRecursive chemins  (Turtle (model.initial_x + 150.0) (model.initial_y + 150.0) 0 True "Blue" (2*model.taille_dessin) model.taille_dessin) []))
                 }, Task.perform (\_ -> Timer) (Process.sleep 1))
         ChangeTailleDessin str -> 
-            ({ model | taille_dessin = (String.toFloat str |> Maybe.withDefault 5.0)/5.0}, Cmd.none)
+            ({ model | taille_dessin = (String.toFloat str |> Maybe.withDefault 5.0)/5.0, svgPartiel = (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle (model.initial_x + 150.0) (model.initial_y + 150.0) 0 True "Blue" (2*model.taille_dessin) model.taille_dessin) []))}, Cmd.none)
         BougeDessinVert str ->
-            ({ model | initial_y = ((String.toFloat str |> Maybe.withDefault 0.0) * model.taille_dessin)}, Cmd.none)
+            ({ model | initial_y = ((String.toFloat str |> Maybe.withDefault 0.0) * model.taille_dessin), svgPartiel = (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle (model.initial_x + 150.0) (model.initial_y + 150.0) 0 True "Blue" (2*model.taille_dessin) model.taille_dessin) []))}, Cmd.none )
         BougeDessinHoriz str ->
-            ({ model | initial_x = ((String.toFloat str |> Maybe.withDefault 0.0) * model.taille_dessin)}, Cmd.none)
+            ({ model | initial_x = ((String.toFloat str |> Maybe.withDefault 0.0) * model.taille_dessin), svgPartiel = (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle (model.initial_x + 150.0) (model.initial_y + 150.0) 0 True "Blue" (2*model.taille_dessin) model.taille_dessin) []))}, Cmd.none)
         Timer ->
             if model.dessinEnCours then
                 case model.svgFini of
