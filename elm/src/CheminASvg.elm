@@ -10,10 +10,9 @@ type alias Turtle = { posx : Float, posy : Float, orient : Float, drawing : Bool
 goForward : List Chemin -> Turtle -> Turtle -> (List (Svg msg)) -> (Turtle, (List (Svg msg)))
 goForward steps turt next_turt svg_final =
     if turt.drawing then
-        ( next_turt
-        , List.append svg_final
+        getSvgDataRecursive steps next_turt ( List.append svg_final
             [ line [ Svg.Attributes.strokeWidth (String.fromFloat turt.size)
-                    , Svg.Attributes.stroke turt.color
+                    , Svg.Attributes.stroke (String.trim turt.color)
                     , x1 (String.fromFloat turt.posx)
                     , y1 (String.fromFloat turt.posy)
                     , x2 (String.fromFloat next_turt.posx)
@@ -22,7 +21,7 @@ goForward steps turt next_turt svg_final =
             ]
         )
     else
-        ( next_turt, svg_final )
+        getSvgDataRecursive steps next_turt svg_final
 
 repeatSteps : Int -> List Chemin -> Turtle -> (List (Svg msg)) -> (Turtle, (List (Svg msg)))
 repeatSteps nb_left steps turt svg_final =

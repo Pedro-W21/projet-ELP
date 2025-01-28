@@ -52,11 +52,11 @@ extraitColor : Parser Chemin
 extraitColor = succeed Color
     |. symbol "Color"
     |. spaces
-    |= getChompedString (chompWhile (\c -> c /= ' ' && c /= '\n'))
+    |= getChompedString (chompWhile (\c -> c /= ' ' && c /= ','))
 
 extraitSize : Parser Chemin
 extraitSize = succeed Size
-    |. symbol "size"
+    |. symbol "Size"
     |. spaces
     |= float
 
