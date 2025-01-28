@@ -5554,7 +5554,7 @@ var $author$project$ParseurChemin$extraitColor = A2(
 		A2(
 			$elm$parser$Parser$ignorer,
 			$elm$parser$Parser$succeed($author$project$ParseurChemin$Color),
-			$elm$parser$Parser$symbol('color')),
+			$elm$parser$Parser$symbol('Color')),
 		$elm$parser$Parser$spaces),
 	$elm$parser$Parser$getChompedString(
 		$elm$parser$Parser$chompWhile(
@@ -5744,7 +5744,7 @@ var $author$project$ParseurChemin$Hide = {$: 'Hide'};
 var $author$project$ParseurChemin$extraitHide = A2(
 	$elm$parser$Parser$ignorer,
 	$elm$parser$Parser$succeed($author$project$ParseurChemin$Hide),
-	$elm$parser$Parser$symbol('hide'));
+	$elm$parser$Parser$symbol('Hide'));
 var $author$project$ParseurChemin$Left = function (a) {
 	return {$: 'Left', a: a};
 };
@@ -5775,7 +5775,7 @@ var $author$project$ParseurChemin$Show = {$: 'Show'};
 var $author$project$ParseurChemin$extraitShow = A2(
 	$elm$parser$Parser$ignorer,
 	$elm$parser$Parser$succeed($author$project$ParseurChemin$Show),
-	$elm$parser$Parser$symbol('show'));
+	$elm$parser$Parser$symbol('Show'));
 var $author$project$ParseurChemin$Size = function (a) {
 	return {$: 'Size', a: a};
 };
@@ -6306,7 +6306,7 @@ var $author$project$Main$update = F2(
 				model,
 				{
 					commandes: _List_Nil,
-					erreur: $author$project$Main$Message('Commande invalide, veuillez entrer une des commandes suivantes: hide, show, color <couleur>, size <taille>, <forme>')
+					erreur: $author$project$Main$Message('Commande invalide, veuillez entrer une des commandes suivantes: forward <distance>, left <angle>, right <angle>, hide, show, color <couleur>, size <taille>, <forme>')
 				}) : _Utils_update(
 				model,
 				{commandes: chemins, erreur: $author$project$Main$Rien});
