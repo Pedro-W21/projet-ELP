@@ -9,11 +9,12 @@ import Html.Attributes exposing (..)
 import Svg exposing (..)
 import Svg.Attributes exposing (viewBox, width, height)
 import CheminASvg exposing (..)
+import Time exposing (every)
 
 -- MAIN
 
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions}
 
 -- MODEL
 
@@ -21,21 +22,26 @@ type alias Model =
     { commandes : List Chemin
     , commande_str : String
     , erreur : Erreur
+    , commandesExecutees : List Chemin
+    , dessinEnCours : Bool
     }
 
 type Erreur
     = Rien
     | Message String
 
-init : Model
-init =
-    { commande_str = "", commandes = [], erreur = Rien }
+init : () -> (Model, Cmd Msg)
+init _ =
+    ( {commande_str = "", commandes = [], erreur = Rien, commandesExecutees = [], dessinEnCours = False}, Cmd.none )
 
 -- UPDATE
 
 type Msg
     = Change String
     | Render
+    | Timer
+    | Start
+    | Stop
 
 unwrap : Result (List Parser.DeadEnd) (List Chemin) -> List Chemin
 unwrap res =
@@ -46,24 +52,56 @@ unwrap res =
         Err _ ->
             []
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Change str ->
-            { model | commande_str = str }
+            ({ model | commande_str = str }, Cmd.none)
 
         Render ->
             let chemins = unwrap (run extraitListeChemin model.commande_str) in
             if List.isEmpty chemins then
-                { model
+                ({ model
                     | commandes = []
                     , erreur = Message "Commande invalide, veuillez entrer une des commandes suivantes: Forward <distance>, Left <angle>, Right <angle>, Hide, Show, Color <couleur>, Size <taille>, Square ou Circle."
-                }
+                }, Cmd.none)
             else
-                { model
+                ({ model
                     | commandes = chemins
                     , erreur = Rien
-                }
+                }, Cmd.none)
+        Start ->
+            ( { model | dessinEnCours = True }, Cmd.none ) --commence dessin
+
+        Stop ->
+            ( { model | dessinEnCours = False }, Cmd.none ) --arrete dessin
+
+        Timer ->
+            if model.dessinEnCours then --si on dessine, on arrete si plus de commandes et on continue si commande
+                case model.commandes of
+                    [] ->
+                        ( { model | dessinEnCours = False }, Cmd.none )
+
+                    nextCommand :: remaining ->
+                        ( { model
+                            | commandes = remaining
+                            , commandesExecutees = model.commandesExecutees ++ [ nextCommand ]
+                          }
+                        , Cmd.none
+                        )
+
+            else
+                (model, Cmd.none)
+
+-- SUBSCRIPTIONS
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    if model.dessinEnCours then
+        every 500 (\_ -> Timer) -- message Timer déclenché toutes les 0,5s
+    else
+        Sub.none
+
 
 -- VIEW
 
