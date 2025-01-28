@@ -5,7 +5,7 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Maybe exposing (withDefault)
 
-type alias Turtle = { posx : Float, posy : Float, orient : Float, drawing : Bool, color : String, size : Float }
+type alias Turtle = { posx : Float, posy : Float, orient : Float, drawing : Bool, color : String, size : Float, drawing_size : Float }
 
 goForward : List Chemin -> Turtle -> Turtle -> (List (Svg msg)) -> (Turtle, (List (Svg msg)))
 goForward steps turt next_turt svg_final =
@@ -48,29 +48,29 @@ getSvgDataRecursive steps turt final_svg =
             case step of
                 Forward long ->
                     goForward rest_of_steps turt
-                        (Turtle (turt.posx + cos (degrees turt.orient) * long) (turt.posy + sin (degrees turt.orient) * long) turt.orient turt.drawing turt.color turt.size)
+                        (Turtle (turt.posx + cos (degrees turt.orient) * (long*turt.drawing_size)) (turt.posy + sin (degrees turt.orient) * (long*turt.drawing_size)) turt.orient turt.drawing turt.color turt.size turt.drawing_size)
                         final_svg
 
                 Right changement ->
-                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy (turt.orient + changement) turt.drawing turt.color turt.size) final_svg
+                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy (turt.orient + changement) turt.drawing turt.color turt.size turt.drawing_size) final_svg
 
                 Left changement ->
-                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy (turt.orient - changement) turt.drawing turt.color turt.size) final_svg
+                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy (turt.orient - changement) turt.drawing turt.color turt.size turt.drawing_size) final_svg
 
                 Repeat nb repeat_steps ->
                     doSvgRecursiveWithTurt rest_of_steps (repeatSteps nb repeat_steps turt final_svg)
 
                 Hide ->
-                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient False turt.color turt.size) final_svg
+                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient False turt.color turt.size turt.drawing_size) final_svg
 
                 Show ->
-                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient True turt.color turt.size) final_svg
+                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient True turt.color turt.size turt.drawing_size) final_svg
 
                 Color couleur ->
-                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient turt.drawing couleur turt.size) final_svg
+                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient turt.drawing couleur turt.size turt.drawing_size) final_svg
 
                 Size taille ->
-                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient turt.drawing turt.color taille) final_svg
+                    getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient turt.drawing turt.color (taille * turt.drawing_size) turt.drawing_size) final_svg
 
                 -- Forme forme_steps ->
                 --     getSvgDataRecursive (List.append forme_steps rest_of_steps) turt final_svg
