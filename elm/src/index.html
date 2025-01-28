@@ -6813,7 +6813,7 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							commandes: _List_Nil,
-							erreur: $author$project$Main$Message('Commande invalide, veuillez entrer une des commandes suivantes: Forward <distance>, Left <angle>, Right <angle>, Hide, Show, Color <couleur>, Size <taille>, Square ou Circle.')
+							erreur: $author$project$Main$Message('!!! Commande invalide, veuillez entrer une des commandes de la liste ci-dessous !!!')
 						}),
 					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
 					_Utils_update(
@@ -7040,6 +7040,7 @@ var $author$project$CheminASvg$getSvgDataRecursive = F3(
 								1,
 								_List_fromArray(
 									[
+										$author$project$ParseurChemin$Show,
 										$author$project$ParseurChemin$Left(90),
 										$author$project$ParseurChemin$Forward(taille / 2),
 										$author$project$ParseurChemin$Right(90),
@@ -7069,6 +7070,7 @@ var $author$project$CheminASvg$getSvgDataRecursive = F3(
 								1,
 								_List_fromArray(
 									[
+										$author$project$ParseurChemin$Show,
 										$author$project$ParseurChemin$Left(90),
 										A2(
 										$author$project$ParseurChemin$Repeat,
@@ -7096,6 +7098,7 @@ var $author$project$CheminASvg$getSvgDataRecursive = F3(
 								$elm$core$Basics$ceiling(_long / pas),
 								_List_fromArray(
 									[
+										$author$project$ParseurChemin$Show,
 										$author$project$ParseurChemin$Forward(pas / 2),
 										$author$project$ParseurChemin$Hide,
 										$author$project$ParseurChemin$Forward(pas / 2),
@@ -7145,8 +7148,10 @@ var $author$project$CheminASvg$repeatSteps = F4(
 			steps,
 			A4($author$project$CheminASvg$repeatSteps, nb_left - 1, steps, turt, svg_final)) : _Utils_Tuple2(turt, svg_final);
 	});
+var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$li = _VirtualDom_node('li');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -7215,6 +7220,7 @@ var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$ul = _VirtualDom_node('ul');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
@@ -7419,7 +7425,7 @@ var $author$project$Main$view = function (model) {
 										$elm$core$String$fromInt(300)),
 										$elm$svg$Svg$Attributes$height(
 										$elm$core$String$fromInt(300)),
-										$elm$svg$Svg$Attributes$viewBox('0 0 300 300')
+										$elm$svg$Svg$Attributes$viewBox('0 0 1000 300')
 									]),
 								A3(
 									$author$project$CheminASvg$getSvgDataRecursive,
@@ -7433,13 +7439,102 @@ var $author$project$Main$view = function (model) {
 						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								A2($elm$html$Html$Attributes$style, 'color', 'red'),
-								A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+								A2($elm$html$Html$Attributes$style, 'color', 'black'),
+								A2($elm$html$Html$Attributes$style, 'text-align', 'left'),
 								A2($elm$html$Html$Attributes$style, 'width', '300px')
 							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text(msg)
+								A2(
+								$elm$html$Html$h2,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Commande invalide')
+									])),
+								A2(
+								$elm$html$Html$ul,
+								_List_Nil,
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Forward <distance> : avance le crayon d\'une distance donnée')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Repeat <nb_iter> <liste_cmd> : répète un nombre de fois donné une liste d\'instructions donnée')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Left <angle> : tourne le crayon vers la gauche d\'un certain angle')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Right <angle> : tourne le crayon vers la droite d\'un certain angle')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Hide : désactive l\'écriture au passage du crayon')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Show : active l\'écriture au passage du crayon')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Color <couleur> : définit une couleur donnée pour le crayon')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Size <taille> : définit une taille donnée pour le crayon')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Square <taille> : trace un carré de taille donnée')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Circle <taille> : trace un cercle de taille donnée')
+											])),
+										A2(
+										$elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text('Dash : écrit en pointillés de pas donné sur une distance donnée')
+											]))
+									]))
 							]));
 				}
 			}()

@@ -73,10 +73,10 @@ getSvgDataRecursive steps turt final_svg =
                     getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient turt.drawing turt.color (taille * turt.drawing_size) turt.drawing_size) final_svg
 
                 Square taille ->
-                    doSvgRecursiveWithTurt rest_of_steps (repeatSteps 1 [Left 90, Forward (taille/2), Right 90, Repeat 3 [Forward taille, Right 90], Forward (taille/2), Right 90, Hide, Forward taille, Show] turt final_svg)
+                    doSvgRecursiveWithTurt rest_of_steps (repeatSteps 1 [Show, Left 90, Forward (taille/2), Right 90, Repeat 3 [Forward taille, Right 90], Forward (taille/2), Right 90, Hide, Forward taille, Show] turt final_svg)
                 
                 Circle taille ->
-                    doSvgRecursiveWithTurt rest_of_steps (repeatSteps 1 [Left 90, Repeat 360 [Forward (taille * pi/360), Right 1], Right 90, Hide, Forward taille, Show] turt final_svg)
+                    doSvgRecursiveWithTurt rest_of_steps (repeatSteps 1 [Show, Left 90, Repeat 360 [Forward (taille * pi/360), Right 1], Right 90, Hide, Forward taille, Show] turt final_svg)
                 
                 Dash long pas ->
-                    doSvgRecursiveWithTurt rest_of_steps (repeatSteps (ceiling (long/pas)) [Forward (pas/2), Hide, Forward (pas/2), Show] turt final_svg)
+                    doSvgRecursiveWithTurt rest_of_steps (repeatSteps (ceiling (long/pas)) [Show, Forward (pas/2), Hide, Forward (pas/2), Show] turt final_svg)
