@@ -56,7 +56,6 @@ unwrap res =
     case res of
         Ok cool ->
             cool
-
         Err _ ->
             []
 
@@ -65,7 +64,6 @@ update msg model =
     case msg of
         Change str ->
             ({ model | commande_str = str }, Cmd.none)
-
         Render ->
             let chemins = unwrap (run extraitListeChemin model.commande_str) in
             if List.isEmpty chemins then
