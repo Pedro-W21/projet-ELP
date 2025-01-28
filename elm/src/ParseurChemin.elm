@@ -42,18 +42,17 @@ extraitRepeat = succeed Repeat
 
 extraitHide : Parser Chemin
 extraitHide = succeed Hide
-    |. symbol "hide"
+    |. symbol "Hide"
 
 extraitShow : Parser Chemin
 extraitShow = succeed Show
-    |. symbol "show"
+    |. symbol "Show"
 
 extraitColor : Parser Chemin
-extraitColor =
-    succeed Color
-        |. symbol "color"
-        |. spaces
-        |= getChompedString (chompWhile (\c -> c /= ' ' && c /= '\n'))
+extraitColor = succeed Color
+    |. symbol "Color"
+    |. spaces
+    |= getChompedString (chompWhile (\c -> c /= ' ' && c /= '\n'))
 
 extraitSize : Parser Chemin
 extraitSize = succeed Size
