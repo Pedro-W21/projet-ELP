@@ -13,7 +13,7 @@ type Chemin
     | Size Float
     | Square Float
     | Circle Float
-    -- | Dash Float
+    | Dash Float Float
 
 extraitForward : Parser Chemin
 extraitForward = succeed Forward 
@@ -73,11 +73,13 @@ extraitCircle = succeed Circle
     |. spaces
     |= float
 
--- extraitDash : Parser Chemin
--- extraitDash = succeed Dash
---     |. symbol "Dash"
---     |. spaces
---     |= float
+extraitDash : Parser Chemin
+extraitDash = succeed Dash
+    |. symbol "Dash"
+    |. spaces
+    |= float
+    |. spaces
+    |= float
 
 extraitListeChemin : Parser (List Chemin)
 extraitListeChemin = 
@@ -102,5 +104,5 @@ extraitChemin = oneOf [
     , extraitSize
     , extraitSquare
     , extraitCircle
-    -- , extraitDash
+    , extraitDash
     ]

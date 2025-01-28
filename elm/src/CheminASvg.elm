@@ -78,4 +78,5 @@ getSvgDataRecursive steps turt final_svg =
                 Circle taille ->
                     doSvgRecursiveWithTurt rest_of_steps (repeatSteps 1 [Left 90, Repeat 360 [Forward (taille * pi/360), Right 1], Right 90, Hide, Forward taille, Show] turt final_svg)
                 
-                -- Dash long ->
+                Dash long pas ->
+                    doSvgRecursiveWithTurt rest_of_steps (repeatSteps (ceiling (long/pas)) [Forward (pas/2), Hide, Forward (pas/2), Show] turt final_svg)
