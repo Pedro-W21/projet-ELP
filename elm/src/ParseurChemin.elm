@@ -1,5 +1,6 @@
 module ParseurChemin exposing (..)
 import Parser exposing (..)
+import String exposing (..)
 
 type Chemin
     = Forward Float
@@ -10,8 +11,8 @@ type Chemin
     | Show
     | Color String
     | Size Float
-    | Square Float
-    | Circle Float
+    -- | Square Float
+    -- | Circle Float
 
 extraitForward : Parser Chemin
 extraitForward = succeed Forward 
@@ -48,10 +49,11 @@ extraitShow = succeed Show
     |. symbol "show"
 
 extraitColor : Parser Chemin
-extraitColor = succeed Color
-    |. symbol "color"
-    |. spaces
-    |= string
+extraitColor =
+    succeed Color
+        |. symbol "color"
+        |. spaces
+        |= getChompedString (chompWhile (\c -> c /= ' ' && c /= '\n'))
 
 extraitSize : Parser Chemin
 extraitSize = succeed Size
@@ -92,6 +94,6 @@ extraitChemin = oneOf [
     , extraitShow
     , extraitColor
     , extraitSize
-    , extraitSquare
-    , extraitCircle
+    -- , extraitSquare
+    -- , extraitCircle
     ]

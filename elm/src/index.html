@@ -5334,32 +5334,249 @@ var $author$project$ParseurChemin$Repeat = F2(
 	function (a, b) {
 		return {$: 'Repeat', a: a, b: b};
 	});
-var $author$project$ParseurChemin$Forward = function (a) {
-	return {$: 'Forward', a: a};
+var $author$project$ParseurChemin$Color = function (a) {
+	return {$: 'Color', a: a};
 };
-var $elm$parser$Parser$ExpectingFloat = {$: 'ExpectingFloat'};
 var $elm$parser$Parser$Advanced$Parser = function (a) {
 	return {$: 'Parser', a: a};
 };
-var $elm$parser$Parser$Advanced$consumeBase = _Parser_consumeBase;
-var $elm$parser$Parser$Advanced$consumeBase16 = _Parser_consumeBase16;
-var $elm$parser$Parser$Advanced$Bad = F2(
-	function (a, b) {
-		return {$: 'Bad', a: a, b: b};
-	});
 var $elm$parser$Parser$Advanced$Good = F3(
 	function (a, b, c) {
 		return {$: 'Good', a: a, b: b, c: c};
 	});
+var $elm$parser$Parser$Advanced$isSubChar = _Parser_isSubChar;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$parser$Parser$Advanced$chompWhileHelp = F5(
+	function (isGood, offset, row, col, s0) {
+		chompWhileHelp:
+		while (true) {
+			var newOffset = A3($elm$parser$Parser$Advanced$isSubChar, isGood, offset, s0.src);
+			if (_Utils_eq(newOffset, -1)) {
+				return A3(
+					$elm$parser$Parser$Advanced$Good,
+					_Utils_cmp(s0.offset, offset) < 0,
+					_Utils_Tuple0,
+					{col: col, context: s0.context, indent: s0.indent, offset: offset, row: row, src: s0.src});
+			} else {
+				if (_Utils_eq(newOffset, -2)) {
+					var $temp$isGood = isGood,
+						$temp$offset = offset + 1,
+						$temp$row = row + 1,
+						$temp$col = 1,
+						$temp$s0 = s0;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					s0 = $temp$s0;
+					continue chompWhileHelp;
+				} else {
+					var $temp$isGood = isGood,
+						$temp$offset = newOffset,
+						$temp$row = row,
+						$temp$col = col + 1,
+						$temp$s0 = s0;
+					isGood = $temp$isGood;
+					offset = $temp$offset;
+					row = $temp$row;
+					col = $temp$col;
+					s0 = $temp$s0;
+					continue chompWhileHelp;
+				}
+			}
+		}
+	});
+var $elm$parser$Parser$Advanced$chompWhile = function (isGood) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A5($elm$parser$Parser$Advanced$chompWhileHelp, isGood, s.offset, s.row, s.col, s);
+		});
+};
+var $elm$parser$Parser$chompWhile = $elm$parser$Parser$Advanced$chompWhile;
+var $elm$core$Basics$always = F2(
+	function (a, _v0) {
+		return a;
+	});
+var $elm$parser$Parser$Advanced$Bad = F2(
+	function (a, b) {
+		return {$: 'Bad', a: a, b: b};
+	});
+var $elm$parser$Parser$Advanced$mapChompedString = F2(
+	function (func, _v0) {
+		var parse = _v0.a;
+		return $elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _v1 = parse(s0);
+				if (_v1.$ === 'Bad') {
+					var p = _v1.a;
+					var x = _v1.b;
+					return A2($elm$parser$Parser$Advanced$Bad, p, x);
+				} else {
+					var p = _v1.a;
+					var a = _v1.b;
+					var s1 = _v1.c;
+					return A3(
+						$elm$parser$Parser$Advanced$Good,
+						p,
+						A2(
+							func,
+							A3($elm$core$String$slice, s0.offset, s1.offset, s0.src),
+							a),
+						s1);
+				}
+			});
+	});
+var $elm$parser$Parser$Advanced$getChompedString = function (parser) {
+	return A2($elm$parser$Parser$Advanced$mapChompedString, $elm$core$Basics$always, parser);
+};
+var $elm$parser$Parser$getChompedString = $elm$parser$Parser$Advanced$getChompedString;
+var $elm$parser$Parser$Advanced$map2 = F3(
+	function (func, _v0, _v1) {
+		var parseA = _v0.a;
+		var parseB = _v1.a;
+		return $elm$parser$Parser$Advanced$Parser(
+			function (s0) {
+				var _v2 = parseA(s0);
+				if (_v2.$ === 'Bad') {
+					var p = _v2.a;
+					var x = _v2.b;
+					return A2($elm$parser$Parser$Advanced$Bad, p, x);
+				} else {
+					var p1 = _v2.a;
+					var a = _v2.b;
+					var s1 = _v2.c;
+					var _v3 = parseB(s1);
+					if (_v3.$ === 'Bad') {
+						var p2 = _v3.a;
+						var x = _v3.b;
+						return A2($elm$parser$Parser$Advanced$Bad, p1 || p2, x);
+					} else {
+						var p2 = _v3.a;
+						var b = _v3.b;
+						var s2 = _v3.c;
+						return A3(
+							$elm$parser$Parser$Advanced$Good,
+							p1 || p2,
+							A2(func, a, b),
+							s2);
+					}
+				}
+			});
+	});
+var $elm$parser$Parser$Advanced$ignorer = F2(
+	function (keepParser, ignoreParser) {
+		return A3($elm$parser$Parser$Advanced$map2, $elm$core$Basics$always, keepParser, ignoreParser);
+	});
+var $elm$parser$Parser$ignorer = $elm$parser$Parser$Advanced$ignorer;
+var $elm$parser$Parser$Advanced$keeper = F2(
+	function (parseFunc, parseArg) {
+		return A3($elm$parser$Parser$Advanced$map2, $elm$core$Basics$apL, parseFunc, parseArg);
+	});
+var $elm$parser$Parser$keeper = $elm$parser$Parser$Advanced$keeper;
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$parser$Parser$Advanced$spaces = $elm$parser$Parser$Advanced$chompWhile(
+	function (c) {
+		return _Utils_eq(
+			c,
+			_Utils_chr(' ')) || (_Utils_eq(
+			c,
+			_Utils_chr('\n')) || _Utils_eq(
+			c,
+			_Utils_chr('\r')));
+	});
+var $elm$parser$Parser$spaces = $elm$parser$Parser$Advanced$spaces;
+var $elm$parser$Parser$Advanced$succeed = function (a) {
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			return A3($elm$parser$Parser$Advanced$Good, false, a, s);
+		});
+};
+var $elm$parser$Parser$succeed = $elm$parser$Parser$Advanced$succeed;
+var $elm$parser$Parser$ExpectingSymbol = function (a) {
+	return {$: 'ExpectingSymbol', a: a};
+};
+var $elm$parser$Parser$Advanced$Token = F2(
+	function (a, b) {
+		return {$: 'Token', a: a, b: b};
+	});
+var $elm$parser$Parser$Advanced$AddRight = F2(
+	function (a, b) {
+		return {$: 'AddRight', a: a, b: b};
+	});
+var $elm$parser$Parser$Advanced$DeadEnd = F4(
+	function (row, col, problem, contextStack) {
+		return {col: col, contextStack: contextStack, problem: problem, row: row};
+	});
+var $elm$parser$Parser$Advanced$Empty = {$: 'Empty'};
+var $elm$parser$Parser$Advanced$fromState = F2(
+	function (s, x) {
+		return A2(
+			$elm$parser$Parser$Advanced$AddRight,
+			$elm$parser$Parser$Advanced$Empty,
+			A4($elm$parser$Parser$Advanced$DeadEnd, s.row, s.col, x, s.context));
+	});
+var $elm$parser$Parser$Advanced$isSubString = _Parser_isSubString;
+var $elm$core$Basics$not = _Basics_not;
+var $elm$parser$Parser$Advanced$token = function (_v0) {
+	var str = _v0.a;
+	var expecting = _v0.b;
+	var progress = !$elm$core$String$isEmpty(str);
+	return $elm$parser$Parser$Advanced$Parser(
+		function (s) {
+			var _v1 = A5($elm$parser$Parser$Advanced$isSubString, str, s.offset, s.row, s.col, s.src);
+			var newOffset = _v1.a;
+			var newRow = _v1.b;
+			var newCol = _v1.c;
+			return _Utils_eq(newOffset, -1) ? A2(
+				$elm$parser$Parser$Advanced$Bad,
+				false,
+				A2($elm$parser$Parser$Advanced$fromState, s, expecting)) : A3(
+				$elm$parser$Parser$Advanced$Good,
+				progress,
+				_Utils_Tuple0,
+				{col: newCol, context: s.context, indent: s.indent, offset: newOffset, row: newRow, src: s.src});
+		});
+};
+var $elm$parser$Parser$Advanced$symbol = $elm$parser$Parser$Advanced$token;
+var $elm$parser$Parser$symbol = function (str) {
+	return $elm$parser$Parser$Advanced$symbol(
+		A2(
+			$elm$parser$Parser$Advanced$Token,
+			str,
+			$elm$parser$Parser$ExpectingSymbol(str)));
+};
+var $author$project$ParseurChemin$extraitColor = A2(
+	$elm$parser$Parser$keeper,
+	A2(
+		$elm$parser$Parser$ignorer,
+		A2(
+			$elm$parser$Parser$ignorer,
+			$elm$parser$Parser$succeed($author$project$ParseurChemin$Color),
+			$elm$parser$Parser$symbol('color')),
+		$elm$parser$Parser$spaces),
+	$elm$parser$Parser$getChompedString(
+		$elm$parser$Parser$chompWhile(
+			function (c) {
+				return (!_Utils_eq(
+					c,
+					_Utils_chr(' '))) && (!_Utils_eq(
+					c,
+					_Utils_chr('\n')));
+			})));
+var $author$project$ParseurChemin$Forward = function (a) {
+	return {$: 'Forward', a: a};
+};
+var $elm$parser$Parser$ExpectingFloat = {$: 'ExpectingFloat'};
+var $elm$parser$Parser$Advanced$consumeBase = _Parser_consumeBase;
+var $elm$parser$Parser$Advanced$consumeBase16 = _Parser_consumeBase16;
 var $elm$parser$Parser$Advanced$bumpOffset = F2(
 	function (newOffset, s) {
 		return {col: s.col + (newOffset - s.offset), context: s.context, indent: s.indent, offset: newOffset, row: s.row, src: s.src};
 	});
 var $elm$parser$Parser$Advanced$chompBase10 = _Parser_chompBase10;
 var $elm$parser$Parser$Advanced$isAsciiCode = _Parser_isAsciiCode;
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var $elm$parser$Parser$Advanced$consumeExp = F2(
 	function (offset, src) {
 		if (A3($elm$parser$Parser$Advanced$isAsciiCode, 101, offset, src) || A3($elm$parser$Parser$Advanced$isAsciiCode, 69, offset, src)) {
@@ -5377,22 +5594,6 @@ var $elm$parser$Parser$Advanced$consumeDotAndExp = F2(
 			$elm$parser$Parser$Advanced$consumeExp,
 			A2($elm$parser$Parser$Advanced$chompBase10, offset + 1, src),
 			src) : A2($elm$parser$Parser$Advanced$consumeExp, offset, src);
-	});
-var $elm$parser$Parser$Advanced$AddRight = F2(
-	function (a, b) {
-		return {$: 'AddRight', a: a, b: b};
-	});
-var $elm$parser$Parser$Advanced$DeadEnd = F4(
-	function (row, col, problem, contextStack) {
-		return {col: col, contextStack: contextStack, problem: problem, row: row};
-	});
-var $elm$parser$Parser$Advanced$Empty = {$: 'Empty'};
-var $elm$parser$Parser$Advanced$fromState = F2(
-	function (s, x) {
-		return A2(
-			$elm$parser$Parser$Advanced$AddRight,
-			$elm$parser$Parser$Advanced$Empty,
-			A4($elm$parser$Parser$Advanced$DeadEnd, s.row, s.col, x, s.context));
 	});
 var $elm$parser$Parser$Advanced$finalizeInt = F5(
 	function (invalid, handler, startOffset, _v0, s) {
@@ -5529,155 +5730,6 @@ var $elm$parser$Parser$Advanced$float = F2(
 			});
 	});
 var $elm$parser$Parser$float = A2($elm$parser$Parser$Advanced$float, $elm$parser$Parser$ExpectingFloat, $elm$parser$Parser$ExpectingFloat);
-var $elm$core$Basics$always = F2(
-	function (a, _v0) {
-		return a;
-	});
-var $elm$parser$Parser$Advanced$map2 = F3(
-	function (func, _v0, _v1) {
-		var parseA = _v0.a;
-		var parseB = _v1.a;
-		return $elm$parser$Parser$Advanced$Parser(
-			function (s0) {
-				var _v2 = parseA(s0);
-				if (_v2.$ === 'Bad') {
-					var p = _v2.a;
-					var x = _v2.b;
-					return A2($elm$parser$Parser$Advanced$Bad, p, x);
-				} else {
-					var p1 = _v2.a;
-					var a = _v2.b;
-					var s1 = _v2.c;
-					var _v3 = parseB(s1);
-					if (_v3.$ === 'Bad') {
-						var p2 = _v3.a;
-						var x = _v3.b;
-						return A2($elm$parser$Parser$Advanced$Bad, p1 || p2, x);
-					} else {
-						var p2 = _v3.a;
-						var b = _v3.b;
-						var s2 = _v3.c;
-						return A3(
-							$elm$parser$Parser$Advanced$Good,
-							p1 || p2,
-							A2(func, a, b),
-							s2);
-					}
-				}
-			});
-	});
-var $elm$parser$Parser$Advanced$ignorer = F2(
-	function (keepParser, ignoreParser) {
-		return A3($elm$parser$Parser$Advanced$map2, $elm$core$Basics$always, keepParser, ignoreParser);
-	});
-var $elm$parser$Parser$ignorer = $elm$parser$Parser$Advanced$ignorer;
-var $elm$parser$Parser$Advanced$keeper = F2(
-	function (parseFunc, parseArg) {
-		return A3($elm$parser$Parser$Advanced$map2, $elm$core$Basics$apL, parseFunc, parseArg);
-	});
-var $elm$parser$Parser$keeper = $elm$parser$Parser$Advanced$keeper;
-var $elm$parser$Parser$Advanced$isSubChar = _Parser_isSubChar;
-var $elm$parser$Parser$Advanced$chompWhileHelp = F5(
-	function (isGood, offset, row, col, s0) {
-		chompWhileHelp:
-		while (true) {
-			var newOffset = A3($elm$parser$Parser$Advanced$isSubChar, isGood, offset, s0.src);
-			if (_Utils_eq(newOffset, -1)) {
-				return A3(
-					$elm$parser$Parser$Advanced$Good,
-					_Utils_cmp(s0.offset, offset) < 0,
-					_Utils_Tuple0,
-					{col: col, context: s0.context, indent: s0.indent, offset: offset, row: row, src: s0.src});
-			} else {
-				if (_Utils_eq(newOffset, -2)) {
-					var $temp$isGood = isGood,
-						$temp$offset = offset + 1,
-						$temp$row = row + 1,
-						$temp$col = 1,
-						$temp$s0 = s0;
-					isGood = $temp$isGood;
-					offset = $temp$offset;
-					row = $temp$row;
-					col = $temp$col;
-					s0 = $temp$s0;
-					continue chompWhileHelp;
-				} else {
-					var $temp$isGood = isGood,
-						$temp$offset = newOffset,
-						$temp$row = row,
-						$temp$col = col + 1,
-						$temp$s0 = s0;
-					isGood = $temp$isGood;
-					offset = $temp$offset;
-					row = $temp$row;
-					col = $temp$col;
-					s0 = $temp$s0;
-					continue chompWhileHelp;
-				}
-			}
-		}
-	});
-var $elm$parser$Parser$Advanced$chompWhile = function (isGood) {
-	return $elm$parser$Parser$Advanced$Parser(
-		function (s) {
-			return A5($elm$parser$Parser$Advanced$chompWhileHelp, isGood, s.offset, s.row, s.col, s);
-		});
-};
-var $elm$parser$Parser$Advanced$spaces = $elm$parser$Parser$Advanced$chompWhile(
-	function (c) {
-		return _Utils_eq(
-			c,
-			_Utils_chr(' ')) || (_Utils_eq(
-			c,
-			_Utils_chr('\n')) || _Utils_eq(
-			c,
-			_Utils_chr('\r')));
-	});
-var $elm$parser$Parser$spaces = $elm$parser$Parser$Advanced$spaces;
-var $elm$parser$Parser$Advanced$succeed = function (a) {
-	return $elm$parser$Parser$Advanced$Parser(
-		function (s) {
-			return A3($elm$parser$Parser$Advanced$Good, false, a, s);
-		});
-};
-var $elm$parser$Parser$succeed = $elm$parser$Parser$Advanced$succeed;
-var $elm$parser$Parser$ExpectingSymbol = function (a) {
-	return {$: 'ExpectingSymbol', a: a};
-};
-var $elm$parser$Parser$Advanced$Token = F2(
-	function (a, b) {
-		return {$: 'Token', a: a, b: b};
-	});
-var $elm$parser$Parser$Advanced$isSubString = _Parser_isSubString;
-var $elm$core$Basics$not = _Basics_not;
-var $elm$parser$Parser$Advanced$token = function (_v0) {
-	var str = _v0.a;
-	var expecting = _v0.b;
-	var progress = !$elm$core$String$isEmpty(str);
-	return $elm$parser$Parser$Advanced$Parser(
-		function (s) {
-			var _v1 = A5($elm$parser$Parser$Advanced$isSubString, str, s.offset, s.row, s.col, s.src);
-			var newOffset = _v1.a;
-			var newRow = _v1.b;
-			var newCol = _v1.c;
-			return _Utils_eq(newOffset, -1) ? A2(
-				$elm$parser$Parser$Advanced$Bad,
-				false,
-				A2($elm$parser$Parser$Advanced$fromState, s, expecting)) : A3(
-				$elm$parser$Parser$Advanced$Good,
-				progress,
-				_Utils_Tuple0,
-				{col: newCol, context: s.context, indent: s.indent, offset: newOffset, row: newRow, src: s.src});
-		});
-};
-var $elm$parser$Parser$Advanced$symbol = $elm$parser$Parser$Advanced$token;
-var $elm$parser$Parser$symbol = function (str) {
-	return $elm$parser$Parser$Advanced$symbol(
-		A2(
-			$elm$parser$Parser$Advanced$Token,
-			str,
-			$elm$parser$Parser$ExpectingSymbol(str)));
-};
 var $author$project$ParseurChemin$extraitForward = A2(
 	$elm$parser$Parser$keeper,
 	A2(
@@ -5688,6 +5740,11 @@ var $author$project$ParseurChemin$extraitForward = A2(
 			$elm$parser$Parser$symbol('Forward')),
 		$elm$parser$Parser$spaces),
 	$elm$parser$Parser$float);
+var $author$project$ParseurChemin$Hide = {$: 'Hide'};
+var $author$project$ParseurChemin$extraitHide = A2(
+	$elm$parser$Parser$ignorer,
+	$elm$parser$Parser$succeed($author$project$ParseurChemin$Hide),
+	$elm$parser$Parser$symbol('hide'));
 var $author$project$ParseurChemin$Left = function (a) {
 	return {$: 'Left', a: a};
 };
@@ -5712,6 +5769,24 @@ var $author$project$ParseurChemin$extraitRight = A2(
 			$elm$parser$Parser$ignorer,
 			$elm$parser$Parser$succeed($author$project$ParseurChemin$Right),
 			$elm$parser$Parser$symbol('Right')),
+		$elm$parser$Parser$spaces),
+	$elm$parser$Parser$float);
+var $author$project$ParseurChemin$Show = {$: 'Show'};
+var $author$project$ParseurChemin$extraitShow = A2(
+	$elm$parser$Parser$ignorer,
+	$elm$parser$Parser$succeed($author$project$ParseurChemin$Show),
+	$elm$parser$Parser$symbol('show'));
+var $author$project$ParseurChemin$Size = function (a) {
+	return {$: 'Size', a: a};
+};
+var $author$project$ParseurChemin$extraitSize = A2(
+	$elm$parser$Parser$keeper,
+	A2(
+		$elm$parser$Parser$ignorer,
+		A2(
+			$elm$parser$Parser$ignorer,
+			$elm$parser$Parser$succeed($author$project$ParseurChemin$Size),
+			$elm$parser$Parser$symbol('size')),
 		$elm$parser$Parser$spaces),
 	$elm$parser$Parser$float);
 var $elm$parser$Parser$ExpectingInt = {$: 'ExpectingInt'};
@@ -6103,7 +6178,11 @@ function $author$project$ParseurChemin$cyclic$extraitChemin() {
 				$author$project$ParseurChemin$extraitForward,
 				$author$project$ParseurChemin$extraitLeft,
 				$author$project$ParseurChemin$extraitRight,
-				$author$project$ParseurChemin$cyclic$extraitRepeat()
+				$author$project$ParseurChemin$cyclic$extraitRepeat(),
+				$author$project$ParseurChemin$extraitHide,
+				$author$project$ParseurChemin$extraitShow,
+				$author$project$ParseurChemin$extraitColor,
+				$author$project$ParseurChemin$extraitSize
 			]));
 }
 function $author$project$ParseurChemin$cyclic$extraitRepeat() {
@@ -6210,7 +6289,6 @@ var $author$project$Main$unwrap = function (res) {
 		var cool = res.a;
 		return cool;
 	} else {
-		var error = res.a;
 		return _List_Nil;
 	}
 };
@@ -6228,7 +6306,7 @@ var $author$project$Main$update = F2(
 				model,
 				{
 					commandes: _List_Nil,
-					erreur: $author$project$Main$Message('Commande invalide, veuillez entrer une des commandes suivantes: ')
+					erreur: $author$project$Main$Message('Commande invalide, veuillez entrer une des commandes suivantes: hide, show, color <couleur>, size <taille>, <forme>')
 				}) : _Utils_update(
 				model,
 				{commandes: chemins, erreur: $author$project$Main$Rien});
@@ -6238,12 +6316,17 @@ var $author$project$Main$Change = function (a) {
 	return {$: 'Change', a: a};
 };
 var $author$project$Main$Render = {$: 'Render'};
-var $author$project$CheminASvg$Turtle = F3(
-	function (posx, posy, orient) {
-		return {orient: orient, posx: posx, posy: posy};
+var $author$project$CheminASvg$Turtle = F6(
+	function (posx, posy, orient, drawing, color, size) {
+		return {color: color, drawing: drawing, orient: orient, posx: posx, posy: posy, size: size};
 	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$Basics$pi = _Basics_pi;
+var $elm$core$Basics$degrees = function (angleInDegrees) {
+	return (angleInDegrees * $elm$core$Basics$pi) / 180;
+};
 var $elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -6252,20 +6335,44 @@ var $elm$core$List$append = F2(
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
 	});
-var $elm$core$Basics$cos = _Basics_cos;
-var $elm$core$Basics$pi = _Basics_pi;
-var $elm$core$Basics$degrees = function (angleInDegrees) {
-	return (angleInDegrees * $elm$core$Basics$pi) / 180;
-};
+var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
-var $elm$core$Basics$sin = _Basics_sin;
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
 var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
 var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
 var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
 var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
+var $author$project$CheminASvg$goForward = F4(
+	function (steps, turt, next_turt, svg_final) {
+		return turt.drawing ? _Utils_Tuple2(
+			next_turt,
+			A2(
+				$elm$core$List$append,
+				svg_final,
+				_List_fromArray(
+					[
+						A2(
+						$elm$svg$Svg$line,
+						_List_fromArray(
+							[
+								$elm$svg$Svg$Attributes$strokeWidth(
+								$elm$core$String$fromFloat(turt.size)),
+								$elm$svg$Svg$Attributes$stroke(turt.color),
+								$elm$svg$Svg$Attributes$x1(
+								$elm$core$String$fromFloat(turt.posx)),
+								$elm$svg$Svg$Attributes$y1(
+								$elm$core$String$fromFloat(turt.posy)),
+								$elm$svg$Svg$Attributes$x2(
+								$elm$core$String$fromFloat(next_turt.posx)),
+								$elm$svg$Svg$Attributes$y2(
+								$elm$core$String$fromFloat(next_turt.posy))
+							]),
+						_List_Nil)
+					]))) : _Utils_Tuple2(next_turt, svg_final);
+	});
+var $elm$core$Basics$sin = _Basics_sin;
 var $author$project$CheminASvg$doSvgRecursiveWithTurt = F2(
 	function (rest_of_steps, _v2) {
 		var turt = _v2.a;
@@ -6288,18 +6395,21 @@ var $author$project$CheminASvg$getSvgDataRecursive = F3(
 							$author$project$CheminASvg$goForward,
 							rest_of_steps,
 							turt,
-							A3(
+							A6(
 								$author$project$CheminASvg$Turtle,
 								turt.posx + ($elm$core$Basics$cos(
 									$elm$core$Basics$degrees(turt.orient)) * _long),
 								turt.posy + ($elm$core$Basics$sin(
 									$elm$core$Basics$degrees(turt.orient)) * _long),
-								turt.orient),
+								turt.orient,
+								turt.drawing,
+								turt.color,
+								turt.size),
 							final_svg);
 					case 'Right':
 						var changement = step.a;
 						var $temp$steps = rest_of_steps,
-							$temp$turt = A3($author$project$CheminASvg$Turtle, turt.posx, turt.posy, turt.orient + changement),
+							$temp$turt = A6($author$project$CheminASvg$Turtle, turt.posx, turt.posy, turt.orient + changement, turt.drawing, turt.color, turt.size),
 							$temp$final_svg = final_svg;
 						steps = $temp$steps;
 						turt = $temp$turt;
@@ -6308,55 +6418,56 @@ var $author$project$CheminASvg$getSvgDataRecursive = F3(
 					case 'Left':
 						var changement = step.a;
 						var $temp$steps = rest_of_steps,
-							$temp$turt = A3($author$project$CheminASvg$Turtle, turt.posx, turt.posy, turt.orient - changement),
+							$temp$turt = A6($author$project$CheminASvg$Turtle, turt.posx, turt.posy, turt.orient - changement, turt.drawing, turt.color, turt.size),
 							$temp$final_svg = final_svg;
 						steps = $temp$steps;
 						turt = $temp$turt;
 						final_svg = $temp$final_svg;
 						continue getSvgDataRecursive;
-					default:
+					case 'Repeat':
 						var nb = step.a;
 						var repeat_steps = step.b;
 						return A2(
 							$author$project$CheminASvg$doSvgRecursiveWithTurt,
 							rest_of_steps,
 							A4($author$project$CheminASvg$repeatSteps, nb, repeat_steps, turt, final_svg));
+					case 'Hide':
+						var $temp$steps = rest_of_steps,
+							$temp$turt = A6($author$project$CheminASvg$Turtle, turt.posx, turt.posy, turt.orient, false, turt.color, turt.size),
+							$temp$final_svg = final_svg;
+						steps = $temp$steps;
+						turt = $temp$turt;
+						final_svg = $temp$final_svg;
+						continue getSvgDataRecursive;
+					case 'Show':
+						var $temp$steps = rest_of_steps,
+							$temp$turt = A6($author$project$CheminASvg$Turtle, turt.posx, turt.posy, turt.orient, true, turt.color, turt.size),
+							$temp$final_svg = final_svg;
+						steps = $temp$steps;
+						turt = $temp$turt;
+						final_svg = $temp$final_svg;
+						continue getSvgDataRecursive;
+					case 'Color':
+						var couleur = step.a;
+						var $temp$steps = rest_of_steps,
+							$temp$turt = A6($author$project$CheminASvg$Turtle, turt.posx, turt.posy, turt.orient, turt.drawing, couleur, turt.size),
+							$temp$final_svg = final_svg;
+						steps = $temp$steps;
+						turt = $temp$turt;
+						final_svg = $temp$final_svg;
+						continue getSvgDataRecursive;
+					default:
+						var taille = step.a;
+						var $temp$steps = rest_of_steps,
+							$temp$turt = A6($author$project$CheminASvg$Turtle, turt.posx, turt.posy, turt.orient, turt.drawing, turt.color, taille),
+							$temp$final_svg = final_svg;
+						steps = $temp$steps;
+						turt = $temp$turt;
+						final_svg = $temp$final_svg;
+						continue getSvgDataRecursive;
 				}
 			}
 		}
-	});
-var $author$project$CheminASvg$goForward = F4(
-	function (steps, turt, next_turt, svg_final) {
-		return A3(
-			$author$project$CheminASvg$getSvgDataRecursive,
-			steps,
-			next_turt,
-			A2(
-				$elm$core$List$append,
-				svg_final,
-				_List_fromArray(
-					[
-						A2(
-						$elm$svg$Svg$line,
-						_List_fromArray(
-							[
-								$elm$svg$Svg$Attributes$strokeWidth('2'),
-								$elm$svg$Svg$Attributes$stroke('Blue'),
-								$elm$svg$Svg$Attributes$x1(
-								$elm$core$String$fromInt(
-									$elm$core$Basics$floor(turt.posx))),
-								$elm$svg$Svg$Attributes$y1(
-								$elm$core$String$fromInt(
-									$elm$core$Basics$floor(turt.posy))),
-								$elm$svg$Svg$Attributes$x2(
-								$elm$core$String$fromInt(
-									$elm$core$Basics$floor(next_turt.posx))),
-								$elm$svg$Svg$Attributes$y2(
-								$elm$core$String$fromInt(
-									$elm$core$Basics$floor(next_turt.posy)))
-							]),
-						_List_Nil)
-					])));
 	});
 var $author$project$CheminASvg$repeatSteps = F4(
 	function (nb_left, steps, turt, svg_final) {
@@ -6365,12 +6476,7 @@ var $author$project$CheminASvg$repeatSteps = F4(
 			steps,
 			A4($author$project$CheminASvg$repeatSteps, nb_left - 1, steps, turt, svg_final)) : _Utils_Tuple2(turt, svg_final);
 	});
-var $elm$html$Html$Attributes$height = function (n) {
-	return A2(
-		_VirtualDom_attribute,
-		'height',
-		$elm$core$String$fromInt(n));
-};
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -6442,26 +6548,26 @@ var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var $elm$html$Html$Attributes$width = function (n) {
-	return A2(
-		_VirtualDom_attribute,
-		'width',
-		$elm$core$String$fromInt(n));
-};
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
 				A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+				A2($elm$html$Html$Attributes$style, 'flex-direction', 'column'),
 				A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-				A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
+				A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
+				A2($elm$html$Html$Attributes$style, 'height', '100vh')
 			]),
 		_List_fromArray(
 			[
 				A2(
 				$elm$html$Html$div,
-				_List_Nil,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'margin', '10px')
+					]),
 				_List_fromArray(
 					[
 						A2(
@@ -6470,57 +6576,78 @@ var $author$project$Main$view = function (model) {
 							[
 								$elm$html$Html$Attributes$placeholder('Commande à afficher'),
 								$elm$html$Html$Attributes$value(model.commande_str),
-								$elm$html$Html$Events$onInput($author$project$Main$Change)
+								$elm$html$Html$Events$onInput($author$project$Main$Change),
+								A2($elm$html$Html$Attributes$style, 'padding', '10px'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '16px')
 							]),
-						_List_Nil),
-						A2($elm$html$Html$div, _List_Nil, _List_Nil),
+						_List_Nil)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'margin', '10px')
+					]),
+				_List_fromArray(
+					[
 						A2(
 						$elm$html$Html$button,
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick($author$project$Main$Render)
+								$elm$html$Html$Events$onClick($author$project$Main$Render),
+								A2($elm$html$Html$Attributes$style, 'padding', '10px'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '16px')
 							]),
 						_List_fromArray(
 							[
 								$elm$html$Html$text('Rendu des commandes')
-							])),
-						A2($elm$html$Html$div, _List_Nil, _List_Nil),
-						function () {
-						var _v0 = model.erreur;
-						if (_v0.$ === 'Rien') {
-							return A2(
+							]))
+					])),
+				function () {
+				var _v0 = model.erreur;
+				if (_v0.$ === 'Rien') {
+					return A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'margin', '10px'),
+								A2($elm$html$Html$Attributes$style, 'border', '1px solid #ccc'),
+								A2($elm$html$Html$Attributes$style, 'padding', '10px')
+							]),
+						_List_fromArray(
+							[
+								A2(
 								$elm$svg$Svg$svg,
 								_List_fromArray(
 									[
-										$elm$html$Html$Attributes$width(300),
-										$elm$html$Html$Attributes$height(300),
+										$elm$svg$Svg$Attributes$width(
+										$elm$core$String$fromInt(300)),
+										$elm$svg$Svg$Attributes$height(
+										$elm$core$String$fromInt(300)),
 										$elm$svg$Svg$Attributes$viewBox('0 0 300 300')
 									]),
 								A3(
 									$author$project$CheminASvg$getSvgDataRecursive,
 									model.commandes,
-									A3($author$project$CheminASvg$Turtle, 150, 150, 0),
-									_List_Nil).b);
-						} else {
-							var msg = _v0.a;
-							return A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'color', 'red'),
-										A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-										A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-										A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
-										A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
-										A2($elm$html$Html$Attributes$style, 'width', '300px')
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text(msg)
-									]));
-						}
-					}()
-					]))
+									A6($author$project$CheminASvg$Turtle, 150, 150, 0, true, 'Blue', 2),
+									_List_Nil).b)
+							]));
+				} else {
+					var msg = _v0.a;
+					return A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'color', 'red'),
+								A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+								A2($elm$html$Html$Attributes$style, 'width', '300px')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(msg)
+							]));
+				}
+			}()
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$sandbox(
