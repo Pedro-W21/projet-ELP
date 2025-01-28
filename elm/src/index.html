@@ -5563,7 +5563,7 @@ var $author$project$ParseurChemin$extraitColor = A2(
 					c,
 					_Utils_chr(' '))) && (!_Utils_eq(
 					c,
-					_Utils_chr('\n')));
+					_Utils_chr(',')));
 			})));
 var $author$project$ParseurChemin$Forward = function (a) {
 	return {$: 'Forward', a: a};
@@ -5786,7 +5786,20 @@ var $author$project$ParseurChemin$extraitSize = A2(
 		A2(
 			$elm$parser$Parser$ignorer,
 			$elm$parser$Parser$succeed($author$project$ParseurChemin$Size),
-			$elm$parser$Parser$symbol('size')),
+			$elm$parser$Parser$symbol('Size')),
+		$elm$parser$Parser$spaces),
+	$elm$parser$Parser$float);
+var $author$project$ParseurChemin$Square = function (a) {
+	return {$: 'Square', a: a};
+};
+var $author$project$ParseurChemin$extraitSquare = A2(
+	$elm$parser$Parser$keeper,
+	A2(
+		$elm$parser$Parser$ignorer,
+		A2(
+			$elm$parser$Parser$ignorer,
+			$elm$parser$Parser$succeed($author$project$ParseurChemin$Square),
+			$elm$parser$Parser$symbol('Square')),
 		$elm$parser$Parser$spaces),
 	$elm$parser$Parser$float);
 var $elm$parser$Parser$ExpectingInt = {$: 'ExpectingInt'};
@@ -6182,7 +6195,8 @@ function $author$project$ParseurChemin$cyclic$extraitChemin() {
 				$author$project$ParseurChemin$extraitHide,
 				$author$project$ParseurChemin$extraitShow,
 				$author$project$ParseurChemin$extraitColor,
-				$author$project$ParseurChemin$extraitSize
+				$author$project$ParseurChemin$extraitSize,
+				$author$project$ParseurChemin$extraitSquare
 			]));
 }
 function $author$project$ParseurChemin$cyclic$extraitRepeat() {
@@ -6306,7 +6320,7 @@ var $author$project$Main$update = F2(
 				model,
 				{
 					commandes: _List_Nil,
-					erreur: $author$project$Main$Message('Commande invalide, veuillez entrer une des commandes suivantes: forward <distance>, left <angle>, right <angle>, hide, show, color <couleur>, size <taille>, <forme>')
+					erreur: $author$project$Main$Message('Commande invalide, veuillez entrer une des commandes suivantes: Forward <distance>, Left <angle>, Right <angle>, Hide, Show, Color <couleur>, Size <taille>, Square ou Circle.')
 				}) : _Utils_update(
 				model,
 				{commandes: chemins, erreur: $author$project$Main$Rien});
@@ -6322,11 +6336,6 @@ var $author$project$CheminASvg$Turtle = F6(
 	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$core$Basics$cos = _Basics_cos;
-var $elm$core$Basics$pi = _Basics_pi;
-var $elm$core$Basics$degrees = function (angleInDegrees) {
-	return (angleInDegrees * $elm$core$Basics$pi) / 180;
-};
 var $elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -6335,44 +6344,22 @@ var $elm$core$List$append = F2(
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
 	});
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$Basics$pi = _Basics_pi;
+var $elm$core$Basics$degrees = function (angleInDegrees) {
+	return (angleInDegrees * $elm$core$Basics$pi) / 180;
+};
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
+var $elm$core$Basics$sin = _Basics_sin;
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $elm$core$String$trim = _String_trim;
 var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
 var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
 var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
 var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
-var $author$project$CheminASvg$goForward = F4(
-	function (steps, turt, next_turt, svg_final) {
-		return turt.drawing ? _Utils_Tuple2(
-			next_turt,
-			A2(
-				$elm$core$List$append,
-				svg_final,
-				_List_fromArray(
-					[
-						A2(
-						$elm$svg$Svg$line,
-						_List_fromArray(
-							[
-								$elm$svg$Svg$Attributes$strokeWidth(
-								$elm$core$String$fromFloat(turt.size)),
-								$elm$svg$Svg$Attributes$stroke(turt.color),
-								$elm$svg$Svg$Attributes$x1(
-								$elm$core$String$fromFloat(turt.posx)),
-								$elm$svg$Svg$Attributes$y1(
-								$elm$core$String$fromFloat(turt.posy)),
-								$elm$svg$Svg$Attributes$x2(
-								$elm$core$String$fromFloat(next_turt.posx)),
-								$elm$svg$Svg$Attributes$y2(
-								$elm$core$String$fromFloat(next_turt.posy))
-							]),
-						_List_Nil)
-					]))) : _Utils_Tuple2(next_turt, svg_final);
-	});
-var $elm$core$Basics$sin = _Basics_sin;
 var $author$project$CheminASvg$doSvgRecursiveWithTurt = F2(
 	function (rest_of_steps, _v2) {
 		var turt = _v2.a;
@@ -6456,7 +6443,7 @@ var $author$project$CheminASvg$getSvgDataRecursive = F3(
 						turt = $temp$turt;
 						final_svg = $temp$final_svg;
 						continue getSvgDataRecursive;
-					default:
+					case 'Size':
 						var taille = step.a;
 						var $temp$steps = rest_of_steps,
 							$temp$turt = A6($author$project$CheminASvg$Turtle, turt.posx, turt.posy, turt.orient, turt.drawing, turt.color, taille),
@@ -6465,9 +6452,69 @@ var $author$project$CheminASvg$getSvgDataRecursive = F3(
 						turt = $temp$turt;
 						final_svg = $temp$final_svg;
 						continue getSvgDataRecursive;
+					default:
+						var taille = step.a;
+						return A2(
+							$author$project$CheminASvg$doSvgRecursiveWithTurt,
+							rest_of_steps,
+							A4(
+								$author$project$CheminASvg$repeatSteps,
+								1,
+								_List_fromArray(
+									[
+										$author$project$ParseurChemin$Left(90),
+										$author$project$ParseurChemin$Forward(taille / 2),
+										$author$project$ParseurChemin$Right(90),
+										A2(
+										$author$project$ParseurChemin$Repeat,
+										3,
+										_List_fromArray(
+											[
+												$author$project$ParseurChemin$Forward(taille),
+												$author$project$ParseurChemin$Right(90)
+											])),
+										$author$project$ParseurChemin$Forward(taille / 2),
+										$author$project$ParseurChemin$Right(90),
+										$author$project$ParseurChemin$Hide,
+										$author$project$ParseurChemin$Forward(taille),
+										$author$project$ParseurChemin$Show
+									]),
+								turt,
+								final_svg));
 				}
 			}
 		}
+	});
+var $author$project$CheminASvg$goForward = F4(
+	function (steps, turt, next_turt, svg_final) {
+		return turt.drawing ? A3(
+			$author$project$CheminASvg$getSvgDataRecursive,
+			steps,
+			next_turt,
+			A2(
+				$elm$core$List$append,
+				svg_final,
+				_List_fromArray(
+					[
+						A2(
+						$elm$svg$Svg$line,
+						_List_fromArray(
+							[
+								$elm$svg$Svg$Attributes$strokeWidth(
+								$elm$core$String$fromFloat(turt.size)),
+								$elm$svg$Svg$Attributes$stroke(
+								$elm$core$String$trim(turt.color)),
+								$elm$svg$Svg$Attributes$x1(
+								$elm$core$String$fromFloat(turt.posx)),
+								$elm$svg$Svg$Attributes$y1(
+								$elm$core$String$fromFloat(turt.posy)),
+								$elm$svg$Svg$Attributes$x2(
+								$elm$core$String$fromFloat(next_turt.posx)),
+								$elm$svg$Svg$Attributes$y2(
+								$elm$core$String$fromFloat(next_turt.posy))
+							]),
+						_List_Nil)
+					]))) : A3($author$project$CheminASvg$getSvgDataRecursive, steps, next_turt, svg_final);
 	});
 var $author$project$CheminASvg$repeatSteps = F4(
 	function (nb_left, steps, turt, svg_final) {
