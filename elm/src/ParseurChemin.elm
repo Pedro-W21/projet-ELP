@@ -1,19 +1,30 @@
 module ParseurChemin exposing (..)
 import Parser exposing (..)
 
-
-type Chemin = Forward Float | Right Float | Left Float | Repeat Int (List Chemin)
+type Chemin
+    = Forward Float
+    | Right Float
+    | Left Float
+    | Repeat Int (List Chemin)
+    | Hide
+    | Show
+    | Color String
+    | Size Float
+    | Square Float
+    | Circle Float
 
 extraitForward : Parser Chemin
 extraitForward = succeed Forward 
  |. symbol "Forward"
  |. spaces
  |= float
+
 extraitRight : Parser Chemin
 extraitRight = succeed Right
  |. symbol "Right"
  |. spaces
  |= float
+
 extraitLeft : Parser Chemin
 extraitLeft = succeed Left
  |. symbol "Left"
@@ -28,6 +39,37 @@ extraitRepeat = succeed Repeat
  |. spaces
  |= lazy (\_ -> extraitListeChemin)
 
+extraitHide : Parser Chemin
+extraitHide = succeed Hide
+    |. symbol "hide"
+
+extraitShow : Parser Chemin
+extraitShow = succeed Show
+    |. symbol "show"
+
+extraitColor : Parser Chemin
+extraitColor = succeed Color
+    |. symbol "color"
+    |. spaces
+    |= string
+
+extraitSize : Parser Chemin
+extraitSize = succeed Size
+    |. symbol "size"
+    |. spaces
+    |= float
+
+-- extraitSquare : Parser Chemin
+-- extraitSquare = succeed Square
+--     |. symbol "<square>"
+--     |. spaces
+--     |= float
+
+-- extraitCircle : Parser Chemin
+-- extraitCircle = succeed Circle
+--     |. symbol "<circle>"
+--     |. spaces
+--     |= float
 
 extraitListeChemin : Parser (List Chemin)
 extraitListeChemin = 
@@ -46,6 +88,10 @@ extraitChemin = oneOf [
     , extraitLeft
     , extraitRight
     , extraitRepeat
+    , extraitHide
+    , extraitShow
+    , extraitColor
+    , extraitSize
+    , extraitSquare
+    , extraitCircle
     ]
-
-a = Forward 10
