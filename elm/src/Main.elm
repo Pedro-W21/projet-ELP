@@ -126,37 +126,40 @@ view model =
             ]
         , div [ Html.Attributes.style "margin" "10px" ]
             [ 
-                div [] [Html.text <| String.fromFloat model.taille_dessin]
+                div [Html.Attributes.style "font-family" "Arial, sans-serif"] [Html.text <| ("Agrandissement : " ++ String.fromFloat model.taille_dessin)]
                 , input
                 [ type_ "range"
                 , Html.Attributes.min "1"
                 , Html.Attributes.max "50"
                 , value <| String.fromFloat (model.taille_dessin * 5.0)
                 , onInput ChangeTailleDessin
+                , Html.Attributes.style "width" "100%"
                 ]
                 []
             ]
-        , div [ Html.Attributes.style "margin" "10px" ]
+        , div [ Html.Attributes.style "margin" "10px"]
             [ 
-                div [] [Html.text <| String.fromFloat ((model.initial_x/model.taille_dessin))]
+                div [Html.Attributes.style "font-family" "Arial, sans-serif"] [Html.text <| ("Position Horizontale : " ++ String.fromInt (round(model.initial_x/model.taille_dessin)))]
                 , input
                 [ type_ "range"
                 , Html.Attributes.min "-150"
                 , Html.Attributes.max "150"
                 , value <| String.fromFloat ((model.initial_x/model.taille_dessin))
                 , onInput BougeDessinHoriz
+                , Html.Attributes.style "width" "100%"
                 ]
                 []
             ]
-        , div [ Html.Attributes.style "margin" "10px" ]
+        , div [ Html.Attributes.style "margin" "10px"]
             [ 
-                div [] [Html.text <| String.fromFloat ((model.initial_y/model.taille_dessin))]
+                div [Html.Attributes.style "font-family" "Arial, sans-serif"] [Html.text <| ("Position verticale : " ++ String.fromInt (round(model.initial_y/model.taille_dessin)))]
                 , input
                 [ type_ "range"
                 , Html.Attributes.min "-150"
                 , Html.Attributes.max "150"
                 , value <| String.fromFloat ((model.initial_y/model.taille_dessin))
                 , onInput BougeDessinVert
+                , Html.Attributes.style "width" "100%"
                 ]
                 []
             ]
