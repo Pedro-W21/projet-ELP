@@ -145,22 +145,43 @@ view model =
             [ button [ onClick Render, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "Rendu des commandes" ]
             ]
         , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onClick AugmenteTailleDessin, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "Augmenter la taille du dessin" ]
+            [ 
+                div [Html.Attributes.style "font-family" "Arial, sans-serif"] [Html.text <| ("Agrandissement : " ++ String.fromFloat model.taille_dessin)]
+                , input
+                [ type_ "range"
+                , Html.Attributes.min "1"
+                , Html.Attributes.max "50"
+                , value <| String.fromFloat (model.taille_dessin * 5.0)
+                , onInput ChangeTailleDessin
+                , Html.Attributes.style "width" "100%"
+                ]
+                []
             ]
-        , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onClick ReduitTailleDessin, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "Réduire la taille du dessin" ]
+        , div [ Html.Attributes.style "margin" "10px"]
+            [ 
+                div [Html.Attributes.style "font-family" "Arial, sans-serif"] [Html.text <| ("Position Horizontale : " ++ String.fromInt (round(model.initial_x/model.taille_dessin)))]
+                , input
+                [ type_ "range"
+                , Html.Attributes.min "-150"
+                , Html.Attributes.max "150"
+                , value <| String.fromFloat ((model.initial_x/model.taille_dessin))
+                , onInput BougeDessinHoriz
+                , Html.Attributes.style "width" "100%"
+                ]
+                []
             ]
-        , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onClick BougeDessinHaut, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "En haut" ]
-            ]
-        , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onClick BougeDessinBas, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "En bas" ]
-            ]
-        , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onClick BougeDessinGauche, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "À gauche" ]
-            ]
-        , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onClick BougeDessinDroite, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "À droite" ]
+        , div [ Html.Attributes.style "margin" "10px"]
+            [ 
+                div [Html.Attributes.style "font-family" "Arial, sans-serif"] [Html.text <| ("Position verticale : " ++ String.fromInt (round(model.initial_y/model.taille_dessin)))]
+                , input
+                [ type_ "range"
+                , Html.Attributes.min "-150"
+                , Html.Attributes.max "150"
+                , value <| String.fromFloat ((model.initial_y/model.taille_dessin))
+                , onInput BougeDessinVert
+                , Html.Attributes.style "width" "100%"
+                ]
+                []
             ]
         , case model.erreur of
             Rien ->
