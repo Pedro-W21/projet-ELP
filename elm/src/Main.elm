@@ -57,7 +57,7 @@ update msg model =
             if List.isEmpty chemins then
                 { model
                     | commandes = []
-                    , erreur = Message "Commande invalide, veuillez entrer une des commandes suivantes: hide, show, color <couleur>, size <taille>, <forme>"
+                    , erreur = Message "Commande invalide, veuillez entrer une des commandes suivantes: forward <distance>, left <angle>, right <angle>, hide, show, color <couleur>, size <taille>, <forme>"
                 }
             else
                 { model
