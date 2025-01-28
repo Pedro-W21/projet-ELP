@@ -10,11 +10,13 @@ import Svg exposing (..)
 import Svg.Attributes exposing (viewBox, width, height)
 import CheminASvg exposing (..)
 import Time exposing (every)
+import Process
+import Task
 
 -- MAIN
 
 main =
-    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions}
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 -- MODEL
 
@@ -24,15 +26,17 @@ type alias Model =
     , erreur : Erreur
     , commandesExecutees : List Chemin
     , dessinEnCours : Bool
+    , svgPartiel : List (Svg Msg)
+    , svgFini : List (Svg Msg)
     }
 
 type Erreur
     = Rien
     | Message String
 
-init : () -> (Model, Cmd Msg)
+init : () -> (Model, Cmd msg )
 init _ =
-    ( {commande_str = "", commandes = [], erreur = Rien, commandesExecutees = [], dessinEnCours = False}, Cmd.none )
+    ({commande_str = "", commandes = [], erreur = Rien, commandesExecutees = [], dessinEnCours = False, svgPartiel = [], svgFini = []}, Cmd.none)
 
 -- UPDATE
 
@@ -40,8 +44,6 @@ type Msg
     = Change String
     | Render
     | Timer
-    | Start
-    | Stop
 
 unwrap : Result (List Parser.DeadEnd) (List Chemin) -> List Chemin
 unwrap res =
@@ -69,38 +71,34 @@ update msg model =
                 ({ model
                     | commandes = chemins
                     , erreur = Rien
-                }, Cmd.none)
-        Start ->
-            ( { model | dessinEnCours = True }, Cmd.none ) --commence dessin
-
-        Stop ->
-            ( { model | dessinEnCours = False }, Cmd.none ) --arrete dessin
-
+                    , dessinEnCours = True
+                    , svgFini = (Tuple.second (CheminASvg.getSvgDataRecursive chemins  (Turtle 150 150 0 True "Blue" 2) []))
+                }, Task.perform (\_ -> Timer) (Process.sleep 1))
         Timer ->
-            if model.dessinEnCours then --si on dessine, on arrete si plus de commandes et on continue si commande
-                case model.commandes of
+            if model.dessinEnCours then
+                case model.svgFini of
                     [] ->
-                        ( { model | dessinEnCours = False }, Cmd.none )
-
-                    nextCommand :: remaining ->
                         ( { model
-                            | commandes = remaining
-                            , commandesExecutees = model.commandesExecutees ++ [ nextCommand ]
+                            | dessinEnCours = False
+                            , commandesExecutees = []
                           }
                         , Cmd.none
                         )
-
+                    nextCommand :: remaining ->
+                        ( { model
+                            |svgFini = remaining, 
+                            svgPartiel = model.svgPartiel ++ [nextCommand]
+                          }
+                        , Task.perform (\_ -> Timer) (Process.sleep 5)
+                        )
             else
                 (model, Cmd.none)
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    if model.dessinEnCours then
-        every 500 (\_ -> Timer) -- message Timer déclenché toutes les 0,5s
-    else
-        Sub.none
+subscriptions _ =
+    Sub.none
 
 
 -- VIEW
@@ -118,7 +116,7 @@ view model =
             Rien ->
                 div [ Html.Attributes.style "margin" "10px", Html.Attributes.style "border" "1px solid #ccc", Html.Attributes.style "padding" "10px" ]
                     [ svg [ Svg.Attributes.width (String.fromInt 300), Svg.Attributes.height (String.fromInt 300), viewBox "0 0 300 300" ]
-                        (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle 150 150 0 True "Blue" 2) []))
+                        model.svgPartiel
                     ]
             Message msg ->
                 div [ Html.Attributes.style "color" "red", Html.Attributes.style "text-align" "center", Html.Attributes.style "width" "300px" ]
