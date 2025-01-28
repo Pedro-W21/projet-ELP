@@ -9,12 +9,13 @@ import Html.Attributes exposing (..)
 import Svg exposing (..)
 import Svg.Attributes exposing (viewBox, width, height)
 import CheminASvg exposing (..)
-import Html.Events exposing (onMouseDown)
+import Time exposing (every)
+import Platform.Cmd as Cmd
 
 -- MAIN
 
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions}
 
 -- MODEL
 
@@ -25,15 +26,17 @@ type alias Model =
     , taille_dessin : Float
     , initial_x : Float
     , initial_y : Float
+    , commandesExecutees : List Chemin
+    , dessinEnCours : Bool
     }
 
 type Erreur
     = Rien
     | Message String
 
-init : Model
-init =
-    { commande_str = "", commandes = [], erreur = Rien, taille_dessin = 1, initial_x = 150, initial_y = 150 }
+init : () -> (Model, Cmd Msg)
+init _ =
+    ( {commande_str = "", commandes = [], erreur = Rien, commandesExecutees = [], dessinEnCours = False, taille_dessin = 1, initial_x = 150, initial_y = 150}, Cmd.none )
 
 -- UPDATE
 
@@ -46,6 +49,9 @@ type Msg
     | BougeDessinDroite
     | BougeDessinBas
     | BougeDessinHaut
+    | Timer
+    | Start
+    | Stop
 
 unwrap : Result (List Parser.DeadEnd) (List Chemin) -> List Chemin
 unwrap res =
@@ -56,40 +62,72 @@ unwrap res =
         Err _ ->
             []
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Change str ->
-            { model | commande_str = str }
+            ({ model | commande_str = str }, Cmd.none)
 
         Render ->
             let chemins = unwrap (run extraitListeChemin model.commande_str) in
             if List.isEmpty chemins then
-                { model
+                ({ model
                     | commandes = []
                     , erreur = Message "Commande invalide, veuillez entrer une des commandes suivantes: Forward <distance>, Left <angle>, Right <angle>, Hide, Show, Color <couleur>, Size <taille>, Square ou Circle."
-                }
+                }, Cmd.none)
             else
-                { model
+                ({ model
                     | commandes = chemins
                     , erreur = Rien
-                }
+                }, Cmd.none)
         AugmenteTailleDessin -> 
-            { model | taille_dessin = model.taille_dessin * 1.1}
+            ({ model | taille_dessin = model.taille_dessin * 1.1}, Cmd.none)
         ReduitTailleDessin -> 
             if model.taille_dessin > 0.2 then
-                { model | taille_dessin = model.taille_dessin * 0.9}
+                ({ model | taille_dessin = model.taille_dessin * 0.9}, Cmd.none)
             else
-                model
+                (model, Cmd.none)
         BougeDessinBas -> 
-            { model | initial_y = model.initial_y + 3.0 * model.taille_dessin}
+            ({ model | initial_y = model.initial_y + 3.0 * model.taille_dessin}, Cmd.none)
         BougeDessinHaut -> 
-            { model | initial_y = model.initial_y - 3.0 * model.taille_dessin}
+            ({ model | initial_y = model.initial_y - 3.0 * model.taille_dessin}, Cmd.none)
         
         BougeDessinGauche -> 
-            { model | initial_x = model.initial_x - 3.0 * model.taille_dessin}
+            ({ model | initial_x = model.initial_x - 3.0 * model.taille_dessin}, Cmd.none)
         BougeDessinDroite -> 
-            { model | initial_x = model.initial_x + 3.0 * model.taille_dessin}
+            ({ model | initial_x = model.initial_x + 3.0 * model.taille_dessin}, Cmd.none)
+        Start ->
+            ( { model | dessinEnCours = True }, Cmd.none ) --commence dessin
+
+        Stop ->
+            ( { model | dessinEnCours = False }, Cmd.none ) --arrete dessin
+
+        Timer ->
+            if model.dessinEnCours then --si on dessine, on arrete si plus de commandes et on continue si commande
+                case model.commandes of
+                    [] ->
+                        ( { model | dessinEnCours = False }, Cmd.none )
+
+                    nextCommand :: remaining ->
+                        ( { model
+                            | commandes = remaining
+                            , commandesExecutees = model.commandesExecutees ++ [ nextCommand ]
+                          }
+                        , Cmd.none
+                        )
+
+            else
+                (model, Cmd.none)
+
+-- SUBSCRIPTIONS
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    if model.dessinEnCours then
+        every 500 (\_ -> Timer) -- message Timer déclenché toutes les 0,5s
+    else
+        Sub.none
+
 
 -- VIEW
 
@@ -103,22 +141,22 @@ view model =
             [ button [ onClick Render, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "Rendu des commandes" ]
             ]
         , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onMouseDown AugmenteTailleDessin, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "Agrandir le dessin" ]
+            [ button [ onClick AugmenteTailleDessin, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "Agrandir le dessin" ]
             ]
         , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onMouseDown ReduitTailleDessin, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "Rendre le dessin plus petit" ]
+            [ button [ onClick ReduitTailleDessin, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "Rendre le dessin plus petit" ]
             ]
         , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onMouseDown BougeDessinHaut, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "En haut" ]
+            [ button [ onClick BougeDessinHaut, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "En haut" ]
             ]
         , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onMouseDown BougeDessinBas, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "En bas" ]
+            [ button [ onClick BougeDessinBas, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "En bas" ]
             ]
         , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onMouseDown BougeDessinGauche, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "à gauche" ]
+            [ button [ onClick BougeDessinGauche, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "à gauche" ]
             ]
         , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onMouseDown BougeDessinDroite, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "à droite" ]
+            [ button [ onClick BougeDessinDroite, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "à droite" ]
             ]
         , case model.erreur of
             Rien ->

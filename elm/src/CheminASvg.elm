@@ -72,5 +72,9 @@ getSvgDataRecursive steps turt final_svg =
                 Size taille ->
                     getSvgDataRecursive rest_of_steps (Turtle turt.posx turt.posy turt.orient turt.drawing turt.color (taille * turt.drawing_size) turt.drawing_size) final_svg
 
-                -- Forme forme_steps ->
-                --     getSvgDataRecursive (List.append forme_steps rest_of_steps) turt final_svg
+                Square taille ->
+                    doSvgRecursiveWithTurt rest_of_steps (repeatSteps 1 [Left 90, Forward (taille/2), Right 90, Repeat 3 [Forward taille, Right 90], Forward (taille/2), Right 90, Hide, Forward taille, Show] turt final_svg)
+                
+                -- Circle taille ->
+
+                -- Dash long ->
