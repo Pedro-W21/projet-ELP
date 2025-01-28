@@ -56,7 +56,7 @@ extraitColor = succeed Color
 
 extraitSize : Parser Chemin
 extraitSize = succeed Size
-    |. symbol "size"
+    |. symbol "Size"
     |. spaces
     |= float
 
