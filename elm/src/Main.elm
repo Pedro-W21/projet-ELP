@@ -36,11 +36,7 @@ type Erreur
 
 init : () -> (Model, Cmd Msg)
 init _ =
-<<<<<<< HEAD
-    ( { commande_str = "", commandes = [], erreur = Rien, commandesExecutees = [], dessinEnCours = False, taille_dessin = 1, initial_x = 150, initial_y = 150 }, Cmd.none )
-=======
     ( {commande_str = "", commandes = [], erreur = Rien, commandesExecutees = [], dessinEnCours = False, taille_dessin = 1, initial_x = 0, initial_y = 0}, Cmd.none )
->>>>>>> a339228317688b83c565728bc1e98414380670a5
 
 -- UPDATE
 
@@ -81,30 +77,6 @@ update msg model =
                     | commandes = chemins
                     , erreur = Rien
                 }, Cmd.none)
-<<<<<<< HEAD
-
-        AugmenteTailleDessin ->
-            ({ model | taille_dessin = model.taille_dessin * 1.1 }, Cmd.none)
-
-        ReduitTailleDessin ->
-            if model.taille_dessin > 0.2 then
-                ({ model | taille_dessin = model.taille_dessin * 0.9 }, Cmd.none)
-            else
-                (model, Cmd.none)
-
-        BougeDessinBas ->
-            ({ model | initial_y = model.initial_y + 3.0 * model.taille_dessin }, Cmd.none)
-
-        BougeDessinHaut ->
-            ({ model | initial_y = model.initial_y - 3.0 * model.taille_dessin }, Cmd.none)
-
-        BougeDessinGauche ->
-            ({ model | initial_x = model.initial_x - 3.0 * model.taille_dessin }, Cmd.none)
-
-        BougeDessinDroite ->
-            ({ model | initial_x = model.initial_x + 3.0 * model.taille_dessin }, Cmd.none)
-
-=======
         ChangeTailleDessin str -> 
             ({ model | taille_dessin = (String.toFloat str |> Maybe.withDefault 5.0)/5.0}, Cmd.none)
         BougeDessinVert str ->
@@ -112,7 +84,6 @@ update msg model =
         
         BougeDessinHoriz str ->
             ({ model | initial_x = ((String.toFloat str |> Maybe.withDefault 0.0) * model.taille_dessin)}, Cmd.none)
->>>>>>> a339228317688b83c565728bc1e98414380670a5
         Start ->
             ({ model | dessinEnCours = True }, Cmd.none) -- commence dessin
 
@@ -192,13 +163,8 @@ view model =
         , case model.erreur of
             Rien ->
                 div [ Html.Attributes.style "margin" "10px", Html.Attributes.style "border" "1px solid #ccc", Html.Attributes.style "padding" "10px" ]
-<<<<<<< HEAD
-                    [ svg [ Svg.Attributes.width (String.fromInt 300), Svg.Attributes.height (String.fromInt 300), viewBox "0 0 1000 300" ]
-                        (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle model.initial_x model.initial_y 0 True "Blue" (2 * model.taille_dessin) model.taille_dessin) []))
-=======
                     [ svg [ Svg.Attributes.width (String.fromInt 300), Svg.Attributes.height (String.fromInt 300), viewBox "0 0 300 300" ]
                         (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle (model.initial_x + 150.0) (model.initial_y + 150.0) 0 True "Blue" (2*model.taille_dessin) model.taille_dessin) []))
->>>>>>> a339228317688b83c565728bc1e98414380670a5
                     ]
             Message msg ->
                 div [ Html.Attributes.style "color" "black", Html.Attributes.style "text-align" "left", Html.Attributes.style "width" "300px" ]
