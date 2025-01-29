@@ -100,6 +100,10 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
 			demande_filtre(reader, request_id)
 		}
+		if puissance < 0.5 || puissance > 5 {
+			fmt.Printf("La valeur entrée n'est pas dans le domaine correct, veuillez réessayer.")
+			demande_filtre(reader, request_id)
+		}
 		structFiltre = Gaussian{puissance, make([]float32, 0), 0.0}
 	} else if filtre == "Froid" {
 		p := requete("\nQuelle puissance voulez-vous pour le filtre froid? Entrez une valeur décimale entre -100 et 100 (inclus, 0 ne change rien)", reader)
@@ -108,6 +112,10 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			demande_filtre(reader, request_id)
+		}
+		if puissance < -100 || puissance > 100 {
+			fmt.Printf("La valeur entrée n'est pas dans le domaine correct, veuillez réessayer.")
 			demande_filtre(reader, request_id)
 		}
 		structFiltre = Froid{puissance}
@@ -120,6 +128,10 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
 			demande_filtre(reader, request_id)
 		}
+		if puissance < -100 || puissance > 100 {
+			fmt.Printf("La valeur entrée n'est pas dans le domaine correct, veuillez réessayer.")
+			demande_filtre(reader, request_id)
+		}
 		structFiltre = Chaud{puissance}
 	} else if filtre == "Luminosite" {
 		p := requete("\nQuelle puissance voulez-vous pour le filtre Luminosite? Entrez une valeur décimale entre -100 et 100 (inclus, 0 ne change rien)", reader)
@@ -128,6 +140,10 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			demande_filtre(reader, request_id)
+		}
+		if puissance < -100 || puissance > 100 {
+			fmt.Printf("La valeur entrée n'est pas dans le domaine correct, veuillez réessayer.")
 			demande_filtre(reader, request_id)
 		}
 		structFiltre = Luminosite{puissance}
@@ -148,6 +164,10 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
 			demande_filtre(reader, request_id)
 		}
+		if puissance < 0 || puissance > 100 {
+			fmt.Printf("La valeur entrée n'est pas dans le domaine correct, veuillez réessayer.")
+			demande_filtre(reader, request_id)
+		}
 		structFiltre = Flou_Fondu{puissance, fondu, 0, 0}
 	} else if filtre == "Neg_Fondu" {
 		p := requete("\nQuelle puissance voulez-vous pour le filtre Neg_Fondu? Entrez une valeur décimale entre 0 et 100 (inclus, 0 ne change rien)", reader)
@@ -156,6 +176,10 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			demande_filtre(reader, request_id)
+		}
+		if puissance < 0 || puissance > 100 {
+			fmt.Printf("La valeur entrée n'est pas dans le domaine correct, veuillez réessayer.")
 			demande_filtre(reader, request_id)
 		}
 		structFiltre = Neg_Fondu{puissance}
@@ -168,6 +192,10 @@ func demande_filtre(reader io.Reader, request_id int) Filter {
 		puissance = float32(P)                  //conversion de P (float64) en  float32
 		if probleme != nil {
 			fmt.Println("Erreur lors de la conversion de p en float 32:", probleme)
+			demande_filtre(reader, request_id)
+		}
+		if puissance < 0 || puissance > 100 {
+			fmt.Printf("La valeur entrée n'est pas dans le domaine correct, veuillez réessayer.")
 			demande_filtre(reader, request_id)
 		}
 		structFiltre = Flou_moy{puissance, 0, 0}
