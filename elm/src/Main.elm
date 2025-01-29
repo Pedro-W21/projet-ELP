@@ -3,14 +3,15 @@ module Main exposing (..)
 import ParseurChemin exposing (..)
 import Parser exposing (run)
 import Browser
-import Html exposing (Html, button, div, input, h1, h2, text)
+import Html exposing (Html, button, div, input)
 import Html.Events exposing (onClick, onInput)
 import Html.Attributes exposing (..)
 import Svg exposing (..)
 import Svg.Attributes exposing (viewBox, width, height)
 import CheminASvg exposing (..)
 import Time exposing (every)
-import Platform.Cmd as Cmd
+import Process
+import Task
 
 -- MAIN
 
@@ -28,37 +29,33 @@ type alias Model =
     , initial_y : Float
     , commandesExecutees : List Chemin
     , dessinEnCours : Bool
+    , svgPartiel : List (Svg Msg)
+    , svgFini : List (Svg Msg)
     }
 
 type Erreur
     = Rien
     | Message String
 
-init : () -> (Model, Cmd Msg)
+init : () -> (Model, Cmd msg )
 init _ =
-    ( { commande_str = "", commandes = [], erreur = Message "Bienvenue ! Veuillez entrer une commande pour commencer.", commandesExecutees = [], dessinEnCours = False, taille_dessin = 1, initial_x = 150, initial_y = 150 }, Cmd.none )
+    ( {commande_str = "", commandes = [], erreur = Rien, commandesExecutees = [], dessinEnCours = False, svgPartiel = [], svgFini = [], taille_dessin = 1, initial_x = 0, initial_y = 0}, Cmd.none )
 
 -- UPDATE
 
 type Msg
     = Change String
     | Render
-    | AugmenteTailleDessin
-    | ReduitTailleDessin
-    | BougeDessinGauche
-    | BougeDessinDroite
-    | BougeDessinBas
-    | BougeDessinHaut
+    | ChangeTailleDessin String
+    | BougeDessinHoriz String
+    | BougeDessinVert String
     | Timer
-    | Start
-    | Stop
 
 unwrap : Result (List Parser.DeadEnd) (List Chemin) -> List Chemin
 unwrap res =
     case res of
         Ok cool ->
             cool
-
         Err _ ->
             []
 
@@ -67,82 +64,61 @@ update msg model =
     case msg of
         Change str ->
             ({ model | commande_str = str }, Cmd.none)
-
         Render ->
             let chemins = unwrap (run extraitListeChemin model.commande_str) in
             if List.isEmpty chemins then
                 ({ model
                     | commandes = []
-                    , erreur = Message """Erreur : commande invalide"""
+                    , erreur = Message """!!! Commande invalide, veuillez entrer une des commandes de la liste ci-dessous !!!"""
                 }, Cmd.none)
             else
                 ({ model
                     | commandes = chemins
                     , erreur = Rien
-                }, Cmd.none)
-
-        AugmenteTailleDessin ->
-            ({ model | taille_dessin = model.taille_dessin * 1.1 }, Cmd.none)
-
-        ReduitTailleDessin ->
-            if model.taille_dessin > 0.2 then
-                ({ model | taille_dessin = model.taille_dessin * 0.9 }, Cmd.none)
-            else
-                (model, Cmd.none)
-
-        BougeDessinBas ->
-            ({ model | initial_y = model.initial_y + 3.0 * model.taille_dessin }, Cmd.none)
-
-        BougeDessinHaut ->
-            ({ model | initial_y = model.initial_y - 3.0 * model.taille_dessin }, Cmd.none)
-
-        BougeDessinGauche ->
-            ({ model | initial_x = model.initial_x - 3.0 * model.taille_dessin }, Cmd.none)
-
-        BougeDessinDroite ->
-            ({ model | initial_x = model.initial_x + 3.0 * model.taille_dessin }, Cmd.none)
-
-        Start ->
-            ({ model | dessinEnCours = True }, Cmd.none) -- commence dessin
-
-        Stop ->
-            ({ model | dessinEnCours = False }, Cmd.none) -- arrête dessin
-
+                    , dessinEnCours = True
+                    , svgFini = (Tuple.second (CheminASvg.getSvgDataRecursive chemins  (Turtle (model.initial_x + 150.0) (model.initial_y + 150.0) 0 True "Blue" (2*model.taille_dessin) model.taille_dessin) []))
+                }, Task.perform (\_ -> Timer) (Process.sleep 1))
+        ChangeTailleDessin str -> 
+            ({ model | taille_dessin = (String.toFloat str |> Maybe.withDefault 5.0)/5.0}, Cmd.none)
+        BougeDessinVert str ->
+            ({ model | initial_y = ((String.toFloat str |> Maybe.withDefault 0.0) * model.taille_dessin)}, Cmd.none)
+        BougeDessinHoriz str ->
+            ({ model | initial_x = ((String.toFloat str |> Maybe.withDefault 0.0) * model.taille_dessin)}, Cmd.none)
         Timer ->
-            if model.dessinEnCours then -- si on dessine, on arrête si plus de commandes et on continue si commande
-                case model.commandes of
+            if model.dessinEnCours then
+                case model.svgFini of
                     [] ->
-                        ({ model | dessinEnCours = False }, Cmd.none)
-
+                        ( { model
+                            | dessinEnCours = False
+                            , commandesExecutees = []
+                          }
+                        , Cmd.none
+                        )
                     nextCommand :: remaining ->
-                        ({ model
-                            | commandes = remaining
-                            , commandesExecutees = model.commandesExecutees ++ [nextCommand]
-                        }, Cmd.none)
+                        ( { model
+                            |svgFini = remaining, 
+                            svgPartiel = model.svgPartiel ++ [nextCommand]
+                          }
+                        , Task.perform (\_ -> Timer) (Process.sleep 5)
+                        )
             else
                 (model, Cmd.none)
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    if model.dessinEnCours then
-        every 500 (\_ -> Timer) -- message Timer déclenché toutes les 0,5s
-    else
-        Sub.none
+subscriptions _ =
+    Sub.none
 
 -- VIEW
 
 view : Model -> Html Msg
 view model =
     div [ Html.Attributes.style "display" "flex", Html.Attributes.style "flex-direction" "column", Html.Attributes.style "align-items" "center", Html.Attributes.style "justify-content" "center", Html.Attributes.style "height" "100vh" ]
-        [ h1 [ Html.Attributes.style "font-family" "Arial, sans-serif", Html.Attributes.style "font-size" "36px", Html.Attributes.style "color" "green", Html.Attributes.style "text-shadow" "2px 2px 4px #000000" ] [ Html.text "TcTurtleSimulator" ]
-        , h2 [ Html.Attributes.style "font-family" "Arial, sans-serif", Html.Attributes.style "font-size" "24px", Html.Attributes.style "color" "blue", Html.Attributes.style "text-shadow" "2px 2px 4px #000000" ] [ Html.text "Tapez ici votre code en TcTurtle, nous le traçons pour vous ! Ne nous remerciez pas XD" ]
+        [ Html.h1 [ Html.Attributes.style "font-family" "Arial, sans-serif", Html.Attributes.style "font-size" "36px", Html.Attributes.style "color" "green", Html.Attributes.style "text-shadow" "2px 2px 4px #000000" ] [ text "TcTurtleSimulator" ]
+        , Html.h2 [ Html.Attributes.style "font-family" "Arial, sans-serif", Html.Attributes.style "font-size" "24px", Html.Attributes.style "color" "blue", Html.Attributes.style "text-shadow" "2px 2px 4px #000000" ] [ text "Tapez ici votre code en TcTurtle, nous le traçons pour vous ! Ne nous remerciez pas XD" ]
         , div [ Html.Attributes.style "margin" "10px" ]
             [ input [ placeholder "Votre code TcTurtle", value model.commande_str, onInput Change, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] []
-            ]
-        , div [ Html.Attributes.style "margin" "10px" ]
-            [ button [ onClick Render, Html.Attributes.style "padding" "10px", Html.Attributes.style "font-size" "16px" ] [ Html.text "Rendu des commandes" ]
             ]
         , div [ Html.Attributes.style "margin" "10px" ]
             [ 
@@ -187,7 +163,7 @@ view model =
             Rien ->
                 div [ Html.Attributes.style "margin" "10px", Html.Attributes.style "border" "1px solid #ccc", Html.Attributes.style "padding" "10px" ]
                     [ svg [ Svg.Attributes.width (String.fromInt 300), Svg.Attributes.height (String.fromInt 300), viewBox "0 0 300 300" ]
-                        (Tuple.second (CheminASvg.getSvgDataRecursive model.commandes (Turtle model.initial_x model.initial_y 0 True "Blue" (2 * model.taille_dessin) model.taille_dessin) []))
+                        model.svgPartiel
                     ]
             Message msg ->
                 div [ Html.Attributes.style "color" "black", Html.Attributes.style "text-align" "left", Html.Attributes.style "width" "300px" ]
