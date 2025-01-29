@@ -266,7 +266,7 @@ func ecoute(conn net.Conn, longueur uint, hauteur uint) {
 		fmt.Println("Erreur lors du décodage:", er)
 		return
 	}
-	traitement(recu, longueur, hauteur) //pour traiter ce qu'on a reçu en même temps
+	traitement(recu, longueur, hauteur) //pour traiter ce qu'on a reçu
 }
 
 func pour_chaque_requete(id_en_cours int, reader io.Reader, conn net.Conn) {
@@ -288,7 +288,6 @@ func pour_chaque_requete(id_en_cours int, reader io.Reader, conn net.Conn) {
 
 // fonction principale //////////////////////////////////////////////////////////////////////////////////
 func principale() {
-	//pour se connecter au serveur
 	gob.Register(Gaussian{})
 	gob.Register(Froid{})
 	gob.Register(Flou_Fondu{})
@@ -314,7 +313,6 @@ func principale() {
 	defer conn.Close() //pour être sûr que la connexion va se fermer
 	fmt.Println("Connexion établie avec le serveur sur le port ", port)
 
-	//déjà récupérer sur combien d'images on fait
 	reader := bufio.NewReader(os.Stdin)
 	i := 0
 	// boucle pour faire les actions sur toutes les requetes
