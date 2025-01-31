@@ -14,6 +14,7 @@ class Game {
         this.chosenWord = ""
         this.clues = []
         this.unhappyPlayers = 0
+        this.alreadyPickedCards = []
     }
 
     pickWords() { // crée la carte actuelle, renvoie 
@@ -28,9 +29,16 @@ class Game {
         return this.currentCard
     }
 
-    chooseWordFromCard(word_index) { // Index de 1 à 5, cette fonction fait la translation, à call avec le choix du joueur actif (fin de l'étape 1)
+    chooseWordFromCard(word_index) { // Index de 1 à 5, cette fonction fait la translation, à call avec le choix du joueur actif (fin de l'étape 1), renvoie le mot choisi, ou "" si le mot n'est pas choisissable (un autre joueur a déjà dit non)
+        
         this.chosenWord = this.currentCard[word_index - 1]
-        return this.chosenWord
+        if (this.alreadyPickedCards.indexOf(this.chosenWord) == -1) {
+            return this.chosenWord
+        }
+        else {
+            return ""
+        }
+        
     }
 
     addClue(new_clue) { // Return true si on a toutes les clues, à call pendant l'étape 2 avec les indices des joueurs non-actifs
@@ -85,6 +93,15 @@ class Game {
         this.chosenWord = ""
         this.currentCard = []
         this.unhappyPlayers = 0
+        this.alreadyPickedCards = []
+    }
+
+    reinitializeFromChoice() { // Call quand on recommence un round lorsqu'un joueur ne connaît pas le mot, renvoie true si le round peut continuer (il existe au moins 1 autre mot possible dans la carte)
+        this.alreadyPickedCards[this.alreadyPickedCards.length] = this.currentCard.indexOf(this.chosenWord)
+        this.chosenWord = ""
+        this.clues = []
+        this.unhappyPlayers = 0
+        return (this.alreadyPickedCards.length < 5)
     }
 
     getCardsLeft() { // Renvoie le nombre de cartes qu'il reste à jouer
