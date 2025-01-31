@@ -58,7 +58,7 @@ class Game {
     getFinalClues() { // renvoie la liste des indices finale, à call une fois que toutes les clues sont reçues (addClue return true !) (à call dans l'étape 3)
         let final_clues = []
         for (let i = 0; i< this.clues.length; i++) {
-            if (this.isClueValidAlone(this.clues[i]) || this.isClueUnique(i)) {
+            if (this.isClueValidAlone(this.clues[i]) && this.isClueUnique(i)) {
                 final_clues[final_clues.length] = this.clues[i]
             }
         }
@@ -67,7 +67,7 @@ class Game {
 
     isClueUnique(clue_index) { // return true si la Clue est unique dans la liste de clues
 
-        tested_clue = this.clues[clue_index]
+        let tested_clue = this.clues[clue_index]
         for (let i = 0; i< this.clues.length; i++) {
             if (i != clue_index) {
                 if (tested_clue == this.clues[i]) {
@@ -131,3 +131,23 @@ class Game {
         }
     }
 }
+
+
+
+// exemple d'utilisation séquentielle
+
+let test_game = new Game(5);
+
+test_game.initializeRound()
+test_game.pickWords()
+console.log(test_game.chooseWordFromCard(2))
+console.log(test_game.addClue("ceci"))
+console.log(test_game.addClue("test"))
+console.log(test_game.reinitializeFromChoice())
+console.log(test_game.addClue("ceci"))
+console.log(test_game.addClue("test"))
+console.log(test_game.addClue("test"))
+console.log(test_game.addClue("frais"))
+console.log(test_game.getFinalClues())
+console.log(test_game.handleGuess("jsp"))
+test_game.initializeRound()
