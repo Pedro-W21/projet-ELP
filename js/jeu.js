@@ -89,6 +89,10 @@ class Game {
         return this.remainingCards
     }
 
+    getScore() { // Renvoie le score actuel de l'équipe
+        return this.score
+    }
+
     isGameFinished() { // Return true si la partie est terminée, on peut relancer après ça mais c'est pas nécessaire
         return (this.remainingCards <= 0)
     }
