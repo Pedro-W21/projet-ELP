@@ -3,11 +3,24 @@ const net = require("net");
 let compteurClient = 0;
 let clients = {}; //dictionnaire des infos des clients: {socket:[id,pseudo,ready]}
 
-//fonction pour récolter les infos des clients
-function initialisation_client(clients){
-    for (let socket of Object.keys(clients)) {
-        socket.write("Vous êtes le client numéro: ${id}\n");
+//équivalent de random.randint(a,b)
+function randint(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+//choisir un joueur actif, return la socket du joueur en question
+function chooseActivePlayer(compteurClient, clients){
+  return Object.keys(clients)[0];
+  /* choix random d'un joueur:
+  player = randint(0,compteurClient);
+  let c = 0;
+  for (let socket of Object.keys(clients)) {
+    if (player == c){
+      return socket;
     }
+    c += 1;
+  };
+  */
 };
 
 //boucle serveur de connexion au port
@@ -17,7 +30,7 @@ const server = net.createServer((socket) => {
   //affiche sur le terminal du serveur une connexion de <adresse ip> sur le port <port>, run à chaque fois qu'un client se connecte
   console.log("Connection from", socket.remoteAddress, "port", socket.remotePort);
 
-  //s'exécute à chaque fois qu'on reçoit des données du client
+  //s'exécute à chaque fois qu'on reçoit des données du client/////////////////////////////////
   socket.on("data", (buffer) => {
     buffer.toString("utf-8");
     if (buffer.include("pseudo")){
@@ -27,6 +40,7 @@ const server = net.createServer((socket) => {
         buffer.toBool();
         clients[socket][2] = buffer; //regarde si le client est ready ou pas
     };
+
     //on vérifie si tout le monde est prêt
     let compteurTemporaire = 0;
     for (let list of Object.values(clients)){
@@ -34,8 +48,20 @@ const server = net.createServer((socket) => {
             compteurTemporaire += 1;
         };
     };
+    if (compteurTemporaire == compteurClient){
+      //choisir le joueur actif et demander quel mot de 1 à 5
+      socketJoueurActif = chooseActivePlayer(compteurClient, clients);
+      for (let socket of Object.keys(clients)){
+        if (socket == socketJoueurActif){
+          socket.write("Vous êtes le joueur actif! ")
 
-    //choisir joueur actif et demander quel mot de 1 à 5
+        }
+        else {
+
+        };
+      };
+    }
+    
     
 
 
@@ -43,13 +69,13 @@ const server = net.createServer((socket) => {
     socket.write(`${buffer.toString("utf-8").toUpperCase()}\n`); //exemple écrit buffer en verr maj dans la console du client
   });
 
-  //s'exécute quand un client ferme la connexion
+  //s'exécute quand un client ferme la connexion /////////////////////////////////
   socket.on("end", () => {
     compteurClient -= 1;
     console.log("Closed", socket.remoteAddress, "port", socket.remotePort);
   });
 
-  //s'exécute si erreur
+  //s'exécute si erreur /////////////////////////////////
   socket.on("error", (err) => {
     console.error("Erreur sur le socket :", err.message);
   });
