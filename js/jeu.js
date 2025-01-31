@@ -1,11 +1,13 @@
 const fs = require('fs');
 
-const words = fs.readFileSync('liste.de.mots.francais.frgut.txt', 'utf8').split('\n').map(word => word.trim()).filter(word => word.length > 0);
+//fs.readFileSync('liste.de.mots.francais.frgut.txt', 'utf8').split('\n').map(word => word.trim()).filter(word => word.length > 0);
+
+const words = JSON.parse(fs.readFileSync('dico.json', "utf8" )).filter(word => !word.includes(" "))
 const words_set = new Set(words)
 
 class Game {
-    constructor(total_players) {
-        this.word = this.pickWord();
+    constructor(total_players) { // Besoin de le construire 1 SEULE FOIS lorsque l'entité qui gère le jeu démarre
+        this.current_card = []
         this.score = 0;
         this.remainingCards = 13;
         this.totalPlayers = total_players
@@ -14,7 +16,7 @@ class Game {
         this.unhappyPlayers = 0
     }
 
-    pickWords() {
+    pickWords() { // crée la carte actuelle, renvoie 
         for (let i = 0; i<5; i++) {
             let index = this.pickWordIndex()
             word = words.splice(index, 1)[0]
@@ -26,16 +28,17 @@ class Game {
         return this.current_card
     }
 
-    chooseWordFromCard(word_index) { // Index de 1 à 5, cette fonction fait la translation
+    chooseWordFromCard(word_index) { // Index de 1 à 5, cette fonction fait la translation, à call avec le choix du joueur actif (fin de l'étape 1)
         this.chosenWord = this.current_card[word_index - 1]
         return this.chosenWord
     }
 
-    addClue(new_clue) {
+    addClue(new_clue) { // Return true si on a toutes les clues, à call pendant l'étape 2 avec les indices des joueurs non-actifs
         this.clues[this.clues.length] = new_clue
+        return (this.clues.length == this.totalPlayers - 1)
     }
 
-    signalUnhappyPlayer() { // Return true si le nombre de joueurs qui veulent changer de carte est égal à max_players-1
+    signalUnhappyPlayer() { // Return true si le nombre de joueurs qui veulent changer de carte est égal à max_players-1, à call si un joueur demande à recommencer le round, et si ça return true c'est qu'il faut ! (pendant l'étape 2)
         this.unhappyPlayers += 1
         return (this.unhappyPlayers == this.totalPlayers - 1)
     }
@@ -44,7 +47,7 @@ class Game {
         return this.clues
     }
 
-    getFinalClues() { // renvoie la liste des indices finale
+    getFinalClues() { // renvoie la liste des indices finale, à call une fois que toutes les clues sont reçues (addClue return true !) (à call dans l'étape 3)
         let final_clues = []
         for (let i = 0; i< this.clues.length; i++) {
             if (this.isClueValidAlone(this.clues[i]) || this.isClueUnique(i)) {
@@ -77,22 +80,37 @@ class Game {
         return index
     }
 
-    initializeRound() {
+    initializeRound() { // Call quand on (re)commence un round
         this.clues = []
         this.chosenWord = ""
         this.current_card = []
         this.unhappyPlayers = 0
     }
 
-    getHiddenWord() {
-        return this.word.split('').map(letter => (this.guessedLetters.has(letter) ? letter : '_')).join('');
+    getCardsLeft() { // Renvoie le nombre de cartes qu'il reste à jouer
+        return this.remainingCards
     }
 
-    handleGuess(guess) {
-
+    getScore() { // Renvoie le score actuel de l'équipe
+        return this.score
     }
 
-    endGame(won) {
-        this.socket.destroy();
+    isGameFinished() { // Return true si la partie est terminée, on peut relancer après ça mais c'est pas nécessaire
+        return (this.remainingCards <= 0)
+    }
+
+    handleGuess(guess) { // return un booléen (true pour réussi, false pour perdu) ou null (si le joueur décide de PASS) et modifie les attributs nécessaires si besoin, à call avec le guess du joueur actif (dans l'étape 4)
+        this.remainingCards -= 1
+        if (guess == "PASS") {
+            return null
+        }
+        else if (guess == this.chosenWord) {
+            this.score += 1
+            return true
+        }
+        else {
+            // Implémenter de défausser la prochaine carte aussi
+            return false
+        }
     }
 }
