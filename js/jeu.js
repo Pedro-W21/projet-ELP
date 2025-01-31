@@ -20,7 +20,7 @@ class Game {
     pickWords() { // crée la carte actuelle, renvoie 
         for (let i = 0; i<5; i++) {
             let index = this.pickWordIndex()
-            word = words.splice(index, 1)[0]
+            let word = words.splice(index, 1)[0]
             this.currentCard[i] = word
         }
     }
