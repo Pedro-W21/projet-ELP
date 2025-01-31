@@ -7,6 +7,8 @@ import Maybe exposing (withDefault)
 
 type alias Turtle = { posx : Float, posy : Float, orient : Float, drawing : Bool, color : String, size : Float, drawing_size : Float }
 
+
+-- rajoute une ligne SVG entre les 2 turtle données à la liste de SVG donnée, et continue l'exécution des étapes de dessin
 goForward : List Chemin -> Turtle -> Turtle -> (List (Svg msg)) -> (Turtle, (List (Svg msg)))
 goForward steps turt next_turt svg_final =
     if turt.drawing then
@@ -22,22 +24,20 @@ goForward steps turt next_turt svg_final =
         )
     else
         getSvgDataRecursive steps next_turt svg_final
-
+-- le premier call répète la liste d'étapes donnée le nombre de fois qu'on lui donne, tout en mettant à jour la turtle et la liste des SVG, renvoie la turtle finale après la répétition demandée
 repeatSteps : Int -> List Chemin -> Turtle -> (List (Svg msg)) -> (Turtle, (List (Svg msg)))
 repeatSteps nb_left steps turt svg_final =
     if nb_left > 0 then
         doSvgRecursiveWithTurt steps (repeatSteps (nb_left - 1) steps turt svg_final)
     else
         (turt, svg_final)
-
-concatenateIntoMovementTuple : (Turtle, (List (Svg msg))) -> (List (Svg msg)) -> (Turtle, (List (Svg msg)))
-concatenateIntoMovementTuple (turt, svg_to_add) start_svg =
-    (turt, List.append start_svg svg_to_add)
-
+-- comme getSvgDataRecursive, mais prend un tuple comme 2ème argument comme ça on peut lui donner en entrée la sortie de repeatSteps directement
 doSvgRecursiveWithTurt : List Chemin -> (Turtle, (List (Svg msg))) -> (Turtle, (List (Svg msg)))
 doSvgRecursiveWithTurt rest_of_steps (turt, final_svg) =
     getSvgDataRecursive rest_of_steps turt final_svg
 
+
+-- à partir d'une liste d'étape à effectuer, d'une turtle initiale et d'une liste de SVG donnée, renvoie la turtle et la liste de SVG finale après l'exécution des étapes demandées
 getSvgDataRecursive : List Chemin -> Turtle -> (List (Svg msg)) -> (Turtle, (List (Svg msg)))
 getSvgDataRecursive steps turt final_svg =
     case steps of
