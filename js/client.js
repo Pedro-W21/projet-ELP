@@ -7,7 +7,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-client.connect(3000, 'localhost', () => {
+client.connect(9999, 'localhost', () => {
     console.log('Connecté au serveur');
     rl.question('Entrez votre nom: ', (name) => {
         client.write(name);
