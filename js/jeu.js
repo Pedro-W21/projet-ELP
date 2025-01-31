@@ -7,7 +7,7 @@ const words_set = new Set(words)
 
 class Game {
     constructor(total_players) { // Besoin de le construire 1 SEULE FOIS lorsque l'entité qui gère le jeu démarre
-        this.current_card = []
+        this.currentCard = []
         this.score = 0;
         this.remainingCards = 13;
         this.totalPlayers = total_players
@@ -20,16 +20,16 @@ class Game {
         for (let i = 0; i<5; i++) {
             let index = this.pickWordIndex()
             word = words.splice(index, 1)[0]
-            this.current_card[i] = word
+            this.currentCard[i] = word
         }
     }
 
     getCurrentCard() {
-        return this.current_card
+        return this.currentCard
     }
 
     chooseWordFromCard(word_index) { // Index de 1 à 5, cette fonction fait la translation, à call avec le choix du joueur actif (fin de l'étape 1)
-        this.chosenWord = this.current_card[word_index - 1]
+        this.chosenWord = this.currentCard[word_index - 1]
         return this.chosenWord
     }
 
@@ -83,7 +83,7 @@ class Game {
     initializeRound() { // Call quand on (re)commence un round
         this.clues = []
         this.chosenWord = ""
-        this.current_card = []
+        this.currentCard = []
         this.unhappyPlayers = 0
     }
 
