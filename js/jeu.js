@@ -1,6 +1,8 @@
 const fs = require('fs');
 
-const words = fs.readFileSync('liste.de.mots.francais.frgut.txt', 'utf8').split('\n').map(word => word.trim()).filter(word => word.length > 0);
+//fs.readFileSync('liste.de.mots.francais.frgut.txt', 'utf8').split('\n').map(word => word.trim()).filter(word => word.length > 0);
+
+const words = JSON.parse(fs.readFileSync('dico.json', "utf8" )).filter(word => !word.includes(" "))
 const words_set = new Set(words)
 
 class Game {
