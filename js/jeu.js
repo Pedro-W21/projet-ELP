@@ -1,41 +1,52 @@
 const fs = require('fs');
 
-const words = fs.readFileSync('liste.de.mots.francais.frgut.txt', 'utf8').split('\n').map(word => word.trim()).filter(word => word.length > 0);
+//fs.readFileSync('liste.de.mots.francais.frgut.txt', 'utf8').split('\n').map(word => word.trim()).filter(word => word.length > 0);
+
+const words = JSON.parse(fs.readFileSync('dico.json', "utf8" )).filter(word => !word.includes(" "))
 const words_set = new Set(words)
 
 class Game {
-    constructor(total_players) {
-        this.word = this.pickWord();
+    constructor(total_players) { // Besoin de le construire 1 SEULE FOIS lorsque l'entité qui gère le jeu démarre
+        this.currentCard = []
         this.score = 0;
         this.remainingCards = 13;
         this.totalPlayers = total_players
         this.chosenWord = ""
         this.clues = []
         this.unhappyPlayers = 0
+        this.alreadyPickedCards = []
     }
 
-    pickWords() {
+    pickWords() { // crée la carte actuelle, renvoie 
         for (let i = 0; i<5; i++) {
             let index = this.pickWordIndex()
-            word = words.splice(index, 1)[0]
-            this.current_card[i] = word
+            let word = words.splice(index, 1)[0]
+            this.currentCard[i] = word
         }
     }
 
     getCurrentCard() {
-        return this.current_card
+        return this.currentCard
     }
 
-    chooseWordFromCard(word_index) { // Index de 1 à 5, cette fonction fait la translation
-        this.chosenWord = this.current_card[word_index - 1]
-        return this.chosenWord
+    chooseWordFromCard(word_index) { // Index de 1 à 5, cette fonction fait la translation, à call avec le choix du joueur actif (fin de l'étape 1), renvoie le mot choisi, ou "" si le mot n'est pas choisissable (un autre joueur a déjà dit non)
+        
+        this.chosenWord = this.currentCard[word_index - 1]
+        if (this.alreadyPickedCards.indexOf(this.chosenWord) == -1) {
+            return this.chosenWord
+        }
+        else {
+            return ""
+        }
+        
     }
 
-    addClue(new_clue) {
+    addClue(new_clue) { // Return true si on a toutes les clues, à call pendant l'étape 2 avec les indices des joueurs non-actifs
         this.clues[this.clues.length] = new_clue
+        return (this.clues.length == this.totalPlayers - 1)
     }
 
-    signalUnhappyPlayer() { // Return true si le nombre de joueurs qui veulent changer de carte est égal à max_players-1
+    signalUnhappyPlayer() { // Return true si le nombre de joueurs qui veulent changer de carte est égal à max_players-1, à call si un joueur demande à recommencer le round, et si ça return true c'est qu'il faut ! (pendant l'étape 2)
         this.unhappyPlayers += 1
         return (this.unhappyPlayers == this.totalPlayers - 1)
     }
@@ -44,10 +55,10 @@ class Game {
         return this.clues
     }
 
-    getFinalClues() { // renvoie la liste des indices finale
+    getFinalClues() { // renvoie la liste des indices finale, à call une fois que toutes les clues sont reçues (addClue return true !) (à call dans l'étape 3)
         let final_clues = []
         for (let i = 0; i< this.clues.length; i++) {
-            if (this.isClueValidAlone(this.clues[i]) || this.isClueUnique(i)) {
+            if (this.isClueValidAlone(this.clues[i]) && this.isClueUnique(i)) {
                 final_clues[final_clues.length] = this.clues[i]
             }
         }
@@ -56,7 +67,7 @@ class Game {
 
     isClueUnique(clue_index) { // return true si la Clue est unique dans la liste de clues
 
-        tested_clue = this.clues[clue_index]
+        let tested_clue = this.clues[clue_index]
         for (let i = 0; i< this.clues.length; i++) {
             if (i != clue_index) {
                 if (tested_clue == this.clues[i]) {
@@ -77,22 +88,66 @@ class Game {
         return index
     }
 
-    initializeRound() {
+    initializeRound() { // Call quand on (re)commence un round
         this.clues = []
         this.chosenWord = ""
-        this.current_card = []
+        this.currentCard = []
         this.unhappyPlayers = 0
+        this.alreadyPickedCards = []
     }
 
-    getHiddenWord() {
-        return this.word.split('').map(letter => (this.guessedLetters.has(letter) ? letter : '_')).join('');
+    reinitializeFromChoice() { // Call quand on recommence un round lorsqu'un joueur ne connaît pas le mot, renvoie true si le round peut continuer (il existe au moins 1 autre mot possible dans la carte)
+        this.alreadyPickedCards[this.alreadyPickedCards.length] = this.currentCard.indexOf(this.chosenWord)
+        this.chosenWord = ""
+        this.clues = []
+        this.unhappyPlayers = 0
+        return (this.alreadyPickedCards.length < 5)
     }
 
-    handleGuess(guess) {
-
+    getCardsLeft() { // Renvoie le nombre de cartes qu'il reste à jouer
+        return this.remainingCards
     }
 
-    endGame(won) {
-        this.socket.destroy();
+    getScore() { // Renvoie le score actuel de l'équipe
+        return this.score
+    }
+
+    isGameFinished() { // Return true si la partie est terminée, on peut relancer après ça mais c'est pas nécessaire
+        return (this.remainingCards <= 0)
+    }
+
+    handleGuess(guess) { // return un booléen (true pour réussi, false pour perdu) ou null (si le joueur décide de PASS) et modifie les attributs nécessaires si besoin, à call avec le guess du joueur actif (dans l'étape 4)
+        this.remainingCards -= 1
+        if (guess == "PASS") {
+            return null
+        }
+        else if (guess == this.chosenWord) {
+            this.score += 1
+            return true
+        }
+        else {
+            // Implémenter de défausser la prochaine carte aussi
+            return false
+        }
     }
 }
+
+
+
+// exemple d'utilisation séquentielle
+
+let test_game = new Game(5);
+
+test_game.initializeRound()
+test_game.pickWords()
+console.log(test_game.chooseWordFromCard(2))
+console.log(test_game.addClue("ceci"))
+console.log(test_game.addClue("test"))
+console.log(test_game.reinitializeFromChoice())
+console.log(test_game.addClue("ceci"))
+console.log(test_game.addClue("test"))
+console.log(test_game.addClue("test"))
+console.log(test_game.addClue("frais"))
+console.log(test_game.getFinalClues())
+console.log(test_game.handleGuess("jsp"))
+test_game.initializeRound()
