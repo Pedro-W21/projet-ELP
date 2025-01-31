@@ -1,5 +1,5 @@
 
-
+console.clear()
 dico = 
 console.log("Bienvenu dans le jeu JustOne!\n");
 // pour récupérer le nb de joueurs
