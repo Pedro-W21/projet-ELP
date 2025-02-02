@@ -6,11 +6,6 @@ let round = 0;
 let compteurHappy = 0;
 let socketJoueurActif = 0;
 
-//équivalent de random.randint(a,b)
-//A EFFACER SI NON UTILISE
-function randint(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
 
 //boucle serveur de connexion au port
 const server = net.createServer((socket) => {
@@ -81,13 +76,25 @@ const server = net.createServer((socket) => {
         // récupère le résultat si le joueur est correct ou pas
         let resultat = handleGuess(buffer);
         if (resultat == true){
-
+          score = getScore();
+          for (let socket of Object.keys(clients)){
+            socket.write("score",score);
+            Game.initializeRound();
+          };
         }
         else if (resultat == null){
-
+          score = getScore();
+          for (let socket of Object.keys(clients)){
+            socket.write("score",score);
+            Game.initializeRound();
+          };
         }
         else {
-
+          score = getScore();
+          for (let socket of Object.keys(clients)){
+            socket.write("score",score);
+            Game.initializeRound();
+          };
         };
         Game.initializeRound()
       };
