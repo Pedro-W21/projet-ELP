@@ -38,13 +38,13 @@ function passif(mot_choisi, retour) {
         console.log("\nLe mot choisi par le joueur actif est : ", mot_choisi);
         console.log("\nLe comprenenez-vous ?");
         interface.question("\nRépondez par oui ou non : ", (happy) => {
-            client.write(happy);
+            client.write("happy",happy);
         });
     }
     else {
         console.log("\nLe mot choisi est : ", mot_choisi);
         interface.question("\nEcrivez un mot en rapport pour le faire deviner au joueur actif : ", (mot_ecrit) => {
-            client.write(mot_ecrit);
+            client.write("mot",mot_ecrit);
         });
     }
 };
