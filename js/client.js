@@ -1,12 +1,16 @@
 const net = require('net');             // Communication réseau (socket)
 const readline = require('readline');   // Communication utilisateur (IHM)
-
-              // Init socket
+// Init socket
 const interface = readline.createInterface({    // Init IHM
     input: process.stdin,
     output: process.stdout
 });
 
+/**
+ * Function to prompt the user to select a secret word by typing the corresponding number.
+ * If the input is valid, it sends the selected number to the server.
+ * If the input is invalid, it prompts the user again.
+ */
 function select() {
     console.log("\n______________________________________________________________");
     interface.question("\nChoisissez un des mots secrets en tapant le numéro correspondant : ", (number) => {
@@ -22,6 +26,10 @@ function select() {
     console.log("\nTâche ardue, vous n'imaginez même pas à, quel point !");
 };
 
+/**
+ * Function to prompt the user to indicate readiness by pressing Enter.
+ * Sends the readiness status to the server.
+ */
 function ready() {
     console.log("\n______________________________________________________________");
     client.write('ready ' + 'false');
@@ -31,6 +39,7 @@ function ready() {
     });
 };
 
+// Init client
 const port = 9999
 const client = net.createConnection(port, 'localhost', () => { //connecte au port choisi
     console.log("\n______________________________________________________________");
@@ -43,6 +52,7 @@ const client = net.createConnection(port, 'localhost', () => { //connecte au por
 });  
 
 
+// Event listeners
 client.on('data', (msg) => { //écoute les données du serveur
     const msg_string = msg.toString(); //les convertit en msg_string
     // console.log(msg_string)
@@ -175,6 +185,7 @@ client.on('data', (msg) => { //écoute les données du serveur
         });    }
 });
 
+// End
 client.on('close', () => {
     console.log("\n______________________________________________________________");
     console.log("\nVous avez été éjecté de la partie (looser XD)");
