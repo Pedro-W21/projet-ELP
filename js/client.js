@@ -8,6 +8,7 @@ const interface = readline.createInterface({    // Init IHM
 });
 
 function select() {
+    console.log("\n______________________________________________________________");
     interface.question("\nChoisissez un des mots secrets en tapant le numéro correspondant : ", (number) => {
         if (number>0 && number<6) {
             client.write('number ' + number.toString());
@@ -22,6 +23,7 @@ function select() {
 };
 
 function ready() {
+    console.log("\n______________________________________________________________");
     client.write('ready ' + 'false');
     interface.question("\nLorsque vous serez prêts, appuyez sur Entrée pour lancer l'aventure...", () => {
         client.write('ready ' + 'true');
@@ -31,6 +33,7 @@ function ready() {
 
 const port = 9999
 const client = net.createConnection(port, 'localhost', () => { //connecte au port choisi
+    console.log("\n______________________________________________________________");
     console.log("\nVotre bateau a échoué sur le port ", port, "...");
     interface.question("\nChoisissez le pseudonyme sous lequel sous voulez être connu : ", (pseudo) => {
         client.write('pseudo ' + pseudo); // Envoi du pseudo au serveur
@@ -45,16 +48,19 @@ client.on('data', (msg) => { //écoute les données du serveur
     // console.log(msg_string)
     const msg_list = msg_string.split(' '); //les sépare par mot
     if (msg_string.includes('actif')) {
+        console.log("\n______________________________________________________________");
         console.log("\nVous êtes le joueur actif, trop bien !");
         console.log("\nUne carte de 5 mots secrets a été tirée au sort.");
         select();
     }
     if (msg_string.includes('passif')) {
+        console.log("\n______________________________________________________________");
         console.log("\nVous n'êtes pas le joueur actif, trop bien !");
         console.log("\nLe joueur actif est actuellement en train de tirer un mot secret au hasard.");
         console.log("\nSoyez patient, il est un peu lent mais ce n'est pas de sa faute.");
     }
     if (msg_string.includes('happy?')) {
+        console.log("\n______________________________________________________________");
         let mot = msg_list[1];
         console.log("\nLe mot tiré par le joueur actif est : ", mot);
         console.log("\nLe comprenenez-vous ?");
@@ -65,15 +71,18 @@ client.on('data', (msg) => { //écoute les données du serveur
         });
     }
     if (msg_string.includes('exclude')) {
+        console.log("\n______________________________________________________________");
         console.log("\nLes autres joueurs ne comprennent pas trop le mot n°", msg_list[1], ", choisissez en un autre svp.");
         select();
     }
     if (msg_string.includes('nouvellecarte')) {
+        console.log("\n______________________________________________________________");
         console.log("\nAucun mot de la carte précédente n'a été compris.");
         console.log("\nUne nouvelle carte de 5 mots secrets a été tirée au sort.");
         select();
     }
     if (msg_string.includes('indice?')) {
+        console.log("\n______________________________________________________________");
         let mot = msg_list[1];
         console.log("\nLe mot tiré par le joueur actif est : ", mot);
         interface.question("\nEcrivez un indice en rapport avec ce mot pour le faire deviner au joueur actif : ", (indice) => {
@@ -83,6 +92,7 @@ client.on('data', (msg) => { //écoute les données du serveur
         });
     }
     if (msg_string.includes('réponse?')) {
+        console.log("\n______________________________________________________________");
         let indices_str = msg_string.slice(9);
         let indices = []
         if (indices_str.split(" ").length > 1) {
@@ -109,24 +119,28 @@ client.on('data', (msg) => { //écoute les données du serveur
         }
     }
     if (msg_string.includes('score_gagne')) {
+        console.log("\n______________________________________________________________");
         let score = msg_list[1];
         console.log("\nLe joueur actif a deviné le mot secret, bravo à lui !");
         console.log("\nVous remportez ce round, le score est désormais de ", score, "points.");
         ready();
     }
     if (msg_string.includes('score_pass')) {
+        console.log("\n______________________________________________________________");
         let score = msg_list[1];
         console.log("\nLe joueur actif a passé ce tour, par manque d'indices...");
         console.log("\nVous perdez ce round, le score est désormais de ", score, "points.");
         ready();
     }
     if (msg_string.includes('score_perdu')) {
+        console.log("\n______________________________________________________________");
         let score = msg_list[1];
         console.log("\nLe joueur actif s'est trompé");
         console.log("\nVous perdez ce round, le score est désormais de ", score, "points.");
         ready();
     }
     if (msg_string.includes('fin')) {
+        console.log("\n______________________________________________________________");
         let score = msg_list[1];
         console.log("\nToutes les cartes ont été jouées, la partie est terminée !");
         console.log("\nLe score final est de ", score, "points.");
@@ -162,6 +176,7 @@ client.on('data', (msg) => { //écoute les données du serveur
 });
 
 client.on('close', () => {
+    console.log("\n______________________________________________________________");
     console.log("\nVous avez été éjecté de la partie (looser XD)");
     console.log("\nSi vous pensez que ce n'est pas normal, vous pouvez simplement relancer le jeu ;)");
     interface.close();
