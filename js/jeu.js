@@ -141,9 +141,12 @@ class Game {
 
 
 
-// exemple d'utilisation séquentielle
+
 
 module.exports = Game
+
+/*
+// exemple d'utilisation séquentielle
 let test_game = new Game(5);
 
 test_game.initializeRound()
@@ -159,3 +162,5 @@ console.log(test_game.addClue("frais"))
 console.log(test_game.getFinalClues())
 console.log(test_game.handleGuess("jsp"))
 test_game.initializeRound()
+
+*/

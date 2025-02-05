@@ -87,7 +87,14 @@ client.on('data', (msg) => { //écoute les données du serveur
     }
     if (msg_string.includes('réponse?')) {
         let indices_str = msg_string.slice(9);
-        let indices = Array.from(indices_str)
+        let indices = []
+        if (indices_str.split(" ").length > 1) {
+            indices = JSON.parse(indices_str)
+        }
+        else if (indices_str.split(" ").length > 0) {
+            indices = [indices_str]
+        }
+        
         if (indices == []) {
             console.log("\nAucun indice des autres joueurs n'est valide, lol.");
             console.log("\nCe round est donc perdu...");
