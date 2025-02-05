@@ -11,7 +11,7 @@ let jeucommence = false;
 let nombre = 0;
 let round_commence = false;
 
-//changer tout ce qui est socket?? pour .write au client
+// mettre carte = jeu.pickWords(); pour que ça le fasse qu'une seule fois par round
 
 //boucle serveur de connexion au port
 const server = net.createServer((socket) => {
@@ -194,7 +194,7 @@ const server = net.createServer((socket) => {
         liste = texte.split(' ');
         nombre = Number(liste[1]); //récupère l'index du mot choisi
         let mot = jeu.chooseWordFromCard(nombre);
-        socket.write("mot_choisi "+ mot);
+        socket.write("happy? "+ mot);
       };
 // ETAPE 2 ////////////////////////////////////////////////////////////////////////////////////////////
       // vérifie s'il y a des joueurs qui ne comprennent pas certains mots
@@ -202,13 +202,17 @@ const server = net.createServer((socket) => {
         liste = texte.split(' ');
         let reponse = liste[1];
         if (reponse == 'non'){
-          socket.write("pas_"+ nombre.toString()); //reprend l'index du mot choisi
+          socket.write("exclude "+ nombre.toString()); //reprend l'index du mot choisi
           continuer = jeu.reinitializeFromChoice();
           if (continuer == false){
-            
-          }
+            socket.write('nouvellecarte'); //dans le cas où personne ne comprend aucun des 5 mots, prend une nouvelle carte
+            carte = jeu.pickWords();
+          };
         };
       };
+
+////////////////// envoyer indice? svp /////////////////////////////////
+
       // si on reçoit des mots à faire deviner, les renvoyer à jeu.js
       if (texte.include("mot")){
         liste = texte.split(' ');
@@ -217,7 +221,7 @@ const server = net.createServer((socket) => {
         // si on a bien reçu tous les indices de tout le monde
         if (fini == true){
           let indices = jeu.getFinalClues(); //renvoie liste d'indices
-          socketJoueurActif.write("indices "+ indices.toString());
+          socketJoueurActif.write("réponse? "+ indices.toString());
         };
       };
 // ETAPE 4 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,8 +249,6 @@ const server = net.createServer((socket) => {
             jeu.initializeRound();
           };
         };
-        // REVIEW : Ce initializeRound n'est pas dans un if, il va relancer le round sans le dire aux clients 100% du temps
-        jeu.initializeRound();
       };
     };
   });
