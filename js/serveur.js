@@ -5,27 +5,33 @@ let clients = {}; //dictionnaire des infos des clients: {socket:[id,pseudo,ready
 let round = 0;
 let compteurHappy = 0;
 let socketJoueurActif = 0;
+let jeu = new Game(0);
+let jeucommence = false;
+let nombre = 0;
 
+//1. modifier write pour mettre espaces
+//2. changer toutes les listes car tuple
 
 //boucle serveur de connexion au port
 const server = net.createServer((socket) => {
-  Game.initializeRound(); // REVIEW : Faut créer un Game d'abord (emoji qui pleure avec les yeux fermés que j'utilise tout le temps sur messenger)
-  // REVIEW : suggestion : ne créer une instance de Game avec new Game(nombre de joueurs) que lorsque l'on commence la partie pour de vrai
-  compteurClient += 1;
-  clients[socket] = [compteurClient,'pseudo',false, false]; //{socket:[id,pseudo,ready,happy]}
-  //affiche sur le terminal du serveur une connexion de <adresse ip> sur le port <port>, run à chaque fois qu'un client se connecte
-  console.log("Connection from", socket.remoteAddress, "port", socket.remotePort);
+  jeu.initializeRound();
 
   //s'exécute à chaque fois qu'on reçoit des données du client/////////////////////////////////
   socket.on("data", (buffer) => {
-    buffer.toString("utf-8"); // REVIEW : buffer.toString() crée une nouvelle valeur, l'appeler tout seul ne sert à rien
-    if (buffer.include("pseudo")){ 
-        // REVIEW : (je crois que) ici socket est la socket d'écoute du serveur, pas la socket du client, il faut regarder socket.remoteqqchose pour avoir les bonnes valeurs
-        clients[socket][1] = buffer; //récupère le pseudo entré par le client
+    let liste = [];
+    compteurClient += 1;
+    clients[(socket.remoteAddress,socket.remotePort)] = [compteurClient,'pseudo',false, false]; //{(socket,ip):[id,pseudo,ready,happy]}
+    //affiche sur le terminal du serveur une connexion de <adresse ip> sur le port <port>, run à chaque fois qu'un client se connecte
+    console.log("Connection from", socket.remoteAddress, "port", socket.remotePort);
+    let texte = buffer.toString("utf-8");
+    if (texte.include("pseudo")){
+        liste = texte.split(' ');
+        clients[(socket.remoteAddress,socket.remotePort)][1] = liste[1]; //récupère le pseudo entré par le client
     }
-    else if (buffer.include("ready")){
-        buffer.toBool();
-        clients[socket][2] = buffer; //regarde si le client est ready ou pas
+    else if (texte.include("ready")){
+        liste = texte.split(' ');
+        let booleen = liste[1].toBool();
+        clients[(socket.remoteAddress,socket.remotePort)][2] = booleen; //regarde si le client est ready ou pas
     };
 
     //on vérifie si tout le monde est prêt
@@ -38,68 +44,78 @@ const server = net.createServer((socket) => {
     // si tout le monde est prêt
 // ETAPE 1 //////////////////////////////////////////////////////////////////////////////////////////////
     if (compteurTemporaire == compteurClient){
+      if (jeucommence == false){
+        let jeu = new Game(compteurClient);
+      };
+      jeucommmence = true;      
       //choisir le joueur actif et demander quel mot de 1 à 5
       round += 1;
-      socketJoueurActif = Object.keys(clients)[round]; // REVIEW : Risque de dépasser du tableau avant de terminer la game (garanti pour moins de 13 joueurs)
-      for (let socket of Object.keys(clients)){
+      tour = round%compteurClient;
+      socketJoueurActif = Object.keys(clients)[tour];
+      for (let socket of Object.keys(clients)){ //ICI A CHANGER
         // définition du joueur actif et du reste
-        if (socket == socketJoueurActif){
-          let card = getCurrentCard(); // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game
-          socket.write("actif", card); // envoie la carte de 5 mots
+        if (socket == socketJoueurActif){ //changer !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          socket.write("actif");
         }
         else {
           socket.write("passif");
         };
       };
       //on récupère le nombre choisi par le joueur actif
-      if (buffer.include("number")){
-        let mot = chooseWordFromCard(buffer); // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game
-        socket.write("mot_choisi", mot);
+      if (texte.include("number")){
+        liste = texte.split(' ');
+        nombre = Number(liste[1]); //récupère l'index du mot choisi
+        let mot = jeu.chooseWordFromCard(nombre);
+        socket.write("mot_choisi "+ mot);
       };
 // ETAPE 2 ////////////////////////////////////////////////////////////////////////////////////////////
       // vérifie s'il y a des joueurs qui ne comprennent pas certains mots
-      if (buffer.include("happy")){
-        if (buffer == false){
-          signalUnhappyPlayer(); // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game
+      if (texte.include("happy")){
+        liste = texte.split(' ');
+        let reponse = liste[1];
+        if (reponse == 'non'){
+          socket.write("pas_"+ nombre.toString); //reprend l'index du mot choisi
+          jeu.reinitializeFromChoice();
         };
       };
       // si on reçoit des mots à faire deviner, les renvoyer à jeu.js
-      if (buffer.include("mot")){
-        let fini = addClue(buffer); // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game
+      if (texte.include("mot")){
+        liste = texte.split(' ');
+        let fini = jeu.addClue(liste[1]);
 // ETAPE 3 ////////////////////////////////////////////////////////////////////////////////////////////
         // si on a bien reçu tous les indices de tout le monde
         if (fini == true){
-          let indices = getFinalClues(); //renvoie liste d'indices // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game
-          socketJoueurActif.write("indices", indices);
+          let indices = jeu.getFinalClues(); //renvoie liste d'indices
+          socketJoueurActif.write("indices "+ indices.toString());
         };
       };
 // ETAPE 4 ////////////////////////////////////////////////////////////////////////////////////////////
-      if (buffer.include("guess")){
+      if (texte.include("guess")){
         // récupère le résultat si le joueur est correct ou pas
-        let resultat = handleGuess(buffer); // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game
+        let resultat = jeu.handleGuess(texte);
         if (resultat == true){
-          score = getScore();
+          score = jeu.getScore();
           for (let socket of Object.keys(clients)){
-            socket.write("score",score);
-            Game.initializeRound(); // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game et aussi là t'es dans une boucle
+            socket.write("score ",score);
+            jeu.initializeRound();
           };
         }
         else if (resultat == null){
           score = getScore();
           for (let socket of Object.keys(clients)){
-            socket.write("score",score);
-            Game.initializeRound(); // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game et aussi là t'es dans une boucle
+            socket.write("score ",score);
+            jeu.initializeRound();
           };
         }
         else {
-          score = getScore();
+          score = jeu.getScore();
           for (let socket of Object.keys(clients)){
-            socket.write("score",score);
-            Game.initializeRound(); // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game et aussi là t'es dans une boucle
+            socket.write("score ",score);
+            jeu.initializeRound();
           };
         };
         // REVIEW : Ce initializeRound n'est pas dans un if, il va relancer le round sans le dire aux clients 100% du temps
-        Game.initializeRound() // REVIEW : Il faut call toutes ces méthodes SUR une instance de Game
+        jeu.initializeRound();
       };
     };
   });
