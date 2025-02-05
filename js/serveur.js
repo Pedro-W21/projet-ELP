@@ -8,6 +8,7 @@ let socketJoueurActif = 0;
 let jeu = new Game(0);
 let jeucommence = false;
 let nombre = 0;
+let compteur = 0;
 
 // mettre carte = jeu.pickWords(); pour que ça le fasse qu'une seule fois par round
 
@@ -64,14 +65,18 @@ const server = net.createServer((socket) => {
         liste = texte.split(' ');
         nombre = Number(liste[1]); //récupère l'index du mot choisi
         let mot = jeu.chooseWordFromCard(nombre);
+        compteurHappy = compteurClient;
+        compteur = 0;
         socket.write("happy? "+ mot);
       };
 // ETAPE 2 ////////////////////////////////////////////////////////////////////////////////////////////
       // vérifie s'il y a des joueurs qui ne comprennent pas certains mots
       if (texte.include("happy")){
+        compteur += 1; //compteur pour voir si tous les clients ont été concertés
         liste = texte.split(' ');
         let reponse = liste[1];
         if (reponse == 'non'){
+          compteurHappy -= 1;
           socket.write("exclude "+ nombre.toString()); //reprend l'index du mot choisi
           continuer = jeu.reinitializeFromChoice();
           if (continuer == false){
@@ -79,9 +84,12 @@ const server = net.createServer((socket) => {
             carte = jeu.pickWords();
           };
         };
+        if (compteur == compteurHappy){ //si tout les clients ont été concertés
+          if (compteurHappy == compteurClient){ //si tout le monde est content
+          socket.write('indice'); //demander à envoyer l'indice
+        };
+        };        
       };
-
-////////////////// envoyer indice? svp /////////////////////////////////
 
       // si on reçoit des mots à faire deviner, les renvoyer à jeu.js
       if (texte.include("mot")){
