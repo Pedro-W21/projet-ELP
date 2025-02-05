@@ -1,30 +1,31 @@
 const net = require('net');             // Communication réseau (socket)
 const readline = require('readline');   // Communication utilisateur (IHM)
 
-const client = new net.Socket();                // Init socket
+              // Init socket
 const interface = readline.createInterface({    // Init IHM
     input: process.stdin,
     output: process.stdout
 });
 
-const port = 9999
 
-client.connect(port, 'localhost', () => { //connecte au port choisi
+const port = 9999
+const client = net.createConnection(port, 'localhost', () => { //connecte au port choisi
     console.log("\nVotre bateau a échoué sur le port ", port, "...");
     interface.question("\nChoisissez le pseudonyme sous lequel sous voulez être connu : ", (pseudo) => {
-        client.write('pseudo ' + pseudo); // Envoi du pseudo au serveur
-        console.log("\nVous dénommez désormais ", pseudo, ", félicitations ! ");
-    });
-    interface.question("\nLorsque vous serez prêts, appuyez sur Entrée pour lancer l'aventure...", () => {
-        client.write('ready ' + 'true')
-        console.log("\nLes autres joueurs ne sont pas encore prêts, profitez-en pour affuter votre esprit !");
-    });
-});
+        client.write('pseudo ' + pseudo) // Envoi du pseudo au serveur
+        console.log("\nVous dénommez désormais ", pseudo, ", félicitations ! ")
+        interface.question("\nLorsque vous serez prêts, appuyez sur Entrée pour lancer l'aventure...", () => {
+            client.write('ready ' + 'true')
+            console.log("\nLes autres joueurs ne sont pas encore prêts, profitez-en pour affuter votre esprit !")
+        })
+    })
+    
+});  
 
 function select() {
     interface.question("\nChoisissez un des mots secrets en tapant le numéro correspondant : ", (number) => {
         if (number>0 && number<6) {
-            client.write('number' + number.toString());
+            client.write('number ' + number.toString());
         }
         else {
             console.log("\nVous ne savez pas compter de 1 à 5. Recommencez donc.");
@@ -37,7 +38,8 @@ function select() {
 
 
 client.on('data', (msg) => { //écoute les données du serveur
-    const msg_string = msg.tomsg_String(); //les convertit en msg_string
+    const msg_string = msg.toString(); //les convertit en msg_string
+    console.log(msg_string)
     const msg_list = msg_string.split(' '); //les sépare par mot
     if (msg_string.includes('actif')) {
         console.log("\nVous êtes le joueur actif, trop bien !");
@@ -68,15 +70,15 @@ client.on('data', (msg) => { //écoute les données du serveur
         console.log("\nLe mot tiré par le joueur actif est : ", mot);
         interface.question("\nEcrivez un indice en rapport pour le faire deviner au joueur actif : ", (indice) => {
             client.write('mot ' + indice);
+            console.log("\nLe joueur actif essaie de deviner le mot secret...");
+            console.log("\nEh oui, il faut encore attendre XD");
         });
-        console.log("\nLe joueur actif essaie de deviner le mot secret...");
-        console.log("\nEh oui, il faut encore attendre XD");
     }
     if (msg_string.includes('réponse?')) {
-        let indices = msg_list[1];
-        console.log("\nLes autres joueurs comprennent pas trop le mot n° 5, ne le choisissez pas svp.");
-        interface.question("\nEcrivez un mot en rapport pour le faire deviner au joueur actif : ", (mot_ecrit) => {
-            client.write('mot ' + mot_ecrit);
+        let indices = msg_string.slice(9);
+        console.log("\nLes autres joueurs vous proposent les indices : " + indices);
+        interface.question("\nQuel est votre réponse ? : ", (mot_ecrit) => {
+            client.write('guess ' + mot_ecrit);
         });
     }
 });

@@ -115,6 +115,9 @@ class Game {
     getScore() { // Renvoie le score actuel de l'équipe
         return this.score
     }
+    getChosenWord() {
+        return this.chosenWord
+    }
 
     isGameFinished() { // Return true si la partie est terminée, on peut relancer après ça mais c'est pas nécessaire
         return (this.remainingCards <= 0)
