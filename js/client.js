@@ -21,7 +21,7 @@ client.connect(port, 'localhost', () => { //connecte au port choisi
     });
 });
 
-function actif() {
+function select() {
     interface.question("\nChoisissez un des mots secrets en tapant le numéro correspondant : ", (number) => {
         if (number>0 && number<6) {
             client.write('number' + number.toString());
@@ -33,57 +33,49 @@ function actif() {
     });
 };
 
-function passif(mot_choisi, retour) {
-    if (retour) {
-        console.log("\nLe mot choisi par le joueur actif est : ", mot_choisi);
+
+client.on('data', (msg) => { //écoute les données du serveur
+    const msg_string = msg.tomsg_String(); //les convertit en msg_string
+    const msg_list = msg_string.split(' '); //les sépare par mot
+    if (msg_string.includes('actif')) {
+        console.log("\nVous êtes le joueur actif, trop bien !");
+        console.log("\nUne carte de 5 mots secrets a été tirée au sort.");
+        exclude = msg_list[1];
+        for (let i = 1; i < 6; i++) {
+            if (i in exclude) {
+                console.log("\nLes autres joueurs comprennent pas trop le mot n°", i, ", ne le choisissez pas svp.");
+            }
+        }
+        select();
+    }
+    if (msg_string.includes('passif')) {
+        console.log("\nVous n'êtes pas le joueur actif, trop bien !");
+        console.log("\nLe joueur actif est actuellement en train de tirer un mot secret au hasard.");
+        console.log("\nSoyez patient, il est un peu lent mais ce n'est pas de sa faute.");
+    }
+    if (msg_string.includes('happy')) {
+        let mot = msg_list[1];
+        console.log("\nLe mot tiré par le joueur actif est : ", mot);
         console.log("\nLe comprenenez-vous ?");
         interface.question("\nRépondez par oui ou non : ", (happy) => {
             client.write('happy ' + happy);
-        });
+            });
     }
-    else {
+    if (msg_string.includes('exclude')) {
+        console.log("\nLes autres joueurs comprennent pas trop le mot n°", msg_list[1], ", choisissez en un autre svp.");
+        select();
+    }
+    if (msg_string.includes('inidices')) {
         console.log("\nLe mot choisi est : ", mot_choisi);
         interface.question("\nEcrivez un mot en rapport pour le faire deviner au joueur actif : ", (mot_ecrit) => {
             client.write('mot ' + mot_ecrit);
         });
     }
-};
-
-client.on('data', (data) => { //écoute les données du serveur
-    const message = data.toString(); //les convertit en string
-    if (message.includes('actif')) {
-        console.log("\nVous êtes le joueur actif, trop bien !");
-        console.log("\nUne carte de 5 mots secrets a été tirée au sort.");
-        actif();
-        //faire deviner le mot
-    }
-    if (message.includes('passif')) {
-        console.log("\nVous n'êtes pas le joueur actif, trop bien !");
-        //définir ici le mot choisi
-        mot_choisi = 'mot_choisi'
-        //définir ici s'il faut demander s'ils ont compris
-        retour = false
-        passif(mot_choisi, retour);
-    }
-    if (message.includes('pas_1')) {
-        console.log("\nLes autres joueurs comprennent pas trop le mot n° 1, choisisez en un autre svp.");
-        actif();
-    }
-    if (message.includes('pas_2')) {
-        console.log("\nLes autres joueurs comprennent pas trop le mot n° 2, choisisez en un autre svp.");
-        actif();
-    }
-    if (message.includes('pas_3')) {
-        console.log("\nLes autres joueurs comprennent pas trop le mot n° 3, choisisez en un autre svp.");
-        actif();
-    }
-    if (message.includes('pas_4')) {
-        console.log("\nLes autres joueurs comprennent pas trop le mot n° 4, choisisez en un autre svp.");
-        actif();
-    }
-    if (message.includes('pas_5')) {
-        console.log("\nLes autres joueurs comprennent pas trop le mot n° 5, choisisez en un autre svp.");
-        actif();
+    if (msg_string.includes('indices')) {
+        console.log("\nLes autres joueurs comprennent pas trop le mot n° 5, ne le choisissez pas svp.");
+        interface.question("\nEcrivez un mot en rapport pour le faire deviner au joueur actif : ", (mot_ecrit) => {
+            client.write('mot ' + mot_ecrit);
+        });
     }
 });
 
