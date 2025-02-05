@@ -91,6 +91,8 @@ const server = net.createServer((socket) => {
           if (reponse == 'non'){
             clients[socketJoueurActif][4].write("exclude "+ nombre.toString()); //reprend l'index du mot choisi
             continuer = jeu.reinitializeFromChoice();
+            compteurHappy = compteurClient - 1;
+            compteur = 0;
             if (continuer == false){
               clients[socketJoueurActif][4].write('nouvellecarte'); //dans le cas où personne ne comprend aucun des 5 mots, prend une nouvelle carte
               carte = jeu.pickWords();
@@ -143,6 +145,13 @@ const server = net.createServer((socket) => {
           round += 1;
           jeu.pickWords();
           round_commence = false;
+          if (jeu.getCardsLeft() <= 0) {
+            for (let cle of Object.keys(clients)){
+              clients[cle][4].write("fin " + score);
+              clients[cle][2] = false
+            };
+            jeucommence = false
+          }
         };
       };
 
