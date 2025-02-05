@@ -45,13 +45,13 @@ const server = net.createServer((socket) => {
 // ETAPE 1 //////////////////////////////////////////////////////////////////////////////////////////////
     if (compteurTemporaire == compteurClient){
       if (jeucommence == false){
-        let jeu = new Game(compteurClient);
+        jeu = new Game(compteurClient);
       };
       jeucommmence = true;      
       //choisir le joueur actif et demander quel mot de 1 à 5
-      round += 1;
       tour = round%compteurClient;
       socketJoueurActif = Object.keys(clients)[tour];
+      round += 1;
       for (let socket of Object.keys(clients)){ //ICI A CHANGER
         // définition du joueur actif et du reste
         if (socket == socketJoueurActif){ //changer !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -74,7 +74,7 @@ const server = net.createServer((socket) => {
         liste = texte.split(' ');
         let reponse = liste[1];
         if (reponse == 'non'){
-          socket.write("pas_"+ nombre.toString); //reprend l'index du mot choisi
+          socket.write("pas_"+ nombre.toString()); //reprend l'index du mot choisi
           jeu.reinitializeFromChoice();
         };
       };
