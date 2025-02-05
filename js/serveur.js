@@ -145,6 +145,8 @@ const server = net.createServer((socket) => {
           round += 1;
           jeu.pickWords();
           round_commence = false;
+          compteurHappy = compteurClient - 1;
+          compteur = 0;
           if (jeu.getCardsLeft() <= 0) {
             for (let cle of Object.keys(clients)){
               clients[cle][4].write("fin " + score);
@@ -171,137 +173,6 @@ const server = net.createServer((socket) => {
   
 });
 
-/*const server2 = net.createServer((socket) => {
-  jeu.initializeRound();
-
-  //s'exécute à chaque fois qu'on reçoit des données du client/////////////////////////////////
-  socket.on("data", (buffer) => {
-    let liste = [];
-    compteurClient += 1;
-    clients[(socket.remoteAddress,socket.remotePort)] = [compteurClient,'pseudo',false, false]; //{(socket,ip):[id,pseudo,ready,happy]}
-    //affiche sur le terminal du serveur une connexion de <adresse ip> sur le port <port>, run à chaque fois qu'un client se connecte
-    console.log("Connection from", socket.remoteAddress, "port", socket.remotePort);
-    let texte = buffer.toString("utf-8");
-    if (texte.includes("pseudo")){
-        liste = texte.split(' ');
-        clients[(socket.remoteAddress,socket.remotePort)][1] = liste[1]; //récupère le pseudo entré par le client
-    }
-    else if (texte.includes("ready")){
-        liste = texte.split(' ');
-        let booleen = liste[1].toBool();
-        clients[(socket.remoteAddress,socket.remotePort)][2] = booleen; //regarde si le client est ready ou pas
-    };
-
-    //on vérifie si tout le monde est prêt
-    let compteurTemporaire = 0;
-    for (let list of Object.values(clients)){
-        if (list[2] == true){
-            compteurTemporaire += 1;
-        };
-    };
-    // si tout le monde est prêt
-// ETAPE 1 //////////////////////////////////////////////////////////////////////////////////////////////
-    if (compteurTemporaire == compteurClient){
-      if (jeucommence == false){
-        jeu = new Game(compteurClient);
-      };
-      jeucommmence = true;      
-      //choisir le joueur actif et demander quel mot de 1 à 5
-      tour = round%compteurClient;
-      socketJoueurActif = Object.keys(clients)[tour];
-      for (let cles of Object.keys(clients)){
-        // définition du joueur actif et du reste
-        if (cles[1] == socketJoueurActif){ //cles[1] désigne la socket
-          socket.write("actif");
-        }
-        else {
-          socket.write("passif");
-        };
-      };
-      //on récupère le nombre choisi par le joueur actif
-      if (texte.includes("number")){
-        liste = texte.split(' ');
-        nombre = Number(liste[1]); //récupère l'index du mot choisi
-        let mot = jeu.chooseWordFromCard(nombre);
-        compteurHappy = compteurClient;
-        compteur = 0;
-        socket.write("happy? "+ mot);
-      };
-// ETAPE 2 ////////////////////////////////////////////////////////////////////////////////////////////
-      // vérifie s'il y a des joueurs qui ne comprennent pas certains mots
-      if (texte.includes("happy")){
-        compteur += 1; //compteur pour voir si tous les clients ont été concertés
-        liste = texte.split(' ');
-        let reponse = liste[1];
-        if (reponse == 'non'){
-          compteurHappy -= 1;
-          socket.write("exclude "+ nombre.toString()); //reprend l'index du mot choisi
-          continuer = jeu.reinitializeFromChoice();
-          if (continuer == false){
-            socket.write('nouvellecarte'); //dans le cas où personne ne comprend aucun des 5 mots, prend une nouvelle carte
-            carte = jeu.pickWords();
-          };
-        };
-        if (compteur == compteurHappy){ //si tout les clients ont été concertés
-          if (compteurHappy == compteurClient){ //si tout le monde est content
-            socket.write('indice? ' + jeu.getChosenWord()); //demander à envoyer l'indice
-          };
-        };        
-      };
-
-      // si on reçoit des mots à faire deviner, les renvoyer à jeu.js
-      if (texte.includes("mot")){
-        liste = texte.split(' ');
-        let fini = jeu.addClue(liste[1]);
-// ETAPE 3 ////////////////////////////////////////////////////////////////////////////////////////////
-        // si on a bien reçu tous les indices de tout le monde
-        if (fini == true){
-          let indices = jeu.getFinalClues(); //renvoie liste d'indices
-          socketJoueurActif.write("réponse? "+ indices.toString());
-        };
-      };
-// ETAPE 4 ////////////////////////////////////////////////////////////////////////////////////////////
-      if (texte.includes("guess")){
-        // récupère le résultat si le joueur est correct ou pas
-        let resultat = jeu.handleGuess(texte);
-        if (resultat == true){
-          score = jeu.getScore();
-          for (let cle of Object.keys(clients)){
-            cle[1].write("score ",score);
-            jeu.initializeRound();
-          };
-        }
-        else if (resultat == null){
-          score = getScore();
-          for (let cle of Object.keys(clients)){
-            cle[1].write("score ",score);
-            jeu.initializeRound();
-          };
-        }
-        else {
-          score = jeu.getScore();
-          for (let cle of Object.keys(clients)){
-            cle[1].write("score ",score);
-            jeu.initializeRound();
-          };
-        };
-      };
-    };
-  });
-
-
-  //s'exécute quand un client ferme la connexion /////////////////////////////////
-  socket.on("end", () => {
-    compteurClient -= 1;
-    console.log("Closed", socket.remoteAddress, "port", socket.remotePort);
-  });
-
-  //s'exécute si erreur /////////////////////////////////
-  socket.on("error", (err) => {
-    console.error("Erreur sur le socket :", err.message);
-  });
-})
-*/
 server.maxConnections = 7;
 server.listen(9999);
 

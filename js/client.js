@@ -22,6 +22,7 @@ function select() {
 };
 
 function ready() {
+    client.write('ready ' + 'false');
     interface.question("\nLorsque vous serez prêts, appuyez sur Entrée pour lancer l'aventure...", () => {
         client.write('ready ' + 'true');
         console.log("\nLes autres joueurs ne sont pas encore prêts, profitez-en pour affuter votre esprit !");
