@@ -9,7 +9,7 @@ let jeu = new Game(0);
 let jeucommence = false;
 let nombre = 0;
 
-//changer tout ce qui est socket?? pour .write au client
+// mettre carte = jeu.pickWords(); pour que ça le fasse qu'une seule fois par round
 
 //boucle serveur de connexion au port
 const server = net.createServer((socket) => {
@@ -75,7 +75,8 @@ const server = net.createServer((socket) => {
           socket.write("exclude "+ nombre.toString()); //reprend l'index du mot choisi
           continuer = jeu.reinitializeFromChoice();
           if (continuer == false){
-            socket.write('nouvellecarte');
+            socket.write('nouvellecarte'); //dans le cas où personne ne comprend aucun des 5 mots, prend une nouvelle carte
+            carte = jeu.pickWords();
           };
         };
       };
@@ -118,8 +119,6 @@ const server = net.createServer((socket) => {
             jeu.initializeRound();
           };
         };
-        // REVIEW : Ce initializeRound n'est pas dans un if, il va relancer le round sans le dire aux clients 100% du temps
-        jeu.initializeRound();
       };
     };
   });
