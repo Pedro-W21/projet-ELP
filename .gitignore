@@ -10,3 +10,7 @@ elm/elm-stuff/0.19.1/CheminASvg.elmi
 elm/elm-stuff/0.19.1/CheminASvg.elmo
 js/node_modules/.bin/npm-start
 js/node_modules/npm-start/npm-start.sh
+js/node_modules/.package-lock.json
+js/node_modules/npm-start/LICENSE
+js/node_modules/npm-start/package.json
+js/node_modules/npm-start/README.md
