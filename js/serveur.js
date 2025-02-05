@@ -50,12 +50,7 @@ const server = net.createServer((socket) => {
       //choisir le joueur actif et demander quel mot de 1 à 5
       tour = round%compteurClient;
       socketJoueurActif = Object.keys(clients)[tour];
-<<<<<<< HEAD
-      round += 1;
-      for (let socket of Object.keys(clients)){ //ICI A CHANGER
-=======
       for (let cles of Object.keys(clients)){
->>>>>>> 5b70c08de0d790c1c87fc273c1b44cc6ce5f5db1
         // définition du joueur actif et du reste
         if (cles[1] == socketJoueurActif){ //cles[1] désigne la socket
           socket.write("actif");
