@@ -45,7 +45,7 @@ const server = net.createServer((socket) => {
       //console.log(clients)
       // si tout le monde est prêt
   // ETAPE 1 //////////////////////////////////////////////////////////////////////////////////////////////
-      if (compteurTemporaire == compteurClient){
+      if (compteurTemporaire == compteurClient && compteurClient > 1){
         if (jeucommence == false){
           jeu = new game(compteurClient);
           jeucommence = true;
