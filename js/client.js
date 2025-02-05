@@ -81,7 +81,14 @@ client.on('data', (msg) => { //écoute les données du serveur
     }
     if (msg_string.includes('réponse?')) {
         let indices_str = msg_string.slice(9);
-        let indices = Array.from(indices_str)
+        let indices = []
+        if (indices_str.split(" ").length > 1) {
+            indices = JSON.parse(indices_str)
+        }
+        else if (indices_str.split(" ").length > 0) {
+            indices = [indices_str]
+        }
+        
         if (indices == []) {
             console.log("\nAucun indice des autres joueurs n'est valide, lol.");
             console.log("\nCe round est donc perdu...");
@@ -96,6 +103,54 @@ client.on('data', (msg) => { //écoute les données du serveur
             interface.question("\nEntrez le mot secret, ou PASS pour passer ce tour : ", (guess) => {
                 client.write('guess ' + guess);
             });
+        }
+    }
+    if (msg_string.includes('score_gagne')) {
+        let score = msg_list[1];
+        console.log("\nLe joueur actif a deviné le mot secret, bravo à lui !");
+        console.log("\nVous remportez ce round, le score est désormais de ", score, "points.");
+    }
+    if (msg_string.includes('score_pass')) {
+        let score = msg_list[1];
+        console.log("\nLe joueur actif a passé ce tour, par manque d'indices...");
+        console.log("\nVous perdez ce round, le score est désormais de ", score, "points.");
+    }
+    if (msg_string.includes('score_perdu')) {
+        let score = msg_list[1];
+        console.log("\nLe joueur actif s'est trompé");
+        console.log("\nVous perdez ce round, le score est désormais de ", score, "points.");
+    }
+    if (msg_string.includes('fin')) {
+        let score = msg_list[1];
+        console.log("\nToutes les cartes ont été jouées, la partie est terminée !");
+        console.log("\nLe score final est de ", score, "points.");
+        // 13 Score parfait! Y arriverez-vous encore?
+        // 12 Incroyable! Vos amis doivent être impressionnés!
+        // 11 Génial ! C’est un score qui se fête!
+        // 9-10 Waouh, pas mal du tout!
+        // 7-8 Vous êtes dans la moyenne. Arriverez-vous à faire mieux?
+        // 4-6 C’est un bon début. Réessayez!
+        // 0-3 Essayez encore.
+        if (score == 13) {
+            console.log("\nScore parfait! Y arriverez-vous encore?");
+        }
+        if (score == 12) {
+            console.log("\nIncroyable! Vos amis doivent être impressionnés!");
+        }
+        if (score == 11) {
+            console.log("\nGénial ! C'est un score qui se fête!");
+        }
+        if (score == 9 || score == 10) {
+            console.log("\nWaouh, pas mal du tout!");
+        }
+        if (score == 7 || score == 8) {
+            console.log("\nVous êtes dans la moyenne. Arriverez-vous à faire mieux?");
+        }
+        if (score == 4 || score == 5 || score == 6) {
+            console.log("\nC'est un bon début. Réessayez!");
+        }
+        if (score == 0 || score == 1 || score == 2 || score == 3) {
+            console.log("\nEssayez encore.");
         }
     }
 });
