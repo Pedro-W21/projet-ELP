@@ -64,7 +64,7 @@ const server = net.createServer((socket) => {
         liste = texte.split(' ');
         nombre = Number(liste[1]); //récupère l'index du mot choisi
         let mot = jeu.chooseWordFromCard(nombre);
-        socket.write("happy "+ mot);
+        socket.write("happy? "+ mot);
       };
 // ETAPE 2 ////////////////////////////////////////////////////////////////////////////////////////////
       // vérifie s'il y a des joueurs qui ne comprennent pas certains mots
@@ -79,6 +79,9 @@ const server = net.createServer((socket) => {
           };
         };
       };
+
+////////////////// envoyer indice? svp /////////////////////////////////
+
       // si on reçoit des mots à faire deviner, les renvoyer à jeu.js
       if (texte.include("mot")){
         liste = texte.split(' ');
@@ -87,7 +90,7 @@ const server = net.createServer((socket) => {
         // si on a bien reçu tous les indices de tout le monde
         if (fini == true){
           let indices = jeu.getFinalClues(); //renvoie liste d'indices
-          socketJoueurActif.write("indices "+ indices.toString());
+          socketJoueurActif.write("réponse? "+ indices.toString());
         };
       };
 // ETAPE 4 ////////////////////////////////////////////////////////////////////////////////////////////

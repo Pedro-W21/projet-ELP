@@ -28,9 +28,11 @@ function select() {
         }
         else {
             console.log("\nVous ne savez pas compter de 1 à 5. Recommencez donc.");
-            actif();
+            select();
         }
     });
+    console.log("\nLes autres joueurs tentent de comprendre le nouveau mot...");
+    console.log("\nTâche ardue, vous n'imaginez même pas à, quel point !");
 };
 
 
@@ -47,25 +49,31 @@ client.on('data', (msg) => { //écoute les données du serveur
         console.log("\nLe joueur actif est actuellement en train de tirer un mot secret au hasard.");
         console.log("\nSoyez patient, il est un peu lent mais ce n'est pas de sa faute.");
     }
-    if (msg_string.includes('happy')) {
+    if (msg_string.includes('happy?')) {
         let mot = msg_list[1];
         console.log("\nLe mot tiré par le joueur actif est : ", mot);
         console.log("\nLe comprenenez-vous ?");
         interface.question("\nRépondez par oui ou non : ", (happy) => {
             client.write('happy ' + happy);
-            });
+        });
+        console.log("\nOn vérifie que tout le monde a bien compris le mot secret...");
+        console.log("\nVous êtes pas le seul à vous plaindre, comprenez bien.");
     }
     if (msg_string.includes('exclude')) {
         console.log("\nLes autres joueurs comprennent pas trop le mot n°", msg_list[1], ", choisissez en un autre svp.");
         select();
     }
-    if (msg_string.includes('inidices')) {
-        console.log("\nLe mot choisi est : ", mot_choisi);
-        interface.question("\nEcrivez un mot en rapport pour le faire deviner au joueur actif : ", (mot_ecrit) => {
-            client.write('mot ' + mot_ecrit);
+    if (msg_string.includes('indice?')) {
+        let mot = msg_list[1];
+        console.log("\nLe mot tiré par le joueur actif est : ", mot);
+        interface.question("\nEcrivez un indice en rapport pour le faire deviner au joueur actif : ", (indice) => {
+            client.write('mot ' + indice);
         });
+        console.log("\nLe joueur actif essaie de deviner le mot secret...");
+        console.log("\nEh oui, il faut encore attendre XD");
     }
-    if (msg_string.includes('indices')) {
+    if (msg_string.includes('réponse?')) {
+        let indices = msg_list[1];
         console.log("\nLes autres joueurs comprennent pas trop le mot n° 5, ne le choisissez pas svp.");
         interface.question("\nEcrivez un mot en rapport pour le faire deviner au joueur actif : ", (mot_ecrit) => {
             client.write('mot ' + mot_ecrit);
