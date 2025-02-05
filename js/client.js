@@ -57,9 +57,9 @@ client.on('data', (msg) => { //écoute les données du serveur
         console.log("\nLe comprenenez-vous ?");
         interface.question("\nRépondez par oui ou non : ", (happy) => {
             client.write('happy ' + happy);
+            console.log("\nOn vérifie que tout le monde a bien compris le mot secret...");
+            console.log("\nVous êtes pas le seul à vous plaindre, comprenez bien.");
         });
-        console.log("\nOn vérifie que tout le monde a bien compris le mot secret...");
-        console.log("\nVous êtes pas le seul à vous plaindre, comprenez bien.");
     }
     if (msg_string.includes('exclude')) {
         console.log("\nLes autres joueurs ne comprennent pas trop le mot n°", msg_list[1], ", choisissez en un autre svp.");
