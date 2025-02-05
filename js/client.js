@@ -7,7 +7,6 @@ const interface = readline.createInterface({    // Init IHM
     output: process.stdout
 });
 
-
 function select() {
     interface.question("\nChoisissez un des mots secrets en tapant le numéro correspondant : ", (number) => {
         if (number>0 && number<6) {
@@ -22,15 +21,12 @@ function select() {
     console.log("\nTâche ardue, vous n'imaginez même pas à, quel point !");
 };
 
-
-
 function ready() {
     interface.question("\nLorsque vous serez prêts, appuyez sur Entrée pour lancer l'aventure...", () => {
         client.write('ready ' + 'true');
         console.log("\nLes autres joueurs ne sont pas encore prêts, profitez-en pour affuter votre esprit !");
     });
 };
-
 
 const port = 9999
 const client = net.createConnection(port, 'localhost', () => { //connecte au port choisi
@@ -154,7 +150,14 @@ client.on('data', (msg) => { //écoute les données du serveur
         if (score == 0 || score == 1 || score == 2 || score == 3) {
             console.log("\nEssayez encore.");
         }
-    }
+        interface.question("\nVoulez-vous rejoindre une autre partie ?", (rep) => {
+            if (rep == 'oui') {
+                ready();
+            }
+            else {
+                client.end();
+            }
+        });    }
 });
 
 client.on('close', () => {
