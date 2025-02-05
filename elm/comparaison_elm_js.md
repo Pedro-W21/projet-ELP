@@ -2,7 +2,7 @@
 
 ## Partie ELM
 Pour nous, ELM a été plus difficile à prendre en main que JavaScript au premier abord. Pour la plupart d'entre nous, ELM a été notre premier langage fonctionnel et il a été compliqué de s'y habituer. 
-Par ailleurs, contrairement à JavaScript, il y a très peu d'éléments sur internet de quoi s'inspirer, donc il a été beaucoup plus laborieux de trouver de la matière.
+Par ailleurs, contrairement à JavaScript, il y a très peu d'éléments sur internet des quelles s'inspirer, donc il a été beaucoup plus laborieux de trouver de la matière.
 Le fait que ce langage fonctionne principalement de manière récursive a fait qu'il a été compliqué à programmer en ELM. Cela exige une programmation plus disciplinée, difficile au premier contact. 
 
 ## Partie JavaScript
