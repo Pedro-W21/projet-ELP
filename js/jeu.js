@@ -10,7 +10,7 @@ class Game {
     constructor(total_players) { // Besoin de le construire 1 SEULE FOIS lorsque l'entité qui gère le jeu démarre
         this.currentCard = []
         this.score = 0;
-        this.remainingCards = 13;
+        this.remainingCards = 2;
         this.totalPlayers = total_players
         this.chosenWord = ""
         this.clues = []
