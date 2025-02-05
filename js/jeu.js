@@ -97,10 +97,13 @@ class Game {
     }
 
     reinitializeFromChoice() { // Call quand on recommence un round lorsqu'un joueur ne connaît pas le mot, renvoie true si le round peut continuer (il existe au moins 1 autre mot possible dans la carte)
-        this.alreadyPickedCards[this.alreadyPickedCards.length] = this.currentCard.indexOf(this.chosenWord)
-        this.chosenWord = ""
-        this.clues = []
-        this.unhappyPlayers = 0
+        if (this.alreadyPickedCards.indexOf(this.chosenWord) == -1) {
+            this.alreadyPickedCards[this.alreadyPickedCards.length] = this.chosenWord
+            this.chosenWord = ""
+            this.clues = []
+            this.unhappyPlayers = 0
+        }
+        
         return (this.alreadyPickedCards.length < 5)
     }
 
