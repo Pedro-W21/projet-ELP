@@ -80,11 +80,12 @@ const server = net.createServer((socket) => {
           liste = texte.split(' ');
           let reponse = liste[1];
           if (reponse == 'non'){
-            socketJoueurActif.write("pas_"+ nombre.toString()); //reprend l'index du mot choisi
+            socketJoueurActif.write("exclude "+ nombre.toString()); //reprend l'index du mot choisi
             continuer = jeu.reinitializeFromChoice();
             if (continuer == false){
-              
-            }
+              socketJoueurActif.write('nouvellecarte'); //dans le cas où personne ne comprend aucun des 5 mots, prend une nouvelle carte
+              carte = jeu.pickWords();
+            };
           };
         };
         // si on reçoit des mots à faire deviner, les renvoyer à jeu.js
@@ -95,7 +96,7 @@ const server = net.createServer((socket) => {
           // si on a bien reçu tous les indices de tout le monde
           if (fini == true){
             let indices = jeu.getFinalClues(); //renvoie liste d'indices
-            socketJoueurActif.write("indices " + indices.toString());
+            socketJoueurActif.write("réponse? "+ indices.toString());
           };
         };
   // ETAPE 4 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,19 +106,19 @@ const server = net.createServer((socket) => {
           if (resultat == true){
             score = jeu.getScore();
             for (let cle of Object.keys(clients)){
-              cle.write("score gagne " + score);
+              cle.write("score_gagne " + score);
             };
           }
           else if (resultat == null){
             score = jeu.getScore();
             for (let cle of Object.keys(clients)){
-              cle.write("score pass " + score);
+              cle.write("score_pass " + score);
             };
           }
           else {
             score = jeu.getScore();
             for (let cle of Object.keys(clients)){
-              cle.write("score perdu " + score);
+              cle.write("score_perdu " + score);
             };
           };
           jeu.initializeRound();
@@ -142,7 +143,7 @@ const server = net.createServer((socket) => {
   
 });
 
-/*const server2 = net.createServer((socket) => {
+const server2 = net.createServer((socket) => {
   jeu.initializeRound();
 
   //s'exécute à chaque fois qu'on reçoit des données du client/////////////////////////////////
@@ -267,7 +268,7 @@ const server = net.createServer((socket) => {
 })
 
 server.maxConnections = 7;
-server.listen(9999);*/
+server.listen(9999);
 
 //pour arrêter une connexion: socket.end("on peut dire qqchose ici")
 // problème au niveau de l'ordre avec client pour la partie choisir une carte et le numéro, mélange actif/passif
