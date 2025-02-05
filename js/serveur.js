@@ -12,7 +12,6 @@ let nombre = 0;
 let compteur = 0;
 let round_commence = false;
 
-// mettre carte = jeu.pickWords(); pour que ça le fasse qu'une seule fois par round
 
 //boucle serveur de connexion au port
 const server = net.createServer((socket) => {
