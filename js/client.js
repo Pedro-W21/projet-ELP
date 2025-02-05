@@ -60,13 +60,18 @@ client.on('data', (msg) => { //écoute les données du serveur
         console.log("\nVous êtes pas le seul à vous plaindre, comprenez bien.");
     }
     if (msg_string.includes('exclude')) {
-        console.log("\nLes autres joueurs comprennent pas trop le mot n°", msg_list[1], ", choisissez en un autre svp.");
+        console.log("\nLes autres joueurs ne comprennent pas trop le mot n°", msg_list[1], ", choisissez en un autre svp.");
+        select();
+    }
+    if (msg_string.includes('nouvellecarte')) {
+        console.log("\nAucun mot de la carte précédente n'a été compris.");
+        console.log("\nUne nouvelle carte de 5 mots secrets a été tirée au sort.");
         select();
     }
     if (msg_string.includes('indice?')) {
         let mot = msg_list[1];
         console.log("\nLe mot tiré par le joueur actif est : ", mot);
-        interface.question("\nEcrivez un indice en rapport pour le faire deviner au joueur actif : ", (indice) => {
+        interface.question("\nEcrivez un indice en rapport avec ce mot pour le faire deviner au joueur actif : ", (indice) => {
             client.write('mot ' + indice);
         });
         console.log("\nLe joueur actif essaie de deviner le mot secret...");
@@ -74,15 +79,26 @@ client.on('data', (msg) => { //écoute les données du serveur
     }
     if (msg_string.includes('réponse?')) {
         let indices = msg_list[1];
-        console.log("\nLes autres joueurs comprennent pas trop le mot n° 5, ne le choisissez pas svp.");
-        interface.question("\nEcrivez un mot en rapport pour le faire deviner au joueur actif : ", (mot_ecrit) => {
-            client.write('mot ' + mot_ecrit);
-        });
+        if (msg_list[1] == []) {
+            console.log("\nAucun indice des autres joueurs n'est valide, lol.");
+            console.log("\nCe round est donc perdu...");
+            console.log("\nVous ferez mieux la prochaine fois, peut-être ;)");
+            client.write('guess PASS');
+        }
+        else {
+            console.log("\nVoici les indices  valides des autres joueurs : ");
+            for (let i = 0; i < indices.length; i++) {
+                console.log("\nIndice n°", i+1, " : ", indices[i]);
+            }
+            interface.question("\nEntrez le mot secret, ou PASS pour passer ce tour : ", (guess) => {
+                client.write('guess ' + guess);
+            });
+        }
     }
 });
 
 client.on('close', () => {
     console.log("\nVous avez été éjecté de la partie (looser XD)");
-    console.log("\nEn vrai tkt si c'est pas normal tu peux juste relancer le jeu ;)");
+    console.log("\nSi vous pensez que ce n'est pas normal, vous pouvez simplement relancer le jeu ;)");
     interface.close();
 });
