@@ -22,7 +22,7 @@ const server = net.createServer((socket) => {
     console.log("Connection from", socket.remoteAddress, "port", socket.remotePort);
     socket.on("data", (buffer) => {
       let texte = buffer.toString("utf-8");
-      console.log(texte)
+      console.log(texte + "\n")
       if (texte.includes("pseudo")){
           console.log("NOUVEAU JOUEUR DE PSEUDO : " + texte.split(" ")[1])
           liste = texte.split(' ');
