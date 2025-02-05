@@ -12,11 +12,11 @@ const port = 9999
 client.connect(port, 'localhost', () => { //connecte au port choisi
     console.log("\nVotre bateau a échoué sur le port ", port, "...");
     interface.question("\nChoisissez le pseudonyme sous lequel sous voulez être connu : ", (pseudo) => {
-        client.write('pseudo', pseudo); // Envoi du pseudo au serveur
+        client.write('pseudo ' + pseudo); // Envoi du pseudo au serveur
         console.log("\nVous dénommez désormais ", pseudo, ", félicitations ! ");
     });
     interface.question("\nLorsque vous serez prêts, appuyez sur Entrée pour lancer l'aventure...", () => {
-        client.write('ready', true)
+        client.write('ready ' + 'true')
         console.log("\nLes autres joueurs ne sont pas encore prêts, profitez-en pour affuter votre esprit !");
     });
 });
@@ -24,7 +24,7 @@ client.connect(port, 'localhost', () => { //connecte au port choisi
 function actif() {
     interface.question("\nChoisissez un des mots secrets en tapant le numéro correspondant : ", (number) => {
         if (number>0 && number<6) {
-            client.write("number", number);
+            client.write('number' + number.toString());
         }
         else {
             console.log("\nVous ne savez pas compter de 1 à 5. Recommencez donc.");
@@ -38,13 +38,13 @@ function passif(mot_choisi, retour) {
         console.log("\nLe mot choisi par le joueur actif est : ", mot_choisi);
         console.log("\nLe comprenenez-vous ?");
         interface.question("\nRépondez par oui ou non : ", (happy) => {
-            client.write("happy",happy);
+            client.write('happy ' + happy);
         });
     }
     else {
         console.log("\nLe mot choisi est : ", mot_choisi);
         interface.question("\nEcrivez un mot en rapport pour le faire deviner au joueur actif : ", (mot_ecrit) => {
-            client.write("mot",mot_ecrit);
+            client.write('mot ' + mot_ecrit);
         });
     }
 };
@@ -60,7 +60,7 @@ client.on('data', (data) => { //écoute les données du serveur
     if (message.includes('passif')) {
         console.log("\nVous n'êtes pas le joueur actif, trop bien !");
         //définir ici le mot choisi
-        mot_choisi = "mot_choisi"
+        mot_choisi = 'mot_choisi'
         //définir ici s'il faut demander s'ils ont compris
         retour = false
         passif(mot_choisi, retour);
