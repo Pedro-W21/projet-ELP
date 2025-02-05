@@ -1,0 +1,15 @@
+{
+  "name": "just_one_3tc",
+  "version": "1.0.0",
+  "description": "Notre implémentation client-serveur du jeu Just One tel que demandée pour le projet ELP en 3TC",
+  "main": "client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node start.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "npm-start": "^1.4.2"
+  }
+}

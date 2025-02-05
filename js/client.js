@@ -42,7 +42,7 @@ const client = net.createConnection(port, 'localhost', () => { //connecte au por
 
 client.on('data', (msg) => { //écoute les données du serveur
     const msg_string = msg.toString(); //les convertit en msg_string
-    console.log(msg_string)
+    // console.log(msg_string)
     const msg_list = msg_string.split(' '); //les sépare par mot
     if (msg_string.includes('actif')) {
         console.log("\nVous êtes le joueur actif, trop bien !");
@@ -92,7 +92,7 @@ client.on('data', (msg) => { //écoute les données du serveur
             indices = [indices_str]
         }
         
-        if (indices == []) {
+        if (indices == [] || indices[0] == "" || indices[0] == " ") {
             console.log("\nAucun indice des autres joueurs n'est valide, lol.");
             console.log("\nCe round est donc perdu...");
             console.log("\nVous ferez mieux la prochaine fois, peut-être ;)");

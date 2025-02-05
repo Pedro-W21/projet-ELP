@@ -175,6 +175,7 @@ const server = net.createServer((socket) => {
 
 server.maxConnections = 7;
 server.listen(9999);
+console.log("Serveur démarré sur le port 9999")
 
 //pour arrêter une connexion: socket.end("on peut dire qqchose ici")
 // problème au niveau de l'ordre avec client pour la partie choisir une carte et le numéro, mélange actif/passif
