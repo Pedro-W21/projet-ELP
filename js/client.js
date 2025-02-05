@@ -39,6 +39,7 @@ function ready() {
     });
 };
 
+global.server_exists = true;
 // Init client
 const port = 9999
 const client = net.createConnection(port, 'localhost', () => { //connecte au port choisi
@@ -47,8 +48,10 @@ const client = net.createConnection(port, 'localhost', () => { //connecte au por
     interface.question("\nChoisissez le pseudonyme sous lequel sous voulez être connu : ", (pseudo) => {
         client.write('pseudo ' + pseudo); // Envoi du pseudo au serveur
         console.log("\nVous dénommez désormais ", pseudo, ", félicitations ! ");
+        
         ready();
     });
+    
 });  
 
 
@@ -185,10 +188,20 @@ client.on('data', (msg) => { //écoute les données du serveur
         });    }
 });
 
+
+client.on("error", (err) => {
+    global.server_exists = false;
+    client.end()
+})
+
 // End
 client.on('close', () => {
-    console.log("\n______________________________________________________________");
-    console.log("\nVous avez été éjecté de la partie (looser XD)");
-    console.log("\nSi vous pensez que ce n'est pas normal, vous pouvez simplement relancer le jeu ;)");
+    if (global.server_exists) {
+        console.log("\n______________________________________________________________");
+        console.log("\nVous avez été éjecté de la partie");
+        console.log("\nSi vous pensez que ce n'est pas normal, vous pouvez simplement relancer le jeu ;)");
+    }
+    
     interface.close();
+    client.end()
 });

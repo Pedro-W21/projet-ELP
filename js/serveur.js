@@ -22,7 +22,6 @@ const server = net.createServer((socket) => {
     console.log("Connection from", socket.remoteAddress, "port", socket.remotePort);
     socket.on("data", (buffer) => {
       let texte = buffer.toString("utf-8");
-      console.log(texte + "\n")
       if (texte.includes("pseudo")){
           console.log("NOUVEAU JOUEUR DE PSEUDO : " + texte.split(" ")[1])
           liste = texte.split(' ');
@@ -30,7 +29,6 @@ const server = net.createServer((socket) => {
       }
       else if (texte.includes("ready")){
           liste = texte.split(' ');
-          console.log("READY DE FOU : " + valeur_a.toString())
           let booleen = (liste[1] == "true");
           clients[valeur_a][2] = booleen; //regarde si le client est ready ou pas
       };
