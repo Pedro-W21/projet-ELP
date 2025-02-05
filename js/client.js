@@ -40,12 +40,6 @@ client.on('data', (msg) => { //écoute les données du serveur
     if (msg_string.includes('actif')) {
         console.log("\nVous êtes le joueur actif, trop bien !");
         console.log("\nUne carte de 5 mots secrets a été tirée au sort.");
-        exclude = msg_list[1];
-        for (let i = 1; i < 6; i++) {
-            if (i in exclude) {
-                console.log("\nLes autres joueurs comprennent pas trop le mot n°", i, ", ne le choisissez pas svp.");
-            }
-        }
         select();
     }
     if (msg_string.includes('passif')) {
