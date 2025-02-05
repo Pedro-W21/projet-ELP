@@ -9,8 +9,7 @@ let jeu = new Game(0);
 let jeucommence = false;
 let nombre = 0;
 
-//1. modifier write pour mettre espaces
-//2. changer toutes les listes car tuple
+//changer tout ce qui est socket?? pour .write au client
 
 //boucle serveur de connexion au port
 const server = net.createServer((socket) => {
@@ -52,9 +51,9 @@ const server = net.createServer((socket) => {
       round += 1;
       tour = round%compteurClient;
       socketJoueurActif = Object.keys(clients)[tour];
-      for (let socket of Object.keys(clients)){ //ICI A CHANGER
+      for (let cles of Object.keys(clients)){
         // définition du joueur actif et du reste
-        if (socket == socketJoueurActif){ //changer !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (cles[1] == socketJoueurActif){ //cles[1] désigne la socket
           socket.write("actif");
         }
         else {
@@ -75,7 +74,10 @@ const server = net.createServer((socket) => {
         let reponse = liste[1];
         if (reponse == 'non'){
           socket.write("pas_"+ nombre.toString); //reprend l'index du mot choisi
-          jeu.reinitializeFromChoice();
+          continuer = jeu.reinitializeFromChoice();
+          if (continuer == false){
+            
+          }
         };
       };
       // si on reçoit des mots à faire deviner, les renvoyer à jeu.js
@@ -95,22 +97,22 @@ const server = net.createServer((socket) => {
         let resultat = jeu.handleGuess(texte);
         if (resultat == true){
           score = jeu.getScore();
-          for (let socket of Object.keys(clients)){
-            socket.write("score ",score);
+          for (let cle of Object.keys(clients)){
+            cle[1].write("score ",score);
             jeu.initializeRound();
           };
         }
         else if (resultat == null){
           score = getScore();
-          for (let socket of Object.keys(clients)){
-            socket.write("score ",score);
+          for (let cle of Object.keys(clients)){
+            cle[1].write("score ",score);
             jeu.initializeRound();
           };
         }
         else {
           score = jeu.getScore();
-          for (let socket of Object.keys(clients)){
-            socket.write("score ",score);
+          for (let cle of Object.keys(clients)){
+            cle[1].write("score ",score);
             jeu.initializeRound();
           };
         };
