@@ -5,6 +5,7 @@ const fs = require('fs');
 const words = JSON.parse(fs.readFileSync('dico.json', "utf8" )).filter(word => !word.includes(" "))
 const words_set = new Set(words)
 
+
 class Game {
     constructor(total_players) { // Besoin de le construire 1 SEULE FOIS lorsque l'entité qui gère le jeu démarre
         this.currentCard = []
@@ -139,6 +140,7 @@ class Game {
 
 // exemple d'utilisation séquentielle
 
+module.exports = Game
 let test_game = new Game(5);
 
 test_game.initializeRound()
