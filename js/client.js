@@ -8,20 +8,6 @@ const interface = readline.createInterface({    // Init IHM
 });
 
 
-const port = 9999
-const client = net.createConnection(port, 'localhost', () => { //connecte au port choisi
-    console.log("\nVotre bateau a échoué sur le port ", port, "...");
-    interface.question("\nChoisissez le pseudonyme sous lequel sous voulez être connu : ", (pseudo) => {
-        client.write('pseudo ' + pseudo) // Envoi du pseudo au serveur
-        console.log("\nVous dénommez désormais ", pseudo, ", félicitations ! ")
-        interface.question("\nLorsque vous serez prêts, appuyez sur Entrée pour lancer l'aventure...", () => {
-            client.write('ready ' + 'true')
-            console.log("\nLes autres joueurs ne sont pas encore prêts, profitez-en pour affuter votre esprit !")
-        })
-    })
-    
-});  
-
 function select() {
     interface.question("\nChoisissez un des mots secrets en tapant le numéro correspondant : ", (number) => {
         if (number>0 && number<6) {
@@ -35,6 +21,26 @@ function select() {
     console.log("\nLes autres joueurs tentent de comprendre le nouveau mot...");
     console.log("\nTâche ardue, vous n'imaginez même pas à, quel point !");
 };
+
+
+
+function ready() {
+    interface.question("\nLorsque vous serez prêts, appuyez sur Entrée pour lancer l'aventure...", () => {
+        client.write('ready ' + 'true');
+        console.log("\nLes autres joueurs ne sont pas encore prêts, profitez-en pour affuter votre esprit !");
+    });
+};
+
+
+const port = 9999
+const client = net.createConnection(port, 'localhost', () => { //connecte au port choisi
+    console.log("\nVotre bateau a échoué sur le port ", port, "...");
+    interface.question("\nChoisissez le pseudonyme sous lequel sous voulez être connu : ", (pseudo) => {
+        client.write('pseudo ' + pseudo); // Envoi du pseudo au serveur
+        console.log("\nVous dénommez désormais ", pseudo, ", félicitations ! ");
+        ready();
+    });
+});  
 
 
 client.on('data', (msg) => { //écoute les données du serveur
@@ -102,28 +108,24 @@ client.on('data', (msg) => { //écoute les données du serveur
         let score = msg_list[1];
         console.log("\nLe joueur actif a deviné le mot secret, bravo à lui !");
         console.log("\nVous remportez ce round, le score est désormais de ", score, "points.");
+        ready();
     }
     if (msg_string.includes('score_pass')) {
         let score = msg_list[1];
         console.log("\nLe joueur actif a passé ce tour, par manque d'indices...");
         console.log("\nVous perdez ce round, le score est désormais de ", score, "points.");
+        ready();
     }
     if (msg_string.includes('score_perdu')) {
         let score = msg_list[1];
         console.log("\nLe joueur actif s'est trompé");
         console.log("\nVous perdez ce round, le score est désormais de ", score, "points.");
+        ready();
     }
     if (msg_string.includes('fin')) {
         let score = msg_list[1];
         console.log("\nToutes les cartes ont été jouées, la partie est terminée !");
         console.log("\nLe score final est de ", score, "points.");
-        // 13 Score parfait! Y arriverez-vous encore?
-        // 12 Incroyable! Vos amis doivent être impressionnés!
-        // 11 Génial ! C’est un score qui se fête!
-        // 9-10 Waouh, pas mal du tout!
-        // 7-8 Vous êtes dans la moyenne. Arriverez-vous à faire mieux?
-        // 4-6 C’est un bon début. Réessayez!
-        // 0-3 Essayez encore.
         if (score == 13) {
             console.log("\nScore parfait! Y arriverez-vous encore?");
         }
