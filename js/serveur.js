@@ -116,8 +116,6 @@ const server = net.createServer((socket) => {
             jeu.initializeRound();
           };
         };
-        // REVIEW : Ce initializeRound n'est pas dans un if, il va relancer le round sans le dire aux clients 100% du temps
-        jeu.initializeRound();
       };
     };
   });
