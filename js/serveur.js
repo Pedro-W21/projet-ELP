@@ -22,6 +22,7 @@ const server = net.createServer((socket) => {
     // console.log("Connection from", socket.remoteAddress, "port", socket.remotePort);
     socket.on("data", (buffer) => {
       let texte = buffer.toString("utf-8");
+      console.log(texte)
       if (texte.includes("pseudo")){
           // console.log("NOUVEAU JOUEUR DE PSEUDO : " + texte.split(" ")[1])
           liste = texte.split(' ');
@@ -39,6 +40,7 @@ const server = net.createServer((socket) => {
               compteurTemporaire += 1;
           };
       };
+      
       // Si tout le monde est prêt
   // ETAPE 1 //////////////////////////////////////////////////////////////////////////////////////////////
       if (compteurTemporaire == compteurClient && compteurClient > 1){
