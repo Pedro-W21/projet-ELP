@@ -1,6 +1,10 @@
 const fs = require('fs');
+
+//console.log(fs.readFileSync("DEM.jsonl", "utf-8").split("\n").length)
+const words = fs.readFileSync("DEM.jsonl", "utf-8").split("\n").map(function(to_parse) {try {return JSON.parse(to_parse)} catch (e) {return {"M":"", "CA":{"catégorie":"a"}}}}).filter(dico => !dico["M"].includes(" ") && !dico["M"].includes("-") && ["N", "Adv", "Adj"].includes(dico["CA"]["catégorie"])).map((val) => val["M"])
+//console.log(words_test)
 // Load words from JSON file and filter out words containing spaces
-const words = JSON.parse(fs.readFileSync('dico.json', "utf8" )).filter(word => !word.includes(" "))
+//const words = JSON.parse(fs.readFileSync('dico.json', "utf8" )).filter(word => !word.includes(" "))
 const words_set = new Set(words)
 
 

@@ -14,3 +14,11 @@ js/node_modules/.package-lock.json
 js/node_modules/npm-start/LICENSE
 js/node_modules/npm-start/package.json
 js/node_modules/npm-start/README.md
+js/node_modules/double-metaphone/readme.md
+js/package-lock.json
+js/node_modules/.bin/double-metaphone
+js/node_modules/double-metaphone/cli.js
+js/node_modules/double-metaphone/index.d.ts
+js/node_modules/double-metaphone/index.js
+js/node_modules/double-metaphone/license
+js/node_modules/double-metaphone/package.json
