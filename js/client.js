@@ -21,9 +21,9 @@ function select() {
             console.log("\nVous ne savez pas compter de 1 à 5. Recommencez donc.");
             select();
         }
+        console.log("\nLes autres joueurs tentent de comprendre le nouveau mot...");
+        // console.log("\nTâche ardue, vous n'imaginez même pas à, quel point !");
     });
-    console.log("\nLes autres joueurs tentent de comprendre le nouveau mot...");
-    console.log("\nTâche ardue, vous n'imaginez même pas à, quel point !");
 };
 
 /**
@@ -44,33 +44,32 @@ global.server_exists = true;
 const port = 9999
 const client = net.createConnection(port, 'localhost', () => { //connecte au port choisi
     console.log("\n______________________________________________________________");
-    console.log("\nVotre bateau a échoué sur le port ", port, "...");
+    // console.log("\nVotre bateau a échoué sur le port ", port, "...");
+    console.log("\nConnecté au hub JustOne ", port, " !!!");
     interface.question("\nChoisissez le pseudonyme sous lequel sous voulez être connu : ", (pseudo) => {
         client.write('pseudo ' + pseudo); // Envoi du pseudo au serveur
-        console.log("\nVous dénommez désormais ", pseudo, ", félicitations ! ");
-        
+        // console.log("\nVous dénommez désormais ", pseudo, ", félicitations ! ");
         ready();
     });
-    
 });  
 
 
 // Event listeners
 client.on('data', (msg) => { //écoute les données du serveur
     const msg_string = msg.toString(); //les convertit en msg_string
-    // console.log(msg_string)
+    // console.log(msg_string) //debug
     const msg_list = msg_string.split(' '); //les sépare par mot
     if (msg_string.includes('actif')) {
         console.log("\n______________________________________________________________");
-        console.log("\nVous êtes le joueur actif, trop bien !");
+        console.log("\nVous êtes le joueur actif !");
         console.log("\nUne carte de 5 mots secrets a été tirée au sort.");
         select();
     }
     if (msg_string.includes('passif')) {
         console.log("\n______________________________________________________________");
-        console.log("\nVous n'êtes pas le joueur actif, trop bien !");
+        console.log("\nVous n'êtes pas le joueur actif.");
         console.log("\nLe joueur actif est actuellement en train de tirer un mot secret au hasard.");
-        console.log("\nSoyez patient, il est un peu lent mais ce n'est pas de sa faute.");
+        // console.log("\nSoyez patient, il est un peu lent mais ce n'est pas de sa faute.");
     }
     if (msg_string.includes('happy?')) {
         console.log("\n______________________________________________________________");
@@ -80,12 +79,12 @@ client.on('data', (msg) => { //écoute les données du serveur
         interface.question("\nRépondez par oui ou non : ", (happy) => {
             client.write('happy ' + happy);
             console.log("\nOn vérifie que tout le monde a bien compris le mot secret...");
-            console.log("\nVous êtes pas le seul à vous plaindre, comprenez bien.");
+            // console.log("\nVous êtes pas le seul à vous plaindre, comprenez bien.");
         });
     }
     if (msg_string.includes('exclude')) {
         console.log("\n______________________________________________________________");
-        console.log("\nLes autres joueurs ne comprennent pas trop le mot n°", msg_list[1], ", choisissez en un autre svp.");
+        console.log("\nLes autres joueurs ne comprennent pas trop le mot n°", msg_list[1], ", choisissez en un autre.");
         select();
     }
     if (msg_string.includes('nouvellecarte')) {
@@ -101,7 +100,7 @@ client.on('data', (msg) => { //écoute les données du serveur
         interface.question("\nEcrivez un indice en rapport avec ce mot pour le faire deviner au joueur actif : ", (indice) => {
             client.write('mot ' + indice);
             console.log("\nLe joueur actif essaie de deviner le mot secret...");
-            console.log("\nEh oui, il faut encore attendre XD");
+            // console.log("\nEh oui, il faut encore attendre XD");
         });
     }
     if (msg_string.includes('réponse?')) {
@@ -116,9 +115,9 @@ client.on('data', (msg) => { //écoute les données du serveur
         }
         
         if (indices == [] || indices[0] == "" || indices[0] == " ") {
-            console.log("\nAucun indice des autres joueurs n'est valide, lol.");
-            console.log("\nCe round est donc perdu...");
-            console.log("\nVous ferez mieux la prochaine fois, peut-être ;)");
+            console.log("\nAucun indice des autres joueurs n'est valide...");
+            console.log("\nCe round est donc perdu.");
+            // console.log("\nVous ferez mieux la prochaine fois, peut-être ;)");
             client.write('guess PASS');
         }
         else {
