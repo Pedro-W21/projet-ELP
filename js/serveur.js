@@ -19,10 +19,9 @@ const server = net.createServer((socket) => {
     let valeur_a = compteurClient
     clients[valeur_a] = [valeur_a, 'pseudo', false, false, socket]
     compteurClient += 1
-    // console.log("Connection from", socket.remoteAddress, "port", socket.remotePort);
+    console.log("Connection from", socket.remoteAddress, "port", socket.remotePort);
     socket.on("data", (buffer) => {
       let texte = buffer.toString("utf-8");
-      console.log(texte)
       if (texte.includes("pseudo")){
           // console.log("NOUVEAU JOUEUR DE PSEUDO : " + texte.split(" ")[1])
           liste = texte.split(' ');
@@ -155,10 +154,10 @@ const server = net.createServer((socket) => {
     })
     socket.on("close", (error) => {
       if (error) {
-        // console.log("Client errored out\n")
+        console.log("Client errored out\n")
       }
       else {
-        // console.log("Client left\n")
+        console.log("Client left\n")
       }
     })
   }
